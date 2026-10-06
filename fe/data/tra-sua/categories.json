@@ -1,0 +1,32 @@
+[
+  {
+    "id": "tra-sua",
+    "name": "Trà sữa",
+    "emoji": "🧋",
+    "sort": 1
+  },
+  {
+    "id": "tra-trai-cay",
+    "name": "Trà trái cây",
+    "emoji": "🍓",
+    "sort": 2
+  },
+  {
+    "id": "topping",
+    "name": "Topping",
+    "emoji": "🍡",
+    "sort": 3
+  },
+  {
+    "id": "da-xay",
+    "name": "Đá xay",
+    "emoji": "🧊",
+    "sort": 4
+  },
+  {
+    "id": "combo",
+    "name": "Combo",
+    "emoji": "🎁",
+    "sort": 5
+  }
+]

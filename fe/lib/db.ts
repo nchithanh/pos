@@ -14,6 +14,11 @@ import type {
   Supplier,
   User,
 } from "@/types";
+import {
+  dbNameForVertical,
+  getStoredVertical,
+  type VerticalOption,
+} from "@/lib/vertical";
 
 export class DolphinPosDB extends Dexie {
   settings!: EntityTable<StoreSettings, "id">;
@@ -30,8 +35,8 @@ export class DolphinPosDB extends Dexie {
   debtPayments!: EntityTable<DebtPayment, "id">;
   meta!: EntityTable<Meta, "key">;
 
-  constructor() {
-    super("dolphin_pos_v1");
+  constructor(name: string) {
+    super(name);
     this.version(1).stores({
       settings: "id",
       users: "id, email, role, status",
@@ -50,7 +55,23 @@ export class DolphinPosDB extends Dexie {
   }
 }
 
-export const db = new DolphinPosDB();
+function createDb(vertical: VerticalOption["id"] | "pet") {
+  return new DolphinPosDB(dbNameForVertical(vertical));
+}
+
+/** Live-bound instance — gọi `reopenDb` khi đổi lĩnh vực. */
+export let db: DolphinPosDB = createDb(getStoredVertical() ?? "pet");
+
+export function reopenDb(vertical: VerticalOption["id"]): DolphinPosDB {
+  const name = dbNameForVertical(vertical);
+  if (db.name === name) {
+    if (!db.isOpen()) void db.open();
+    return db;
+  }
+  if (db.isOpen()) db.close();
+  db = createDb(vertical);
+  return db;
+}
 
 export function getStockStatus(
   stock: number,

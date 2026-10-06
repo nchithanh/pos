@@ -1,0 +1,44 @@
+[
+  {
+    "id": "thuc-an",
+    "name": "Thức ăn",
+    "emoji": "🥣",
+    "sort": 1
+  },
+  {
+    "id": "cat-ve-sinh",
+    "name": "Cát vệ sinh",
+    "emoji": "📦",
+    "sort": 2
+  },
+  {
+    "id": "pate",
+    "name": "Pate",
+    "emoji": "🥫",
+    "sort": 3
+  },
+  {
+    "id": "snack",
+    "name": "Snack",
+    "emoji": "🦴",
+    "sort": 4
+  },
+  {
+    "id": "do-choi",
+    "name": "Đồ chơi",
+    "emoji": "🧸",
+    "sort": 5
+  },
+  {
+    "id": "cham-soc",
+    "name": "Chăm sóc",
+    "emoji": "🧴",
+    "sort": 6
+  },
+  {
+    "id": "phu-kien",
+    "name": "Phụ kiện",
+    "emoji": "🎀",
+    "sort": 7
+  }
+]

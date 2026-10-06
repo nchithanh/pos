@@ -1,0 +1,20 @@
+[
+  {
+    "label": "Chủ shop",
+    "email": "owner@dolphinfashion.vn",
+    "pin": "1234",
+    "password": "owner123"
+  },
+  {
+    "label": "Quản lý",
+    "email": "manager@dolphinfashion.vn",
+    "pin": "2222",
+    "password": "manager123"
+  },
+  {
+    "label": "Thu ngân",
+    "email": "cashier@dolphinfashion.vn",
+    "pin": "0000",
+    "password": "cashier123"
+  }
+]

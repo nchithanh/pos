@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sup-nh1",
+    "name": "Chợ đầu mối Bình Điền",
+    "phone": "0901 911 011",
+    "email": "order@binhdien.vn",
+    "address": "Q.8, TP.HCM",
+    "contactPerson": "Anh Hải",
+    "productCount": 10,
+    "totalPurchased": 120000000,
+    "debt": 6500000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-nh2",
+    "name": "Thịt sạch Đà Lạt",
+    "phone": "0912 912 012",
+    "email": "sales@thitsach.vn",
+    "address": "Q. Tân Phú, TP.HCM",
+    "contactPerson": "Chị Loan",
+    "productCount": 6,
+    "totalPurchased": 85000000,
+    "debt": 0,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-nh3",
+    "name": "Đồ uống & rau sạch",
+    "phone": "0933 913 013",
+    "email": "hello@rauviet.vn",
+    "address": "Q.12, TP.HCM",
+    "contactPerson": "Anh Phong",
+    "productCount": 5,
+    "totalPurchased": 40000000,
+    "debt": 1800000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

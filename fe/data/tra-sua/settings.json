@@ -1,0 +1,17 @@
+{
+  "id": "store",
+  "name": "Dolphin Milk Tea",
+  "slogan": "Trà sữa tươi · topping đầy đủ",
+  "vertical": "tra-sua",
+  "address": "45 Nguyễn Trãi, Q.5, TP.HCM",
+  "phone": "028 3833 1122",
+  "email": "hello@dolphinmilktea.vn",
+  "legalName": "CÔNG TY TNHH DOLPHIN MILK TEA",
+  "taxCode": "0315566778",
+  "billFooter": "Cảm ơn bạn — hẹn gặp lại 🧋",
+  "taxRate": 8,
+  "currency": "VND",
+  "receiptWidth": 58,
+  "logoEmoji": "🧋",
+  "theme": "light"
+}

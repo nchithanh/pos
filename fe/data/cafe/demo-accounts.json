@@ -1,0 +1,20 @@
+[
+  {
+    "label": "Chủ quán",
+    "email": "owner@dolphincafe.vn",
+    "pin": "1234",
+    "password": "owner123"
+  },
+  {
+    "label": "Quản lý",
+    "email": "manager@dolphincafe.vn",
+    "pin": "2222",
+    "password": "manager123"
+  },
+  {
+    "label": "Thu ngân",
+    "email": "cashier@dolphincafe.vn",
+    "pin": "0000",
+    "password": "cashier123"
+  }
+]

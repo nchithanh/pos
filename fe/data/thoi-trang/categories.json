@@ -1,0 +1,32 @@
+[
+  {
+    "id": "ao",
+    "name": "Áo",
+    "emoji": "👕",
+    "sort": 1
+  },
+  {
+    "id": "quan",
+    "name": "Quần",
+    "emoji": "👖",
+    "sort": 2
+  },
+  {
+    "id": "vay",
+    "name": "Váy / Đầm",
+    "emoji": "👗",
+    "sort": 3
+  },
+  {
+    "id": "phu-kien",
+    "name": "Phụ kiện",
+    "emoji": "👜",
+    "sort": 4
+  },
+  {
+    "id": "giay",
+    "name": "Giày dép",
+    "emoji": "👟",
+    "sort": 5
+  }
+]

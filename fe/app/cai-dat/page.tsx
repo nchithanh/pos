@@ -29,8 +29,16 @@ import {
 } from "@/lib/einvoice-config";
 import { resetDatabase } from "@/lib/seed";
 import { checkEInvoiceConnection } from "@/lib/services/einvoice";
+import {
+  VERTICAL_OPTIONS,
+  clearStoredVertical,
+  getStoredVertical,
+} from "@/lib/vertical";
 import { cn, formatDateTime } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
+import { useCartStore } from "@/stores/cart-store";
 import type { EInvoiceConfig, StoreVertical } from "@/types";
+import { useRouter } from "next/navigation";
 
 type SettingsTab = "store" | "einvoice" | "staff";
 
@@ -42,10 +50,17 @@ const TABS: { id: SettingsTab; label: string; icon: typeof Building2 }[] = [
 
 export default function SettingsPage() {
   const { confirm, dialog: confirmDialog } = useConfirm();
+  const router = useRouter();
+  const logout = useAuthStore((s) => s.logout);
+  const clearCart = useCartStore((s) => s.clear);
   const settings = useLiveQuery(() => db.settings.get("store"));
   const users = useLiveQuery(() => db.users.toArray()) ?? [];
   const { setTheme } = useTheme();
   const [tab, setTab] = useState<SettingsTab>("store");
+  const activeVertical = getStoredVertical();
+  const verticalLabel =
+    VERTICAL_OPTIONS.find((v) => v.id === activeVertical)?.label ??
+    settings?.vertical;
 
   const [name, setName] = useState("");
   const [slogan, setSlogan] = useState("");
@@ -292,8 +307,11 @@ export default function SettingsPage() {
               >
                 <option value="pet">Pet shop</option>
                 <option value="cafe">Cafe</option>
-                <option value="clothing">Clothing</option>
-                <option value="general">General retail</option>
+                <option value="tra-sua">Trà sữa</option>
+                <option value="thoi-trang">Thời trang</option>
+                <option value="nha-hang">Nhà hàng</option>
+                <option value="clothing">Clothing (legacy)</option>
+                <option value="general">General (legacy)</option>
               </select>
             </label>
             <label className="block text-sm">
@@ -361,6 +379,39 @@ export default function SettingsPage() {
                   System
                 </Button>
               </div>
+            </Card>
+
+            <Card className="space-y-3 p-4">
+              <h2 className="font-bold">Lĩnh vực demo</h2>
+              <p className="text-sm text-slate-500">
+                Hiện tại:{" "}
+                <span className="font-semibold text-slate-800 dark:text-slate-100">
+                  {verticalLabel ?? "—"}
+                </span>
+              </p>
+              <p className="text-xs text-slate-400">
+                Đổi lĩnh vực sẽ đăng xuất và mở màn chọn (data mỗi lĩnh vực lưu
+                IndexedDB riêng).
+              </p>
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: "Đổi lĩnh vực?",
+                    description:
+                      "Bạn sẽ đăng xuất và chọn lại Pet shop hoặc Cafe. Data lĩnh vực hiện tại vẫn giữ trên máy.",
+                    confirmLabel: "Đổi lĩnh vực",
+                  });
+                  if (!ok) return;
+                  clearStoredVertical();
+                  logout();
+                  clearCart();
+                  router.replace("/chon-linh-vuc");
+                }}
+              >
+                Đổi lĩnh vực cửa hàng
+              </Button>
             </Card>
 
             <Card className="space-y-3 p-4">

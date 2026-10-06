@@ -1,13 +1,15 @@
 # Dolphin POS — frontend (local-first)
 
-POS web app production-oriented cho pet shop & cafe. Dữ liệu chạy **IndexedDB (Dexie)** — offline, không cần backend.
+POS web app cho **Pet shop** và **Cafe**. Seed JSON theo lĩnh vực → **IndexedDB (Dexie)** — offline.
+
+Docs SoT: [`documentations/`](./documentations/).
 
 ## Stack
 
 - Next.js 16 (App Router) + TypeScript + Tailwind CSS 4
 - Zustand · TanStack Query · React Hook Form · Zod
 - Dexie.js · Recharts · Framer Motion · sonner · next-themes
-- PWA (`@ducanh2912/next-pwa`) · in hóa đơn (window.print)
+- PWA · in hóa đơn / PDF
 
 ## Chạy local
 
@@ -17,17 +19,13 @@ npm install
 npm run dev
 ```
 
-Mở http://localhost:3012
+Mở http://localhost:3012 → **chọn lĩnh vực** → login.
 
 ### Tài khoản demo
 
-| Vai trò | PIN | Email / mật khẩu |
-| --- | --- | --- |
-| Chủ cửa hàng | `1234` | `owner@petdolphin.vn` / `owner123` |
-| Quản lý | `2222` | `manager@petdolphin.vn` / `manager123` |
-| Thu ngân | `0000` | `cashier@petdolphin.vn` / `cashier123` |
+PIN `1234` / `2222` / `0000` (owner / manager / cashier). Email theo lĩnh vực (xem `data/{pet|cafe}/demo-accounts.json`).
 
-Đăng nhập sẽ **tự mở ca** với 500.000đ tiền mặt đầu ca.
+Đăng nhập **tự mở ca** (500.000đ đầu ca).
 
 ## Modules
 

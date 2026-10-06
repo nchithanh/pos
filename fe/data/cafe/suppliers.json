@@ -1,0 +1,50 @@
+[
+  {
+    "id": "sup-c01",
+    "name": "Trung Nguyên Distribution",
+    "phone": "0901 888 111",
+    "email": "order@trungnguyen.vn",
+    "address": "Quận 10, TP.HCM",
+    "contactPerson": "Anh Hùng",
+    "productCount": 10,
+    "totalPurchased": 86000000,
+    "debt": 4500000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-c02",
+    "name": "Trà & Topping Sài Gòn",
+    "phone": "0912 777 222",
+    "email": "sales@teatopping.vn",
+    "address": "Quận 5, TP.HCM",
+    "contactPerson": "Chị My",
+    "productCount": 8,
+    "totalPurchased": 42000000,
+    "debt": 1200000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-c03",
+    "name": "Dolphin Bake Kitchen",
+    "phone": "0933 666 333",
+    "email": "bake@dolphincafe.vn",
+    "address": "Quận 1, TP.HCM",
+    "contactPerson": "Anh Phong",
+    "productCount": 6,
+    "totalPurchased": 28000000,
+    "debt": 0,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-c04",
+    "name": "PackGo Supplies",
+    "phone": "0987 555 444",
+    "email": "hello@packgo.vn",
+    "address": "Bình Tân, TP.HCM",
+    "contactPerson": "Chị Nga",
+    "productCount": 4,
+    "totalPurchased": 15000000,
+    "debt": 800000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

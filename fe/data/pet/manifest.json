@@ -1,0 +1,9 @@
+{
+  "vertical": "pet",
+  "label": "Pet shop",
+  "emoji": "🐾",
+  "description": "Cửa hàng thú cưng — thức ăn, cát, pate, phụ kiện",
+  "orderSeq": 42,
+  "movementSeq": 10,
+  "accent": "emerald"
+}

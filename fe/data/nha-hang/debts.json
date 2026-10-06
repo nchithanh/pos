@@ -1,0 +1,41 @@
+[
+  {
+    "id": "nhd-01",
+    "type": "payable",
+    "partyName": "Chợ đầu mối Bình Điền",
+    "partyId": "sup-nh1",
+    "partyPhone": "0901 911 011",
+    "amount": 6500000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-10",
+    "status": "unpaid",
+    "note": "Rau củ + hải sản tuần",
+    "createdAt": "2026-10-03T00:00:00.000Z"
+  },
+  {
+    "id": "nhd-02",
+    "type": "payable",
+    "partyName": "Đồ uống & rau sạch",
+    "partyId": "sup-nh3",
+    "partyPhone": "0933 913 013",
+    "amount": 1800000,
+    "paidAmount": 800000,
+    "dueDate": "2026-10-07",
+    "status": "partial",
+    "note": "Bia + nước",
+    "createdAt": "2026-09-29T00:00:00.000Z"
+  },
+  {
+    "id": "nhd-03",
+    "type": "receivable",
+    "partyName": "Anh Khoa tab tháng",
+    "partyId": "cus-nh4",
+    "partyPhone": "0909 014 114",
+    "amount": 480000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-15",
+    "status": "unpaid",
+    "note": "Tab tháng 9",
+    "createdAt": "2026-09-28T00:00:00.000Z"
+  }
+]

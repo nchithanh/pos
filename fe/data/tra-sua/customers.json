@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cus-ts1",
+    "name": "Nguyễn Hà My",
+    "phone": "0906 111 801",
+    "group": "Học sinh — hay order L",
+    "points": 160,
+    "totalSpent": 1600000,
+    "visitCount": 28,
+    "lastPurchaseAt": "2026-10-05T16:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-09-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-ts2",
+    "name": "Trần Đức Huy",
+    "phone": "0907 222 802",
+    "group": "VIP",
+    "points": 420,
+    "totalSpent": 4200000,
+    "visitCount": 55,
+    "lastPurchaseAt": "2026-10-06T10:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-04-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-ts3",
+    "name": "Phạm Thảo Vy",
+    "phone": "0908 333 803",
+    "group": "Cần nhắc quay lại",
+    "points": 40,
+    "totalSpent": 400000,
+    "visitCount": 5,
+    "lastPurchaseAt": "2026-08-15T12:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-ts4",
+    "name": "Lê Minh Quân",
+    "phone": "0909 444 804",
+    "group": "Ship Grab",
+    "points": 95,
+    "totalSpent": 950000,
+    "visitCount": 14,
+    "lastPurchaseAt": "2026-10-03T19:00:00.000Z",
+    "debt": 150000,
+    "createdAt": "2025-11-01T00:00:00.000Z"
+  }
+]

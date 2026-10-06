@@ -1,0 +1,63 @@
+[
+  {
+    "id": "cus-c01",
+    "name": "Trần Minh Khang",
+    "phone": "0906 101 202",
+    "group": "Vãng lai",
+    "points": 120,
+    "totalSpent": 1200000,
+    "visitCount": 22,
+    "lastPurchaseAt": "2026-10-05T08:30:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-08-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-c02",
+    "name": "Lê Ngọc Anh",
+    "phone": "0907 303 404",
+    "group": "VIP — buổi sáng",
+    "points": 340,
+    "totalSpent": 3400000,
+    "visitCount": 48,
+    "lastPurchaseAt": "2026-10-06T07:45:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-03-01T00:00:00.000Z",
+    "email": "ngocanh@email.com"
+  },
+  {
+    "id": "cus-c03",
+    "name": "Phạm Quốc Bảo",
+    "phone": "0908 505 606",
+    "group": "Công ty gần quán",
+    "points": 210,
+    "totalSpent": 2100000,
+    "visitCount": 30,
+    "lastPurchaseAt": "2026-10-04T15:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-06-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-c04",
+    "name": "Võ Thị Hồng",
+    "phone": "0909 707 808",
+    "group": "Cần nhắc quay lại",
+    "points": 45,
+    "totalSpent": 450000,
+    "visitCount": 6,
+    "lastPurchaseAt": "2026-08-28T10:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2026-02-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-c05",
+    "name": "Đoàn Hải Đăng",
+    "phone": "0910 909 101",
+    "group": "Ghi nợ theo tháng",
+    "points": 88,
+    "totalSpent": 880000,
+    "visitCount": 12,
+    "lastPurchaseAt": "2026-09-30T18:00:00.000Z",
+    "debt": 320000,
+    "createdAt": "2025-11-01T00:00:00.000Z"
+  }
+]

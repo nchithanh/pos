@@ -1,0 +1,75 @@
+[
+  {
+    "id": "cus-01",
+    "name": "Nguyễn Văn A",
+    "phone": "0906 111 222",
+    "group": "Mèo — mua cát định kỳ",
+    "points": 485,
+    "totalSpent": 4850000,
+    "visitCount": 18,
+    "lastPurchaseAt": "2026-09-09T10:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-06-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-02",
+    "name": "Trần Văn B",
+    "phone": "0907 333 444",
+    "group": "Mèo — mua cát định kỳ",
+    "points": 322,
+    "totalSpent": 3220000,
+    "visitCount": 14,
+    "lastPurchaseAt": "2026-09-06T10:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-07-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-03",
+    "name": "Lê Thị Cẩm",
+    "phone": "0908 555 666",
+    "group": "VIP",
+    "points": 614,
+    "totalSpent": 6140000,
+    "visitCount": 26,
+    "lastPurchaseAt": "2026-10-05T10:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-05-01T00:00:00.000Z",
+    "email": "cam.le@email.com"
+  },
+  {
+    "id": "cus-04",
+    "name": "Phạm Đức D",
+    "phone": "0909 777 888",
+    "group": "Chó — thức ăn hạt",
+    "points": 278,
+    "totalSpent": 2780000,
+    "visitCount": 11,
+    "lastPurchaseAt": "2026-10-04T10:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-08-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-05",
+    "name": "Hoàng Thị Mai",
+    "phone": "0910 999 000",
+    "group": "Khách thân",
+    "points": 195,
+    "totalSpent": 1950000,
+    "visitCount": 9,
+    "lastPurchaseAt": "2026-09-28T10:00:00.000Z",
+    "debt": 450000,
+    "createdAt": "2025-09-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-06",
+    "name": "Vũ Minh Tuấn",
+    "phone": "0911 222 333",
+    "group": "Cần nhắc quay lại",
+    "points": 89,
+    "totalSpent": 890000,
+    "visitCount": 4,
+    "lastPurchaseAt": "2026-08-20T10:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2026-01-15T00:00:00.000Z"
+  }
+]

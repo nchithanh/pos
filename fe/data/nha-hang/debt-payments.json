@@ -1,0 +1,11 @@
+[
+  {
+    "id": "nhpay-01",
+    "debtId": "nhd-02",
+    "amount": 800000,
+    "method": "cash",
+    "createdAt": "2026-10-02T08:00:00.000Z",
+    "userId": "u_manager",
+    "note": "Thu tại quán"
+  }
+]

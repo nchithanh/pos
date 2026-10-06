@@ -6,22 +6,165 @@
   --background: #f4f6f8;
   --foreground: #0f172a;
   --card: #ffffff;
-  --primary: #10b981;
-  --primary-foreground: #ffffff;
   --muted: #64748b;
   --border: #e2e8f0;
-  --banner: #ecfdf5;
+  /* Brand scale — mặc định Pet (emerald); đổi theo [data-vertical] */
+  --brand-50: #ecfdf5;
+  --brand-100: #d1fae5;
+  --brand-300: #6ee7b7;
+  --brand-400: #34d399;
+  --brand-500: #10b981;
+  --brand-600: #059669;
+  --brand-700: #047857;
+  --brand-950: #022c22;
+  --primary: var(--brand-500);
+  --primary-foreground: #ffffff;
+  --banner: var(--brand-50);
 }
 
 .dark {
   --background: #020617;
   --foreground: #f1f5f9;
   --card: #0f172a;
-  --primary: #34d399;
-  --primary-foreground: #022c22;
   --muted: #cbd5e1;
   --border: #334155;
-  --banner: #064e3b;
+  --brand-50: color-mix(in srgb, var(--brand-500) 18%, #020617);
+  --brand-100: color-mix(in srgb, var(--brand-500) 28%, #020617);
+  --brand-950: color-mix(in srgb, var(--brand-500) 35%, #000);
+  --primary: var(--brand-400);
+  --primary-foreground: #022c22;
+  --banner: var(--brand-50);
+}
+
+/* Cafe — amber / coffee */
+html[data-vertical="cafe"] {
+  --brand-50: #fffbeb;
+  --brand-100: #fef3c7;
+  --brand-300: #fcd34d;
+  --brand-400: #fbbf24;
+  --brand-500: #d97706;
+  --brand-600: #b45309;
+  --brand-700: #92400e;
+  --brand-950: #451a03;
+}
+
+/* Trà sữa — pink */
+html[data-vertical="tra-sua"] {
+  --brand-50: #fdf2f8;
+  --brand-100: #fce7f3;
+  --brand-300: #f9a8d4;
+  --brand-400: #f472b6;
+  --brand-500: #ec4899;
+  --brand-600: #db2777;
+  --brand-700: #be185d;
+  --brand-950: #500724;
+}
+
+/* Thời trang — violet */
+html[data-vertical="thoi-trang"] {
+  --brand-50: #f5f3ff;
+  --brand-100: #ede9fe;
+  --brand-300: #c4b5fd;
+  --brand-400: #a78bfa;
+  --brand-500: #7c3aed;
+  --brand-600: #6d28d9;
+  --brand-700: #5b21b6;
+  --brand-950: #2e1065;
+}
+
+/* Nhà hàng — orange */
+html[data-vertical="nha-hang"] {
+  --brand-50: #fff7ed;
+  --brand-100: #ffedd5;
+  --brand-300: #fdba74;
+  --brand-400: #fb923c;
+  --brand-500: #ea580c;
+  --brand-600: #c2410c;
+  --brand-700: #9a3412;
+  --brand-950: #431407;
+}
+
+/* Pet giữ emerald (default :root). Explicit for clarity */
+html[data-vertical="pet"] {
+  --brand-50: #ecfdf5;
+  --brand-100: #d1fae5;
+  --brand-300: #6ee7b7;
+  --brand-400: #34d399;
+  --brand-500: #10b981;
+  --brand-600: #059669;
+  --brand-700: #047857;
+  --brand-950: #022c22;
+}
+
+/*
+ * Remap Tailwind emerald-* → brand scale theo lĩnh vực.
+ * UI hiện dùng emerald làm accent; đổi data-vertical là đổi tông toàn app.
+ */
+.bg-emerald-50 {
+  background-color: var(--brand-50) !important;
+}
+.bg-emerald-100 {
+  background-color: var(--brand-100) !important;
+}
+.bg-emerald-300 {
+  background-color: var(--brand-300) !important;
+}
+.bg-emerald-400 {
+  background-color: var(--brand-400) !important;
+}
+.bg-emerald-500 {
+  background-color: var(--brand-500) !important;
+}
+.bg-emerald-600 {
+  background-color: var(--brand-600) !important;
+}
+.bg-emerald-700 {
+  background-color: var(--brand-700) !important;
+}
+.bg-emerald-950 {
+  background-color: var(--brand-950) !important;
+}
+.text-emerald-300 {
+  color: var(--brand-300) !important;
+}
+.text-emerald-400 {
+  color: var(--brand-400) !important;
+}
+.text-emerald-500 {
+  color: var(--brand-500) !important;
+}
+.text-emerald-600 {
+  color: var(--brand-600) !important;
+}
+.text-emerald-700 {
+  color: var(--brand-700) !important;
+}
+.border-emerald-200 {
+  border-color: color-mix(in srgb, var(--brand-500) 28%, transparent) !important;
+}
+.border-emerald-300 {
+  border-color: var(--brand-300) !important;
+}
+.border-emerald-400 {
+  border-color: var(--brand-400) !important;
+}
+.border-emerald-500 {
+  border-color: var(--brand-500) !important;
+}
+.border-emerald-700 {
+  border-color: var(--brand-700) !important;
+}
+.ring-emerald-500 {
+  --tw-ring-color: var(--brand-500) !important;
+}
+.from-emerald-50 {
+  --tw-gradient-from: var(--brand-50) !important;
+}
+.to-emerald-950 {
+  --tw-gradient-to: var(--brand-950) !important;
+}
+.from-emerald-950 {
+  --tw-gradient-from: var(--brand-950) !important;
 }
 
 .dark .text-slate-500 {

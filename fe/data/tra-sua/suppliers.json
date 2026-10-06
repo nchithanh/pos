@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sup-ts1",
+    "name": "TeaBase Việt Nam",
+    "phone": "0901 701 801",
+    "email": "order@teabase.vn",
+    "address": "Q.10, TP.HCM",
+    "contactPerson": "Anh Dũng",
+    "productCount": 10,
+    "totalPurchased": 52000000,
+    "debt": 2800000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-ts2",
+    "name": "Topping Fresh",
+    "phone": "0912 702 802",
+    "email": "sales@toppingfresh.vn",
+    "address": "Q.5, TP.HCM",
+    "contactPerson": "Chị Hoa",
+    "productCount": 8,
+    "totalPurchased": 31000000,
+    "debt": 900000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-ts3",
+    "name": "PackGo Supplies",
+    "phone": "0987 703 803",
+    "email": "hello@packgo.vn",
+    "address": "Bình Tân, TP.HCM",
+    "contactPerson": "Chị Nga",
+    "productCount": 3,
+    "totalPurchased": 9000000,
+    "debt": 400000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

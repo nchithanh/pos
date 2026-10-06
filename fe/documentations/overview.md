@@ -1,6 +1,6 @@
 # Dolphin POS FE — overview
 
-Local-first POS (IndexedDB) cho pet shop & cafe.
+Local-first POS (IndexedDB) — demo nhiều lĩnh vực (chọn trước login), mỗi lĩnh vực có tông màu chủ đạo riêng.
 
 ## Architecture
 
@@ -8,74 +8,34 @@ Local-first POS (IndexedDB) cho pet shop & cafe.
 | --- | --- |
 | UI | Next App Router · Tailwind · shadcn-style primitives |
 | State | Zustand (auth/cart) · TanStack Query · dexie-react-hooks |
-| Data | Dexie `dolphin_pos_v1` + seed Pet Shop |
-| Auth | PIN / email+password · shift open/close |
-| Print | `lib/print-receipt.ts` + `components/pos/ReceiptPreview` (thermal 58/80) |
-| Bill / HĐĐT | After checkout: In bill · Gửi bill (mock) · Xuất HĐĐT (mock, lưu `order.eInvoice`) |
+| Data | JSON `fe/data/{vertical}/` → Dexie `dolphin_pos_{vertical}` |
+| Theme | `data-vertical` + `--brand-*` (remap `emerald-*`) |
+| Auth | Chọn lĩnh vực → PIN / email · shift open/close |
+| Print | `lib/print-receipt.ts` + PDF `lib/pdf-receipt.ts` |
+| HĐĐT | SePay **simulator** (docs contract) |
 
-## Routes
+## Verticals & accents
 
-`/login` · `/` · `/ban-hang` · `/don-hang` · `/san-pham` · `/danh-muc` · `/kho` (+ nhập/xuất) · `/khach-hang` · `/nha-cung-cap` · `/cong-no` · `/doanh-thu` · `/nhan-vien` · `/cai-dat`
+Pet (emerald) · Cafe (amber) · Trà sữa (pink) · Thời trang (violet) · Nhà hàng (orange) — chi tiết [verticals.md](./verticals.md).
 
-## Kho (`/kho`, `/kho/nhap`, `/kho/xuat`)
+## Entry flow
 
-- Danh sách tồn: KPI lọc · SKU/barcode · Kiểm kho · Xuất CSV · sổ biến động  
-- Phiếu nhập/xuất nhiều dòng: tìm/quét barcode · xóa dòng · nhập: TT ngay / ghi nợ NCC · HSD tuỳ chọn  
+`/chon-linh-vuc` → `/login` → app (`/` …)
 
-## Công nợ (`/cong-no`)
+Chi tiết routes: [pages.md](./pages.md) · seed: [data.md](./data.md).
 
-- KPI clickable (Phải thu / Phải trả / Quá hạn) · tab · search · lọc hạn  
-- Desktop table + mobile card dày · Thu/Trả nợ từng phần · lịch sử `debtPayments`  
-- Ghi nợ thủ công · Xuất CSV · Nhắc nợ / VietQR / Zalo = **demo**
+## Modules
 
-## Receipt flow
-
-1. POS checkout → success → **In bill** / **Gửi bill** / **Xuất hóa đơn điện tử** / **Xong**
-2. `/don-hang` — cột Hóa đơn (Chưa xuất / Đã xuất), chi tiết tái dùng `ReceiptActions`
-3. HĐĐT là **demo** (không kết nối cơ quan thuế / provider thật)
-
-## Cài đặt (`/cai-dat`)
-
-3 tab:
-
-1. **Cửa hàng** — shop, pháp lý nội bộ, bill, theme, backup  
-2. **Hóa đơn điện tử** — mock SePay (`provider_account_id`, mẫu, ký hiệu chọn list `C26…`, địa điểm)  
-3. **Nhân viên & phân quyền** — tóm tắt roles + link `/nhan-vien`  
-
-Xuất HĐĐT trên POS đọc `settings.eInvoice` (phải *Đã kết nối*).
-
-## POS (`/ban-hang`)
-
-- Product card: hover, badge tồn thấp/hết · toast khi thêm
-- Dòng giỏ: ghi chú · giảm % dòng · +/- qty · click chọn dòng
-- Giảm đơn: chế độ `đ` / `%` · split cash + method khác
-- Checkout success: motion ngắn + actions bill / HĐĐT
-
-## UX feedback
-
-- Toast qua `lib/notify.ts` (success / error / warning / info)
-- Confirm destructive: `hooks/use-confirm` + `ConfirmDialog` (không dùng `window.confirm`)
-- Skeleton: `TableSkeleton` · `CardListSkeleton` · `ProductGridSkeleton`
-- Page enter: `PageTransition` trong `AppShell`
-- Offline banner · POS kiosk (sidebar từ `xl` trên `/ban-hang`)
+- POS `/ban-hang` — giỏ, giảm đ/%, điểm, split, shortcuts F2/F4/Esc  
+- Kho — phiếu nhiều dòng, barcode, kiểm kho  
+- Công nợ — thu/trả từng phần, CSV  
+- Cài đặt — 3 tab (cửa hàng / HĐĐT / NV) + đổi lĩnh vực  
 
 ## Loyalty
 
-- Tích điểm: `floor(total/10000)` mỗi đơn paid
-- Đổi điểm tại POS: 1 điểm = 1.000đ (`POINT_VALUE_VND`) — cần chọn khách
-
-## HĐĐT SePay
-
-- Mode mặc định **Simulator** (`lib/services/sepay-simulator.ts`) — contract docs, không credential
-- Mode **Sandbox thật** = TODO (cần `client_id`/`secret` + API proxy; Pages static không gọi trực tiếp)
-- Xuất HĐ lưu `trackingCode` / `trackingUrl` / `status` trên `order.eInvoice`
-
-## Bill
-
-- Preview + `window.print` nhiệt 58/80 (`settings.receiptWidth`)
-- Tải PDF: `lib/pdf-receipt.ts` (jsPDF)
+- Tích điểm: `floor(total/10000)` · Đổi: 1 điểm = 1.000đ  
 
 ## Shortcuts
 
-- `Ctrl/Cmd+K` command palette
-- POS: `F2` search · `F4` checkout · `Enter` barcode/add · `Esc` đóng modal / xóa giỏ · `+`/`-` qty dòng đang chọn
+- `Ctrl/Cmd+K` palette  
+- POS: `F2` search · `F4` checkout · `Enter` barcode · `Esc` / `+/-`  

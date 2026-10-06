@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cus-nh1",
+    "name": "Gia đình anh Hùng",
+    "phone": "0906 011 111",
+    "group": "Ăn tối cuối tuần",
+    "points": 280,
+    "totalSpent": 2800000,
+    "visitCount": 10,
+    "lastPurchaseAt": "2026-10-05T19:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-07-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-nh2",
+    "name": "Công ty SoftTech",
+    "phone": "028 3822 2000",
+    "group": "Đặt bàn trưa",
+    "points": 0,
+    "totalSpent": 15000000,
+    "visitCount": 20,
+    "lastPurchaseAt": "2026-10-06T12:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-03-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-nh3",
+    "name": "Chị Hạnh",
+    "phone": "0908 013 113",
+    "group": "Cần nhắc quay lại",
+    "points": 60,
+    "totalSpent": 600000,
+    "visitCount": 3,
+    "lastPurchaseAt": "2026-08-22T18:30:00.000Z",
+    "debt": 0,
+    "createdAt": "2026-01-10T00:00:00.000Z"
+  },
+  {
+    "id": "cus-nh4",
+    "name": "Anh Khoa tab tháng",
+    "phone": "0909 014 114",
+    "group": "Ghi nợ",
+    "points": 40,
+    "totalSpent": 1200000,
+    "visitCount": 8,
+    "lastPurchaseAt": "2026-09-28T20:00:00.000Z",
+    "debt": 480000,
+    "createdAt": "2025-10-01T00:00:00.000Z"
+  }
+]

@@ -1,0 +1,71 @@
+[
+  {
+    "id": "u_owner",
+    "name": "Ngô Bảo Châu",
+    "email": "owner@dolphincafe.vn",
+    "phone": "0901 222 333",
+    "role": "owner",
+    "status": "active",
+    "pin": "1234",
+    "password": "owner123",
+    "avatarColor": "#10B981",
+    "permissions": {
+      "ban-hang": true,
+      "san-pham": true,
+      "kho": true,
+      "khach-hang": true,
+      "nha-cung-cap": true,
+      "cong-no": true,
+      "doanh-thu": true,
+      "nhan-vien": true,
+      "cai-dat": true
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "u_manager",
+    "name": "Đặng Thu Hà",
+    "email": "manager@dolphincafe.vn",
+    "phone": "0902 444 555",
+    "role": "manager",
+    "status": "active",
+    "pin": "2222",
+    "password": "manager123",
+    "avatarColor": "#3B82F6",
+    "permissions": {
+      "ban-hang": true,
+      "san-pham": true,
+      "kho": true,
+      "khach-hang": true,
+      "nha-cung-cap": true,
+      "cong-no": true,
+      "doanh-thu": true,
+      "nhan-vien": false,
+      "cai-dat": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "u_cashier",
+    "name": "Mai Anh Thư",
+    "email": "cashier@dolphincafe.vn",
+    "phone": "0903 666 777",
+    "role": "cashier",
+    "status": "active",
+    "pin": "0000",
+    "password": "cashier123",
+    "avatarColor": "#F59E0B",
+    "permissions": {
+      "ban-hang": true,
+      "san-pham": true,
+      "kho": false,
+      "khach-hang": true,
+      "nha-cung-cap": false,
+      "cong-no": false,
+      "doanh-thu": false,
+      "nhan-vien": false,
+      "cai-dat": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

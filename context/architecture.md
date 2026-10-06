@@ -14,25 +14,26 @@
 ## Folder (`fe/`)
 
 ```
-app/           # routes
-components/    # ui, layout
-lib/           # db, seed, services, print, utils
-stores/        # zustand
-types/         # shared types
-public/        # manifest + icons
+app/              # routes (incl. chon-linh-vuc, login)
+components/       # ui, layout, pos
+data/{pet,cafe}/  # seed JSON theo lĩnh vực
+lib/              # db, seed, vertical, services
+stores/           # zustand
+documentations/   # FE docs SoT
 ```
 
 ## Routes (`fe/app`)
 
 | Path | Screen |
 | --- | --- |
+| `/chon-linh-vuc` | Chọn lĩnh vực (trước login) |
+| `/login` | Đăng nhập |
 | `/` | Tổng quan |
 | `/ban-hang` | POS |
-| `/don-hang` | Đơn hàng (Order Line) |
-| `/san-pham` | Sản phẩm |
-| `/danh-muc` | Danh mục category |
-| `/kho` (+ `/nhap`, `/xuat`) | Kho |
-| `/khach-hang` · `/nha-cung-cap` · `/cong-no` · `/doanh-thu` · `/nhan-vien` · `/cai-dat` | Admin |
+| `/don-hang` · `/san-pham` · `/danh-muc` · `/kho`… | Modules |
+| `/cai-dat` | Cài đặt (+ đổi lĩnh vực) |
+
+Chi tiết: `fe/documentations/pages.md`.
 
 ## Deploy
 

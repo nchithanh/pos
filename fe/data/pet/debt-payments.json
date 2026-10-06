@@ -1,0 +1,20 @@
+[
+  {
+    "id": "dpay-01",
+    "debtId": "d-02",
+    "amount": 2000000,
+    "method": "transfer",
+    "createdAt": "2026-09-28T10:00:00.000Z",
+    "userId": "u_owner",
+    "note": "Thanh toán đợt 1"
+  },
+  {
+    "id": "dpay-02",
+    "debtId": "d-06",
+    "amount": 1000000,
+    "method": "cash",
+    "createdAt": "2026-09-25T15:30:00.000Z",
+    "userId": "u_manager",
+    "note": "Thu một phần tại spa"
+  }
+]

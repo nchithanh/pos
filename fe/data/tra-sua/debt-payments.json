@@ -1,0 +1,11 @@
+[
+  {
+    "id": "tspay-01",
+    "debtId": "tsd-02",
+    "amount": 300000,
+    "method": "transfer",
+    "createdAt": "2026-10-02T10:00:00.000Z",
+    "userId": "u_owner",
+    "note": "Đợt 1"
+  }
+]

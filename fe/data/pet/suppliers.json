@@ -1,0 +1,62 @@
+[
+  {
+    "id": "sup-01",
+    "name": "Royal Canin Việt Nam",
+    "phone": "0901 234 567",
+    "email": "banhang@royalcanin.vn",
+    "address": "Quận 7, TP. Hồ Chí Minh",
+    "contactPerson": "Anh Minh",
+    "productCount": 8,
+    "totalPurchased": 186500000,
+    "debt": 12500000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-02",
+    "name": "Pet Mart Distribution",
+    "phone": "0912 888 333",
+    "email": "order@petmart.vn",
+    "address": "Quận Tân Bình, TP. Hồ Chí Minh",
+    "contactPerson": "Chị Lan",
+    "productCount": 12,
+    "totalPurchased": 142200000,
+    "debt": 4800000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-03",
+    "name": "Me-O & SmartHeart Hub",
+    "phone": "0933 445 566",
+    "email": "wholesale@meo.vn",
+    "address": "Bình Thạnh, TP. Hồ Chí Minh",
+    "contactPerson": "Anh Khoa",
+    "productCount": 9,
+    "totalPurchased": 98700000,
+    "debt": 0,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-04",
+    "name": "Cat Litter Pro",
+    "phone": "0987 654 321",
+    "email": "sales@catlitterpro.vn",
+    "address": "Thủ Đức, TP. Hồ Chí Minh",
+    "contactPerson": "Chị Hương",
+    "productCount": 6,
+    "totalPurchased": 67400000,
+    "debt": 3200000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-05",
+    "name": "Paw Care Supplies",
+    "phone": "0908 112 233",
+    "email": "hello@pawcare.vn",
+    "address": "Quận 3, TP. Hồ Chí Minh",
+    "contactPerson": "Anh Tú",
+    "productCount": 7,
+    "totalPurchased": 54100000,
+    "debt": 1500000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

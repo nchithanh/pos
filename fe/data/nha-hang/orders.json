@@ -1,0 +1,189 @@
+[
+  {
+    "seq": 26,
+    "daysAgo": 0,
+    "hour": 11,
+    "items": [
+      {
+        "productId": "nh-04",
+        "quantity": 2
+      },
+      {
+        "productId": "nh-12",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "cash",
+    "customerId": "cus-nh2",
+    "customerName": "Công ty SoftTech"
+  },
+  {
+    "seq": 25,
+    "daysAgo": 0,
+    "hour": 12,
+    "items": [
+      {
+        "productId": "nh-06",
+        "quantity": 1
+      },
+      {
+        "productId": "nh-11",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 24,
+    "daysAgo": 0,
+    "hour": 18,
+    "items": [
+      {
+        "productId": "nh-08",
+        "quantity": 1
+      },
+      {
+        "productId": "nh-09",
+        "quantity": 1
+      },
+      {
+        "productId": "nh-10",
+        "quantity": 1
+      },
+      {
+        "productId": "nh-13",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "transfer",
+    "customerId": "cus-nh1",
+    "customerName": "Gia đình anh Hùng",
+    "discount": 20000
+  },
+  {
+    "seq": 23,
+    "daysAgo": 0,
+    "hour": 19,
+    "items": [
+      {
+        "productId": "nh-05",
+        "quantity": 1
+      },
+      {
+        "productId": "nh-14",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "cash"
+  },
+  {
+    "seq": 22,
+    "daysAgo": 0,
+    "hour": 20,
+    "items": [
+      {
+        "productId": "nh-07",
+        "quantity": 2
+      },
+      {
+        "productId": "nh-12",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "qr",
+    "cashierId": "u_manager",
+    "cashierName": "Bùi Thị Lan"
+  },
+  {
+    "seq": 21,
+    "daysAgo": 1,
+    "hour": 12,
+    "items": [
+      {
+        "productId": "nh-16",
+        "quantity": 5
+      }
+    ],
+    "paymentMethod": "transfer",
+    "customerId": "cus-nh2",
+    "customerName": "Công ty SoftTech"
+  },
+  {
+    "seq": 20,
+    "daysAgo": 2,
+    "hour": 19,
+    "items": [
+      {
+        "productId": "nh-01",
+        "quantity": 2
+      },
+      {
+        "productId": "nh-04",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "cash"
+  },
+  {
+    "seq": 19,
+    "daysAgo": 3,
+    "hour": 12,
+    "items": [
+      {
+        "productId": "nh-06",
+        "quantity": 3
+      }
+    ],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 18,
+    "daysAgo": 4,
+    "hour": 18,
+    "items": [
+      {
+        "productId": "nh-15",
+        "quantity": 2
+      },
+      {
+        "productId": "nh-11",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "cash",
+    "customerId": "cus-nh1",
+    "customerName": "Gia đình anh Hùng"
+  },
+  {
+    "seq": 17,
+    "daysAgo": 5,
+    "hour": 13,
+    "items": [
+      {
+        "productId": "nh-05",
+        "quantity": 2
+      },
+      {
+        "productId": "nh-13",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "transfer"
+  },
+  {
+    "seq": 16,
+    "daysAgo": 6,
+    "hour": 19,
+    "items": [
+      {
+        "productId": "nh-02",
+        "quantity": 1
+      },
+      {
+        "productId": "nh-08",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "cash"
+  }
+]

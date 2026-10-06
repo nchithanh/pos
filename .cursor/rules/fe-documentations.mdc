@@ -1,0 +1,14 @@
+---
+description: Always update fe/documentations when changing POS FE
+alwaysApply: true
+---
+
+# fe/documentations (bắt buộc)
+
+Khi sửa code / route / seed / lĩnh vực trong `products/saas/pos/`:
+
+1. Update file phù hợp dưới `fe/documentations/` trong **cùng task**.
+2. Thêm dòng `fe/documentations/changelog.md` nếu thay đổi không tầm thường.
+3. Index: `fe/documentations/README.md`.
+
+Không bỏ qua docs vì “chỉ đổi FE nhỏ”.

@@ -1,0 +1,9 @@
+{
+  "vertical": "cafe",
+  "label": "Cafe",
+  "emoji": "☕",
+  "description": "Quán cafe — đồ uống, bánh, topping, mang đi",
+  "orderSeq": 30,
+  "movementSeq": 8,
+  "accent": "amber"
+}

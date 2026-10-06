@@ -1,0 +1,17 @@
+{
+  "id": "store",
+  "name": "Pet Dolphin Store",
+  "slogan": "Pet shop & cafe",
+  "vertical": "pet",
+  "address": "12 Nguyễn Thị Minh Khai, Q.1, TP.HCM",
+  "phone": "028 3822 5566",
+  "email": "hello@petdolphin.vn",
+  "legalName": "CÔNG TY TNHH PET DOLPHIN",
+  "taxCode": "0312345678",
+  "billFooter": "Cảm ơn quý khách! Hẹn gặp lại lần sau",
+  "taxRate": 0,
+  "currency": "VND",
+  "receiptWidth": 80,
+  "logoEmoji": "🐬",
+  "theme": "light"
+}

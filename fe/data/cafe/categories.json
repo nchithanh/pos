@@ -1,0 +1,38 @@
+[
+  {
+    "id": "ca-phe",
+    "name": "Cà phê",
+    "emoji": "☕",
+    "sort": 1
+  },
+  {
+    "id": "tra",
+    "name": "Trà",
+    "emoji": "🍵",
+    "sort": 2
+  },
+  {
+    "id": "da-xay",
+    "name": "Đá xay",
+    "emoji": "🧊",
+    "sort": 3
+  },
+  {
+    "id": "banh",
+    "name": "Bánh",
+    "emoji": "🥐",
+    "sort": 4
+  },
+  {
+    "id": "topping",
+    "name": "Topping",
+    "emoji": "🧋",
+    "sort": 5
+  },
+  {
+    "id": "mang-di",
+    "name": "Mang đi",
+    "emoji": "🥡",
+    "sort": 6
+  }
+]

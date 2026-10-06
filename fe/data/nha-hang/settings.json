@@ -1,0 +1,17 @@
+{
+  "id": "store",
+  "name": "Dolphin Kitchen",
+  "slogan": "Cơm nhà · phục vụ nhanh",
+  "vertical": "nha-hang",
+  "address": "22 Pasteur, Q.1, TP.HCM",
+  "phone": "028 3822 4455",
+  "email": "hello@dolphinkitchen.vn",
+  "legalName": "CÔNG TY TNHH DOLPHIN KITCHEN",
+  "taxCode": "0317788990",
+  "billFooter": "Cảm ơn quý khách — hẹn gặp lại",
+  "taxRate": 8,
+  "currency": "VND",
+  "receiptWidth": 80,
+  "logoEmoji": "🍽️",
+  "theme": "light"
+}

@@ -1,18 +1,28 @@
 # Dolphin POS (SaaS) — agent context
 
-When coding **this product**, stay in **this folder**.
+When coding **this product**, stay in **this folder** (`products/saas/pos/`).
 
 1. `context/README.md` (index)
 2. `context/product.md` → `scope.md` → `architecture.md` → `constraints.md`
-3. `fe/README.md` + `fe/documentations/`
+3. **`fe/documentations/`** — FE behavior SoT (bắt buộc cập nhật cùng task)
 
-## Docs — same task
+## Docs — same task (bắt buộc)
 
-Code or requirement change → update `context/` and/or `fe/documentations/` (+ `changelog.md`) in the **same task**.
+Mọi thay đổi **code / route / seed / lĩnh vực / deploy** → **create hoặc update** file trong **`fe/documentations/`** (+ `changelog.md`) trong **cùng task**, trước khi coi xong / commit.
 
-## Repo (temporary)
+| Change | Update |
+| --- | --- |
+| Overview / IA | `fe/documentations/overview.md` |
+| Routes / pages | `fe/documentations/pages.md` |
+| Seed JSON / vertical | `fe/documentations/data.md`, `verticals.md` |
+| Non-trivial | + `fe/documentations/changelog.md` |
+| Index docs | `fe/documentations/README.md` |
 
-No separate GitHub repo yet. Frontend lives here: `products/saas/pos/fe/`.
+Cũng cập nhật `context/` khi đổi product/scope/architecture.
+
+## Repo
+
+GitHub: `nchithanh/pos` · FE: `fe/` · Pages: https://nchithanh.github.io/pos/
 
 ## Do not load as product SoT
 

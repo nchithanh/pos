@@ -1,0 +1,41 @@
+[
+  {
+    "id": "ttd-01",
+    "type": "payable",
+    "partyName": "Basic Wear Co",
+    "partyId": "sup-tt1",
+    "partyPhone": "0901 811 911",
+    "amount": 8500000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-18",
+    "status": "unpaid",
+    "note": "Nhập áo thun mùa thu",
+    "createdAt": "2026-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "ttd-02",
+    "type": "payable",
+    "partyName": "Streetline Import",
+    "partyId": "sup-tt2",
+    "partyPhone": "0912 812 912",
+    "amount": 3200000,
+    "paidAmount": 1000000,
+    "dueDate": "2026-10-09",
+    "status": "partial",
+    "note": "Giày + jacket",
+    "createdAt": "2026-09-25T00:00:00.000Z"
+  },
+  {
+    "id": "ttd-03",
+    "type": "receivable",
+    "partyName": "Công ty Event XYZ",
+    "partyId": "cus-tt4",
+    "partyPhone": "028 3822 1000",
+    "amount": 2500000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-15",
+    "status": "unpaid",
+    "note": "Đồng phục sự kiện",
+    "createdAt": "2026-09-20T00:00:00.000Z"
+  }
+]

@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { reopenDb } from "@/lib/db";
 import { ensureSeeded } from "@/lib/seed";
+import { applyVerticalTheme, getStoredVertical } from "@/lib/vertical";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -15,7 +17,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let alive = true;
     (async () => {
-      await ensureSeeded();
+      const vertical = getStoredVertical();
+      applyVerticalTheme(vertical);
+      if (vertical) {
+        reopenDb(vertical);
+        await ensureSeeded(vertical);
+      }
       if (alive) {
         setReady(true);
         setHydrated(true);

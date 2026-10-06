@@ -1,0 +1,71 @@
+[
+  {
+    "id": "u_owner",
+    "name": "Đỗ Khánh Linh",
+    "email": "owner@dolphinfashion.vn",
+    "phone": "0901 801 901",
+    "role": "owner",
+    "status": "active",
+    "pin": "1234",
+    "password": "owner123",
+    "avatarColor": "#7C3AED",
+    "permissions": {
+      "ban-hang": true,
+      "san-pham": true,
+      "kho": true,
+      "khach-hang": true,
+      "nha-cung-cap": true,
+      "cong-no": true,
+      "doanh-thu": true,
+      "nhan-vien": true,
+      "cai-dat": true
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "u_manager",
+    "name": "Nguyễn Thành Đạt",
+    "email": "manager@dolphinfashion.vn",
+    "phone": "0902 802 902",
+    "role": "manager",
+    "status": "active",
+    "pin": "2222",
+    "password": "manager123",
+    "avatarColor": "#6D28D9",
+    "permissions": {
+      "ban-hang": true,
+      "san-pham": true,
+      "kho": true,
+      "khach-hang": true,
+      "nha-cung-cap": true,
+      "cong-no": true,
+      "doanh-thu": true,
+      "nhan-vien": false,
+      "cai-dat": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "u_cashier",
+    "name": "Võ Phương Thảo",
+    "email": "cashier@dolphinfashion.vn",
+    "phone": "0903 803 903",
+    "role": "cashier",
+    "status": "active",
+    "pin": "0000",
+    "password": "cashier123",
+    "avatarColor": "#A78BFA",
+    "permissions": {
+      "ban-hang": true,
+      "san-pham": true,
+      "kho": false,
+      "khach-hang": true,
+      "nha-cung-cap": false,
+      "cong-no": false,
+      "doanh-thu": false,
+      "nhan-vien": false,
+      "cai-dat": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

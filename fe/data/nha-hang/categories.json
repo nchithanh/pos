@@ -1,0 +1,32 @@
+[
+  {
+    "id": "khai-vi",
+    "name": "Khai vị",
+    "emoji": "🥗",
+    "sort": 1
+  },
+  {
+    "id": "mon-chinh",
+    "name": "Món chính",
+    "emoji": "🍲",
+    "sort": 2
+  },
+  {
+    "id": "com-mi",
+    "name": "Cơm / Mì",
+    "emoji": "🍜",
+    "sort": 3
+  },
+  {
+    "id": "do-uong",
+    "name": "Đồ uống",
+    "emoji": "🥤",
+    "sort": 4
+  },
+  {
+    "id": "trang-mieng",
+    "name": "Tráng miệng",
+    "emoji": "🍮",
+    "sort": 5
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "id": "store",
+  "name": "Dolphin Cafe",
+  "slogan": "Cà phê & bánh tươi mỗi ngày",
+  "vertical": "cafe",
+  "address": "88 Lê Lợi, Q.1, TP.HCM",
+  "phone": "028 3822 7788",
+  "email": "hello@dolphincafe.vn",
+  "legalName": "CÔNG TY TNHH DOLPHIN CAFE",
+  "taxCode": "0319988776",
+  "billFooter": "Cảm ơn bạn đã ghé Dolphin Cafe ☕",
+  "taxRate": 8,
+  "currency": "VND",
+  "receiptWidth": 58,
+  "logoEmoji": "☕",
+  "theme": "light"
+}

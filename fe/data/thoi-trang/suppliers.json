@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sup-tt1",
+    "name": "Basic Wear Co",
+    "phone": "0901 811 911",
+    "email": "order@basicwear.vn",
+    "address": "Q. Tân Bình, TP.HCM",
+    "contactPerson": "Anh Long",
+    "productCount": 8,
+    "totalPurchased": 98000000,
+    "debt": 8500000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-tt2",
+    "name": "Streetline Import",
+    "phone": "0912 812 912",
+    "email": "sales@streetline.vn",
+    "address": "Q.7, TP.HCM",
+    "contactPerson": "Chị An",
+    "productCount": 6,
+    "totalPurchased": 72000000,
+    "debt": 3200000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-tt3",
+    "name": "Soft Studio",
+    "phone": "0933 813 913",
+    "email": "hello@softstudio.vn",
+    "address": "Q.3, TP.HCM",
+    "contactPerson": "Chị Trâm",
+    "productCount": 5,
+    "totalPurchased": 45000000,
+    "debt": 0,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

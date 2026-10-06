@@ -1,0 +1,41 @@
+[
+  {
+    "id": "tsd-01",
+    "type": "payable",
+    "partyName": "TeaBase Việt Nam",
+    "partyId": "sup-ts1",
+    "partyPhone": "0901 701 801",
+    "amount": 2800000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-14",
+    "status": "unpaid",
+    "note": "Bột trà + syrup",
+    "createdAt": "2026-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "tsd-02",
+    "type": "payable",
+    "partyName": "Topping Fresh",
+    "partyId": "sup-ts2",
+    "partyPhone": "0912 702 802",
+    "amount": 900000,
+    "paidAmount": 300000,
+    "dueDate": "2026-10-08",
+    "status": "partial",
+    "note": "Trân châu",
+    "createdAt": "2026-09-28T00:00:00.000Z"
+  },
+  {
+    "id": "tsd-03",
+    "type": "receivable",
+    "partyName": "Lê Minh Quân",
+    "partyId": "cus-ts4",
+    "partyPhone": "0909 444 804",
+    "amount": 150000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-12",
+    "status": "unpaid",
+    "note": "Ship công ty",
+    "createdAt": "2026-10-03T00:00:00.000Z"
+  }
+]

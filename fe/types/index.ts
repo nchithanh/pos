@@ -5,7 +5,15 @@ export type PaymentMethod = "cash" | "transfer" | "qr" | "split" | "debt";
 export type DebtType = "receivable" | "payable";
 export type DebtStatus = "unpaid" | "partial" | "paid" | "overdue";
 export type MovementType = "in" | "out" | "adjust" | "sale" | "return";
-export type StoreVertical = "pet" | "cafe" | "clothing" | "general";
+export type StoreVertical =
+  | "pet"
+  | "cafe"
+  | "tra-sua"
+  | "thoi-trang"
+  | "nha-hang"
+  /** legacy — map → thoi-trang khi seed */
+  | "clothing"
+  | "general";
 
 export type PermissionKey =
   | "ban-hang"

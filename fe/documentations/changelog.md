@@ -2,10 +2,10 @@
 
 ## 2026-10-06
 
-- **Full polish Sprint 3–7 + SePay sim:** Dashboard KPI clickable · chart 7/30 · empty/AI CTA · SP `imageUrl` + low-stock banner · đổi điểm thanh toán · AI khách → tạo đơn/gọi · offline banner · POS kiosk (ẩn sidebar &lt; xl) · bill PDF · SePay **simulator** (token/create/tracking) mode trong Cài đặt.  
-- **Feedback & micro-interaction:** `ConfirmDialog` + `useConfirm` · `notify` · skeleton · page transition.  
-- **POS core polish:** cart/% · split · shortcuts · success motion.  
-- **Theme:** mặc định light.  
+- **+3 lĩnh vực + accent:** Trà sữa (pink) · Thời trang (violet) · Nhà hàng (orange); Cafe amber · Pet emerald · `data-vertical` theme remap.  
+- **Lĩnh vực + seed JSON:** `/chon-linh-vuc` trước login · data `fe/data/{pet\|cafe\|tra-sua\|thoi-trang\|nha-hang}/` · IndexedDB `dolphin_pos_{vertical}` · docs `data.md` / `verticals.md` / `pages.md`.  
+- **Full polish Sprint 3–7 + SePay sim:** Dashboard · loyalty · PDF · simulator HĐĐT · offline/kiosk · ConfirmDialog/skeleton.  
+- **POS core + theme light.**  
 - **Kho UX:** phiếu nhập/xuất nhiều dòng + barcode picker · KPI lọc · kiểm kho · CSV · ghi nợ NCC tuỳ chọn · sổ biến động.  
 - **AuthGate:** normalize pathname khi `trailingSlash` (tránh chớp giật redirect `/login` ↔ `/login/`).  
 - **PWA Pages:** `metadata.manifest` / `icons` dùng `NEXT_PUBLIC_BASE_PATH` + `public/favicon.ico` (fix 404 icon trên `/pos`).  

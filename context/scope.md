@@ -14,6 +14,7 @@
 
 ## Recently polished (FE)
 
+- Chọn lĩnh vực Pet/Cafe · seed JSON `fe/data/{vertical}` · DB tách  
 - Dashboard KPI/charts · loyalty điểm · bill PDF · SePay **simulator**  
 - Offline banner · POS kiosk layout · ConfirmDialog / skeletons  
 

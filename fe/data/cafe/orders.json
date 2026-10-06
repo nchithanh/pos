@@ -1,0 +1,282 @@
+[
+  {
+    "seq": 30,
+    "daysAgo": 0,
+    "hour": 7,
+    "items": [
+      {
+        "productId": "c-01",
+        "quantity": 2
+      },
+      {
+        "productId": "c-13",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "cash",
+    "customerId": "cus-c02",
+    "customerName": "Lê Ngọc Anh",
+    "customerPhone": "0907 303 404"
+  },
+  {
+    "seq": 29,
+    "daysAgo": 0,
+    "hour": 8,
+    "items": [
+      {
+        "productId": "c-08",
+        "quantity": 1
+      },
+      {
+        "productId": "c-17",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 28,
+    "daysAgo": 0,
+    "hour": 9,
+    "items": [
+      {
+        "productId": "c-04",
+        "quantity": 1
+      },
+      {
+        "productId": "c-15",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "transfer",
+    "customerId": "cus-c03",
+    "customerName": "Phạm Quốc Bảo",
+    "discount": 5000
+  },
+  {
+    "seq": 27,
+    "daysAgo": 0,
+    "hour": 10,
+    "items": [
+      {
+        "productId": "c-07",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "cash"
+  },
+  {
+    "seq": 26,
+    "daysAgo": 0,
+    "hour": 11,
+    "items": [
+      {
+        "productId": "c-11",
+        "quantity": 1
+      },
+      {
+        "productId": "c-19",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "qr",
+    "cashierId": "u_manager",
+    "cashierName": "Đặng Thu Hà"
+  },
+  {
+    "seq": 25,
+    "daysAgo": 0,
+    "hour": 12,
+    "items": [
+      {
+        "productId": "c-03",
+        "quantity": 3
+      },
+      {
+        "productId": "c-14",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "cash",
+    "customerId": "cus-c01",
+    "customerName": "Trần Minh Khang"
+  },
+  {
+    "seq": 24,
+    "daysAgo": 0,
+    "hour": 14,
+    "items": [
+      {
+        "productId": "c-10",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "transfer"
+  },
+  {
+    "seq": 23,
+    "daysAgo": 0,
+    "hour": 15,
+    "items": [
+      {
+        "productId": "c-01",
+        "quantity": 1
+      },
+      {
+        "productId": "c-02",
+        "quantity": 1
+      },
+      {
+        "productId": "c-20",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 22,
+    "daysAgo": 0,
+    "hour": 16,
+    "items": [
+      {
+        "productId": "c-12",
+        "quantity": 2
+      },
+      {
+        "productId": "c-16",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "cash",
+    "discount": 10000
+  },
+  {
+    "seq": 21,
+    "daysAgo": 1,
+    "hour": 8,
+    "items": [
+      {
+        "productId": "c-01",
+        "quantity": 4
+      },
+      {
+        "productId": "c-08",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "transfer",
+    "customerId": "cus-c02",
+    "customerName": "Lê Ngọc Anh"
+  },
+  {
+    "seq": 20,
+    "daysAgo": 1,
+    "hour": 12,
+    "items": [
+      {
+        "productId": "c-07",
+        "quantity": 3
+      }
+    ],
+    "paymentMethod": "cash"
+  },
+  {
+    "seq": 19,
+    "daysAgo": 2,
+    "hour": 9,
+    "items": [
+      {
+        "productId": "c-04",
+        "quantity": 2
+      },
+      {
+        "productId": "c-13",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 18,
+    "daysAgo": 2,
+    "hour": 15,
+    "items": [
+      {
+        "productId": "c-08",
+        "quantity": 2
+      },
+      {
+        "productId": "c-17",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "cash",
+    "cashierId": "u_manager",
+    "cashierName": "Đặng Thu Hà"
+  },
+  {
+    "seq": 17,
+    "daysAgo": 3,
+    "hour": 10,
+    "items": [
+      {
+        "productId": "c-22",
+        "quantity": 1
+      },
+      {
+        "productId": "c-15",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "transfer"
+  },
+  {
+    "seq": 16,
+    "daysAgo": 4,
+    "hour": 8,
+    "items": [
+      {
+        "productId": "c-01",
+        "quantity": 5
+      },
+      {
+        "productId": "c-14",
+        "quantity": 3
+      }
+    ],
+    "paymentMethod": "cash",
+    "customerId": "cus-c03",
+    "customerName": "Phạm Quốc Bảo"
+  },
+  {
+    "seq": 15,
+    "daysAgo": 5,
+    "hour": 11,
+    "items": [
+      {
+        "productId": "c-10",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 14,
+    "daysAgo": 6,
+    "hour": 9,
+    "items": [
+      {
+        "productId": "c-03",
+        "quantity": 2
+      },
+      {
+        "productId": "c-11",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": "cash",
+    "customerId": "cus-c01",
+    "customerName": "Trần Minh Khang",
+    "discount": 8000
+  }
+]

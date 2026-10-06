@@ -1,0 +1,67 @@
+[
+  {
+    "id": "cd-01",
+    "type": "payable",
+    "partyName": "Trung Nguyên Distribution",
+    "partyId": "sup-c01",
+    "partyPhone": "0901 888 111",
+    "amount": 4500000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-14",
+    "status": "unpaid",
+    "note": "Hạt Arabica tháng 10",
+    "createdAt": "2026-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "cd-02",
+    "type": "payable",
+    "partyName": "Trà & Topping Sài Gòn",
+    "partyId": "sup-c02",
+    "partyPhone": "0912 777 222",
+    "amount": 1200000,
+    "paidAmount": 500000,
+    "dueDate": "2026-10-08",
+    "status": "partial",
+    "note": "Topping + trà",
+    "createdAt": "2026-09-28T00:00:00.000Z"
+  },
+  {
+    "id": "cd-03",
+    "type": "payable",
+    "partyName": "PackGo Supplies",
+    "partyId": "sup-c04",
+    "partyPhone": "0987 555 444",
+    "amount": 800000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-03",
+    "status": "overdue",
+    "note": "Ly giấy & túi",
+    "createdAt": "2026-09-20T00:00:00.000Z"
+  },
+  {
+    "id": "cd-04",
+    "type": "receivable",
+    "partyName": "Đoàn Hải Đăng",
+    "partyId": "cus-c05",
+    "partyPhone": "0910 909 101",
+    "amount": 320000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-15",
+    "status": "unpaid",
+    "note": "Tab tháng 9",
+    "createdAt": "2026-09-30T00:00:00.000Z"
+  },
+  {
+    "id": "cd-05",
+    "type": "receivable",
+    "partyName": "Công ty ABC (order văn phòng)",
+    "partyId": "cus-corp-01",
+    "partyPhone": "028 3822 9900",
+    "amount": 2500000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-12",
+    "status": "unpaid",
+    "note": "Catering họp tuần",
+    "createdAt": "2026-10-02T00:00:00.000Z"
+  }
+]

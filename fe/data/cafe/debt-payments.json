@@ -1,0 +1,11 @@
+[
+  {
+    "id": "cdpay-01",
+    "debtId": "cd-02",
+    "amount": 500000,
+    "method": "transfer",
+    "createdAt": "2026-10-01T09:00:00.000Z",
+    "userId": "u_owner",
+    "note": "Thanh toán đợt 1"
+  }
+]

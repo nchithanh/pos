@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cus-tt1",
+    "name": "Mai Phương",
+    "phone": "0906 911 101",
+    "group": "VIP",
+    "points": 520,
+    "totalSpent": 5200000,
+    "visitCount": 12,
+    "lastPurchaseAt": "2026-10-04T15:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-05-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-tt2",
+    "name": "Hoàng Nam",
+    "phone": "0907 912 102",
+    "group": "Streetwear",
+    "points": 210,
+    "totalSpent": 2100000,
+    "visitCount": 6,
+    "lastPurchaseAt": "2026-10-05T11:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-08-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-tt3",
+    "name": "Ngọc Trâm",
+    "phone": "0908 913 103",
+    "group": "Cần nhắc quay lại",
+    "points": 80,
+    "totalSpent": 800000,
+    "visitCount": 2,
+    "lastPurchaseAt": "2026-08-10T10:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2026-02-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-tt4",
+    "name": "Công ty Event XYZ",
+    "phone": "028 3822 1000",
+    "group": "Đặt đồng phục",
+    "points": 0,
+    "totalSpent": 12000000,
+    "visitCount": 3,
+    "lastPurchaseAt": "2026-09-20T09:00:00.000Z",
+    "debt": 2500000,
+    "createdAt": "2025-12-01T00:00:00.000Z"
+  }
+]

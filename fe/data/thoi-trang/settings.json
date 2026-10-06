@@ -1,0 +1,17 @@
+{
+  "id": "store",
+  "name": "Dolphin Fashion",
+  "slogan": "Streetwear & basic hàng ngày",
+  "vertical": "thoi-trang",
+  "address": "120 Hai Bà Trưng, Q.1, TP.HCM",
+  "phone": "028 3822 3344",
+  "email": "hello@dolphinfashion.vn",
+  "legalName": "CÔNG TY TNHH DOLPHIN FASHION",
+  "taxCode": "0316677889",
+  "billFooter": "Đổi trả trong 7 ngày · Cảm ơn bạn",
+  "taxRate": 0,
+  "currency": "VND",
+  "receiptWidth": 80,
+  "logoEmoji": "👗",
+  "theme": "light"
+}

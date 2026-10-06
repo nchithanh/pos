@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fish } from "lucide-react";
-import { toast } from "sonner";
-import { DEMO_ACCOUNTS } from "@/lib/seed";
+import { notify } from "@/lib/notify";
+import { getDemoAccounts } from "@/lib/seed";
+import { getStoredVertical, VERTICAL_OPTIONS } from "@/lib/vertical";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,13 +19,18 @@ export default function LoginPage() {
   const openShift = useAuthStore((s) => s.openShift);
   const [mode, setMode] = useState<"pin" | "password">("pin");
   const [pin, setPin] = useState("");
-  const [email, setEmail] = useState("cashier@petdolphin.vn");
-  const [password, setPassword] = useState("cashier123");
+  const vertical = getStoredVertical();
+  const accounts = useMemo(() => getDemoAccounts(vertical), [vertical]);
+  const verticalMeta = VERTICAL_OPTIONS.find((v) => v.id === vertical);
+  const [email, setEmail] = useState(accounts[2]?.email ?? accounts[0]?.email ?? "");
+  const [password, setPassword] = useState(
+    accounts[2]?.password ?? accounts[0]?.password ?? "",
+  );
   const [loading, setLoading] = useState(false);
 
   const afterLogin = async () => {
     await openShift(500_000, "Tự mở ca khi đăng nhập demo");
-    toast.success("Đăng nhập thành công");
+    notify.success("Đăng nhập thành công");
     router.replace("/");
   };
 
@@ -35,7 +42,7 @@ export default function LoginPage() {
       else await loginWithPassword(email, password);
       await afterLogin();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Đăng nhập thất bại");
+      notify.fromError(err, "Đăng nhập thất bại");
     } finally {
       setLoading(false);
     }
@@ -49,7 +56,12 @@ export default function LoginPage() {
             <Fish size={28} />
           </div>
           <h1 className="text-2xl font-bold">Dolphin POS</h1>
-          <p className="mt-1 text-sm text-slate-500">Pet shop & cafe · Local-first</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {verticalMeta
+              ? `${verticalMeta.emoji} ${verticalMeta.label}`
+              : "Local-first"}{" "}
+            · Đăng nhập
+          </p>
         </div>
 
         <div className="mb-4 grid grid-cols-2 gap-2 rounded-[10px] bg-slate-100 p-1 dark:bg-slate-800">
@@ -72,7 +84,9 @@ export default function LoginPage() {
         <form onSubmit={onSubmit} className="space-y-3">
           {mode === "pin" ? (
             <label className="block">
-              <span className="mb-1 block text-sm font-medium text-slate-500">PIN (4 số)</span>
+              <span className="mb-1 block text-sm font-medium text-slate-500">
+                PIN (4 số)
+              </span>
               <Input
                 inputMode="numeric"
                 maxLength={6}
@@ -85,11 +99,18 @@ export default function LoginPage() {
           ) : (
             <>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-slate-500">Email</span>
-                <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+                <span className="mb-1 block text-sm font-medium text-slate-500">
+                  Email
+                </span>
+                <Input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </label>
               <label className="block">
-                <span className="mb-1 block text-sm font-medium text-slate-500">Mật khẩu</span>
+                <span className="mb-1 block text-sm font-medium text-slate-500">
+                  Mật khẩu
+                </span>
                 <Input
                   type="password"
                   value={password}
@@ -107,7 +128,7 @@ export default function LoginPage() {
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             Tài khoản demo
           </p>
-          {DEMO_ACCOUNTS.map((acc) => (
+          {accounts.map((acc) => (
             <button
               key={acc.email}
               type="button"
@@ -115,6 +136,8 @@ export default function LoginPage() {
               onClick={() => {
                 setMode("pin");
                 setPin(acc.pin);
+                setEmail(acc.email);
+                setPassword(acc.password);
               }}
             >
               <span className="font-medium">{acc.label}</span>
@@ -122,6 +145,13 @@ export default function LoginPage() {
             </button>
           ))}
         </div>
+
+        <Link
+          href="/chon-linh-vuc"
+          className="mt-5 block text-center text-sm font-semibold text-emerald-600 hover:underline"
+        >
+          Đổi lĩnh vực cửa hàng
+        </Link>
       </Card>
     </div>
   );

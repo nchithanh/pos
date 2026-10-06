@@ -1,0 +1,20 @@
+[
+  {
+    "label": "Chủ quán",
+    "email": "owner@dolphinmilktea.vn",
+    "pin": "1234",
+    "password": "owner123"
+  },
+  {
+    "label": "Quản lý",
+    "email": "manager@dolphinmilktea.vn",
+    "pin": "2222",
+    "password": "manager123"
+  },
+  {
+    "label": "Thu ngân",
+    "email": "cashier@dolphinmilktea.vn",
+    "pin": "0000",
+    "password": "cashier123"
+  }
+]

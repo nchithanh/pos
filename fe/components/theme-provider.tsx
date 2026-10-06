@@ -44,6 +44,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
   const [systemTheme, setSystemTheme] = useState<"light" | "dark">("light");
 
+  const [booted, setBooted] = useState(false);
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
@@ -57,16 +59,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setResolvedTheme(applyTheme("system"));
     }
     setSystemTheme(getSystemTheme());
+    setBooted(true);
   }, []);
 
   useEffect(() => {
+    if (!booted) return;
     setResolvedTheme(applyTheme(theme));
     try {
       localStorage.setItem(STORAGE_KEY, theme);
     } catch {
       /* ignore */
     }
-  }, [theme]);
+  }, [theme, booted]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");

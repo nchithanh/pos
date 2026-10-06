@@ -2,6 +2,7 @@
 
 ## 2026-10-06
 
+- **AuthGate:** normalize pathname khi `trailingSlash` (tránh chớp giật redirect `/login` ↔ `/login/`).  
 - **PWA Pages:** `metadata.manifest` / `icons` dùng `NEXT_PUBLIC_BASE_PATH` + `public/favicon.ico` (fix 404 icon trên `/pos`).  
 - **PWA Pages:** manifest relative `./` (fix 404 `github.io/manifest.webmanifest`).  
 - **Cài đặt 3 tab:** Cửa hàng (pháp lý + bill) · HĐĐT mock SePay (ký hiệu dropdown, kiểm tra kết nối) · Nhân viên tóm tắt; xuất HĐĐT POS dùng `settings.eInvoice`.  

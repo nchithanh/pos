@@ -379,7 +379,13 @@ async function seedDemoOrdersIfEmpty(): Promise<void> {
 async function migrateStoreSettingsIfNeeded(): Promise<void> {
   const row = await db.settings.get("store");
   if (!row) return;
-  if (row.eInvoice && row.legalName && row.email) return;
+  const needs =
+    !row.eInvoice ||
+    row.email === undefined ||
+    row.legalName === undefined ||
+    row.taxCode === undefined ||
+    row.billFooter === undefined;
+  if (!needs) return;
   await db.settings.put({
     ...row,
     email: row.email ?? SETTINGS.email,

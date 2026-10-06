@@ -17,6 +17,11 @@ Local-first POS (IndexedDB) cho pet shop & cafe.
 
 `/login` · `/` · `/ban-hang` · `/don-hang` · `/san-pham` · `/danh-muc` · `/kho` (+ nhập/xuất) · `/khach-hang` · `/nha-cung-cap` · `/cong-no` · `/doanh-thu` · `/nhan-vien` · `/cai-dat`
 
+## Kho (`/kho`, `/kho/nhap`, `/kho/xuat`)
+
+- Danh sách tồn: KPI lọc · SKU/barcode · Kiểm kho · Xuất CSV · sổ biến động  
+- Phiếu nhập/xuất nhiều dòng: tìm/quét barcode · xóa dòng · nhập: TT ngay / ghi nợ NCC · HSD tuỳ chọn  
+
 ## Công nợ (`/cong-no`)
 
 - KPI clickable (Phải thu / Phải trả / Quá hạn) · tab · search · lọc hạn  

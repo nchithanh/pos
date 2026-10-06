@@ -224,7 +224,13 @@ export interface InventoryMovement {
   supplierId?: string;
   reason?: string;
   note?: string;
-  items: { productId: string; quantity: number; unitCost?: number }[];
+  items: {
+    productId: string;
+    quantity: number;
+    unitCost?: number;
+    /** HSD (YYYY-MM-DD) — tùy chọn trên phiếu nhập */
+    expiryDate?: string;
+  }[];
   totalCost: number;
 }
 

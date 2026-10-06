@@ -6,7 +6,7 @@
 - Auth PIN/email · roles · mở/đóng ca  
 - Dashboard real stats/charts  
 - POS core: cart, barcode, hold, customer, payments, receipt  
-- CRUD sản phẩm · kho nhập/xuất/điều chỉnh  
+- CRUD sản phẩm · kho (phiếu nhiều dòng, barcode, kiểm kho, sổ biến động, ghi nợ NCC)  
 - Khách hàng + điểm + AI rule-based  
 - NCC · công nợ (table, partial pay, lịch sử, CSV, nhắc nợ demo) · doanh thu/export CSV  
 - Nhân viên/permissions · cài đặt 3 tab (cửa hàng / HĐĐT SePay mock / NV) · backup/restore/theme  

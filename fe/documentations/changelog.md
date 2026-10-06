@@ -2,6 +2,7 @@
 
 ## 2026-10-06
 
+- **Kho UX:** phiếu nhập/xuất nhiều dòng + barcode picker · KPI lọc · kiểm kho · CSV · ghi nợ NCC tuỳ chọn · sổ biến động.  
 - **AuthGate:** normalize pathname khi `trailingSlash` (tránh chớp giật redirect `/login` ↔ `/login/`).  
 - **PWA Pages:** `metadata.manifest` / `icons` dùng `NEXT_PUBLIC_BASE_PATH` + `public/favicon.ico` (fix 404 icon trên `/pos`).  
 - **PWA Pages:** manifest relative `./` (fix 404 `github.io/manifest.webmanifest`).  

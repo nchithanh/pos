@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "next dev --port 3012",
     "build": "next build",
+    "build:pages": "GITHUB_PAGES=true GITHUB_PAGES_BASE_PATH=/pos next build",
     "start": "next start --port 3012"
   },
   "dependencies": {

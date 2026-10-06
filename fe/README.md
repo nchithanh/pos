@@ -18,7 +18,12 @@ Mở http://localhost:3012
 | --- | --- |
 | `npm run dev` | Dev server port 3012 |
 | `npm run build` | Production build |
+| `npm run build:pages` | Static export GitHub Pages (`out/`) |
 | `npm start` | Serve build port 3012 |
+
+## Deploy
+
+GitHub Pages: xem `documentations/deploy.md` · URL https://nchithanh.github.io/pos/
 
 ## Docs
 

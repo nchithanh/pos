@@ -27,3 +27,10 @@
 | `/khach-hang` | Customer expansion |
 
 Dev: `npm run dev` → port **3012**.
+
+## Deploy
+
+- GitHub Pages via `.github/workflows/deploy-pages.yml`
+- Static export: `GITHUB_PAGES=true` · project basePath `/pos`
+- Docs: `fe/documentations/deploy.md`
+- Live (project Pages): https://nchithanh.github.io/pos/

@@ -2,6 +2,7 @@
 
 ## 2026-10-07
 
+- **Thanh toán CK:** dialog chuyển khoản hiện QR demo (payload có số tiền) và nút chia sẻ. Tách bill thì QR lấy phần chuyển khoản. Chưa nối ngân hàng.
 - **Biểu đồ & quỹ:** màu biểu đồ theo ý nghĩa (xanh vào, đỏ ra), không theo theme lĩnh vực. Thẻ quỹ có dấu nhận diện tiền mặt, VCB, MB, MoMo.
 - **Tài chính UI:** tổng quan có 6 chỉ số, biểu đồ dòng tiền và lãi lỗ; dòng tiền lọc ngang; công nợ có tuổi nợ và bảng phải thu/phải trả.
 - **Kho UI:** tổng quan có thao tác nhanh và số liệu tô màu; tồn kho là bảng lọc/sắp xếp/chọn nhiều dòng; nhập–xuất có chip lọc; kiểm kê một sản phẩm hoặc theo lô. Sidebar chỉ sáng mục Kho khi đang ở module.

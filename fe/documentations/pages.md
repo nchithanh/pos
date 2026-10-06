@@ -5,7 +5,7 @@
 | `/chon-linh-vuc` | public | Chọn lĩnh vực + seed + theme |
 | `/login` | public* | Cần đã chọn vertical. Demo: chủ, quản lý, thu ngân, thủ kho (PIN 3333) |
 | `/` | yes | Dashboard |
-| `/ban-hang` | yes | POS |
+| `/ban-hang` | yes | POS. Chuyển khoản hiện QR demo đúng số tiền + nút chia sẻ |
 | `/san-pham` | yes | |
 | `/danh-muc` | yes | |
 | `/don-hang` | yes | |

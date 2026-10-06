@@ -16,6 +16,7 @@ import {
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/layout/app-shell";
 import { ReceiptActions } from "@/components/pos/ReceiptActions";
+import { TransferQr } from "@/components/pos/transfer-qr";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -875,7 +876,7 @@ function PosPageInner() {
                           ) : (
                             <span className="drop-shadow-sm">{p.emoji}</span>
                           )}
-                          <div className="absolute top-1.5 right-1.5 z-10">
+                          <div className="absolute inset-0 z-10 flex items-start justify-end p-1">
                             <Badge status={status} />
                           </div>
                         </div>
@@ -987,6 +988,8 @@ function PosPageInner() {
           </p>
         ) : null}
 
+        {method === "transfer" ? <TransferQr amount={totals.total} /> : null}
+
         {method === "split" ? (
           <div className="mt-4 space-y-3">
             <label className="block text-sm">
@@ -1049,6 +1052,9 @@ function PosPageInner() {
               )}{" "}
               / {formatVnd(totals.total)}
             </p>
+            {splitOtherMethod === "transfer" ? (
+              <TransferQr amount={Number(splitOther) || 0} />
+            ) : null}
           </div>
         ) : null}
 

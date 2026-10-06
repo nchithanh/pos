@@ -2,7 +2,6 @@
 
 ## 2026-10-06
 
-- **Deploy GitHub Pages:** workflow `deploy-pages.yml` · static export (`GITHUB_PAGES=true`, `basePath=/pos`) · `documentations/deploy.md`.
-- Khởi tạo prototype FE tại `products/saas/pos/fe` (Next.js 16 + Tailwind 4 + Zustand + Recharts).  
-- Dataset Pet Shop ~42 SKU; đầy đủ màn core + Customer/AI expansion.  
-- Design theo hướng SaaS POS xanh lá (tham chiếu Like Food layout).  
+- **Rebuild local-first:** Dexie IndexedDB · Auth/PIN · shift · POS barcode/hold/receipt · CRUD modules · dark mode · PWA · backup/restore.  
+- **Deploy GitHub Pages:** workflow `deploy-pages.yml` · static export (`GITHUB_PAGES=true`, `basePath=/pos`).  
+- Seed Pet Shop ~42 SKU; emerald design system; Vercel-ready.  

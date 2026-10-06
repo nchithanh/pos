@@ -1,20 +1,20 @@
-# Scope — prototype FE
+# Scope — Dolphin POS FE
 
-## In scope
+## In scope (shipped)
 
-- App shell desktop sidebar + mobile bottom nav / drawer  
-- Dashboard pet shop realistic  
-- POS cart + checkout (tiền mặt / CK / QR)  
-- CRUD sản phẩm mock  
-- Kho + nhập/xuất cập nhật state  
-- NCC detail, công nợ thanh toán mock  
-- Doanh thu + Recharts  
-- Nhân viên + permission switches  
-- Customer / AI expansion screens  
+- Local-first IndexedDB (Dexie) + seed Pet Shop  
+- Auth PIN/email · roles · mở/đóng ca  
+- Dashboard real stats/charts  
+- POS core: cart, barcode, hold, customer, payments, receipt  
+- CRUD sản phẩm · kho nhập/xuất/điều chỉnh  
+- Khách hàng + điểm + AI rule-based  
+- NCC · công nợ · doanh thu/export CSV  
+- Nhân viên/permissions · cài đặt/backup/restore/theme  
+- PWA (prod) · GitHub Pages + Vercel-ready  
 
-## Out of scope
+## Out of scope / later
 
-- Backend, API, DB, auth thật  
-- Persist sau reload  
-- In hóa đơn thật / thanh toán gateway  
-- CRM đầy đủ  
+- Supabase sync thật (adapter stub chưa nối)  
+- Gateway thanh toán online  
+- Capacitor native wrapper  
+- Multi-store / multi-warehouse đầy đủ  

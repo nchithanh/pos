@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
-import { INITIAL_SUPPLIERS } from "@/data/suppliers";
+
+/** Seed IDs — dùng cho static export GitHub Pages */
+const SUPPLIER_IDS = ["sup-01", "sup-02", "sup-03", "sup-04", "sup-05"];
 
 export function generateStaticParams() {
-  return INITIAL_SUPPLIERS.map((s) => ({ id: s.id }));
+  return SUPPLIER_IDS.map((id) => ({ id }));
 }
 
 export default function SupplierDetailLayout({

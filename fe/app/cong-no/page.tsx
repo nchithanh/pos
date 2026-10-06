@@ -1,17 +1,24 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AppShell } from "@/components/layout/AppShell";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { StatCard } from "@/components/ui/StatCard";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatDate, formatVnd } from "@/lib/format";
-import type { DebtType } from "@/lib/types";
-import { usePosStore } from "@/store/usePosStore";
+import { useLiveQuery } from "dexie-react-hooks";
+import { toast } from "sonner";
+import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Dialog } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { db } from "@/lib/db";
+import { payDebt } from "@/lib/services/debts";
+import { formatDate, formatVnd } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
+import type { DebtType } from "@/types";
 
 export default function DebtPage() {
-  const debts = usePosStore((s) => s.debts);
-  const payDebt = usePosStore((s) => s.payDebt);
+  const debts = useLiveQuery(() => db.debts.toArray()) ?? [];
+  const user = useAuthStore((s) => s.user);
   const [tab, setTab] = useState<DebtType>("receivable");
   const [payId, setPayId] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
@@ -33,155 +40,59 @@ export default function DebtPage() {
 
   return (
     <AppShell>
-      <PageHeader
-        title="Công nợ"
-        description="Theo dõi phải thu / phải trả và thanh toán nhanh"
-      />
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Tổng phải thu" value={formatVnd(summary.receivable)} tone="sky" />
-        <StatCard label="Tổng phải trả" value={formatVnd(summary.payable)} tone="amber" />
-        <StatCard label="Quá hạn" value={formatVnd(summary.overdue)} tone="rose" />
+      <PageHeader title="Công nợ" description="Phải thu / phải trả · thanh toán ghi IndexedDB" />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card className="p-4"><p className="text-sm text-slate-500">Phải thu</p><p className="text-xl font-bold">{formatVnd(summary.receivable)}</p></Card>
+        <Card className="p-4"><p className="text-sm text-slate-500">Phải trả</p><p className="text-xl font-bold">{formatVnd(summary.payable)}</p></Card>
+        <Card className="p-4"><p className="text-sm text-slate-500">Quá hạn</p><p className="text-xl font-bold text-rose-600">{formatVnd(summary.overdue)}</p></Card>
       </div>
-
-      <div className="mt-4 flex gap-2 rounded-[12px] bg-white p-1 shadow-sm">
-        {(
-          [
-            ["receivable", "Phải thu"],
-            ["payable", "Phải trả"],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            className={`flex-1 rounded-[10px] py-2.5 text-sm font-semibold ${
-              tab === id
-                ? "bg-[var(--pos-green)] text-white"
-                : "text-slate-500"
-            }`}
-            onClick={() => setTab(id)}
-          >
+      <div className="mt-4 flex gap-2 rounded-[12px] bg-white p-1 dark:bg-slate-900">
+        {([["receivable", "Phải thu"], ["payable", "Phải trả"]] as const).map(([id, label]) => (
+          <button key={id} type="button" className={`flex-1 rounded-[10px] py-2.5 text-sm font-semibold ${tab === id ? "bg-emerald-500 text-white" : "text-slate-500"}`} onClick={() => setTab(id)}>
             {label}
           </button>
         ))}
       </div>
-
-      <div className="mt-4 space-y-3 md:hidden">
+      <div className="mt-4 space-y-3">
         {list.map((d) => {
           const remain = d.amount - d.paidAmount;
           return (
-            <article key={d.id} className="pos-card p-3">
+            <Card key={d.id} className="p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="font-semibold">{d.partyName}</p>
-                  <p className="text-xs text-slate-500">
-                    Hạn {formatDate(d.dueDate)}
-                  </p>
+                  <p className="text-xs text-slate-500">Hạn {formatDate(d.dueDate)} · {d.note}</p>
                 </div>
-                <StatusBadge status={d.status} />
+                <Badge status={d.status} />
               </div>
               <p className="mt-2 text-lg font-bold">{formatVnd(remain)}</p>
-              <p className="text-xs text-slate-500">{d.note}</p>
               {remain > 0 ? (
-                <button
-                  type="button"
-                  className="pos-btn pos-btn-primary mt-3 w-full !min-h-10"
-                  onClick={() => {
-                    setPayId(d.id);
-                    setAmount(String(remain));
-                  }}
-                >
+                <Button className="mt-3 w-full" size="sm" onClick={() => { setPayId(d.id); setAmount(String(remain)); }}>
                   Thanh toán
-                </button>
+                </Button>
               ) : null}
-            </article>
+            </Card>
           );
         })}
       </div>
-
-      <div className="pos-card mt-4 hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[760px] text-left text-sm">
-          <thead className="border-b border-[var(--pos-border)] bg-slate-50 text-slate-500">
-            <tr>
-              <th className="px-4 py-3 font-semibold">Đối tượng</th>
-              <th className="px-4 py-3 font-semibold">Số tiền còn lại</th>
-              <th className="px-4 py-3 font-semibold">Ngày đến hạn</th>
-              <th className="px-4 py-3 font-semibold">Trạng thái</th>
-              <th className="px-4 py-3 font-semibold">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((d) => {
-              const remain = d.amount - d.paidAmount;
-              return (
-                <tr key={d.id} className="border-b border-[var(--pos-border)] last:border-0">
-                  <td className="px-4 py-3">
-                    <p className="font-medium">{d.partyName}</p>
-                    <p className="text-xs text-slate-400">{d.note}</p>
-                  </td>
-                  <td className="px-4 py-3 font-semibold">{formatVnd(remain)}</td>
-                  <td className="px-4 py-3">{formatDate(d.dueDate)}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={d.status} />
-                  </td>
-                  <td className="px-4 py-3">
-                    {remain > 0 ? (
-                      <button
-                        type="button"
-                        className="pos-btn pos-btn-primary !min-h-9 !px-3 text-xs"
-                        onClick={() => {
-                          setPayId(d.id);
-                          setAmount(String(remain));
-                        }}
-                      >
-                        Thanh toán
-                      </button>
-                    ) : (
-                      <span className="text-xs text-slate-400">—</span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {payId ? (
-        <div className="pos-modal-backdrop" role="dialog" aria-modal="true">
-          <div className="pos-modal p-5">
-            <h2 className="text-lg font-bold">Thanh toán công nợ</h2>
-            <label className="mt-4 block">
-              <span className="pos-label">Số tiền</span>
-              <input
-                type="number"
-                className="pos-input pos-input-rect"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-              />
-            </label>
-            <div className="mt-5 flex gap-2">
-              <button
-                type="button"
-                className="pos-btn pos-btn-outline flex-1"
-                onClick={() => setPayId(null)}
-              >
-                Hủy
-              </button>
-              <button
-                type="button"
-                className="pos-btn pos-btn-primary flex-1"
-                onClick={() => {
-                  payDebt(payId, Number(amount) || 0);
-                  setPayId(null);
-                }}
-              >
-                Xác nhận
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <Dialog open={!!payId} onClose={() => setPayId(null)} title="Thanh toán công nợ">
+        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+        <Button
+          className="mt-4 w-full"
+          onClick={async () => {
+            if (!user || !payId) return;
+            try {
+              await payDebt({ debtId: payId, amount: Number(amount) || 0, method: "transfer", user });
+              toast.success("Đã ghi nhận thanh toán");
+              setPayId(null);
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "Lỗi");
+            }
+          }}
+        >
+          Xác nhận
+        </Button>
+      </Dialog>
     </AppShell>
   );
 }

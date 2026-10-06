@@ -1,12 +1,18 @@
 import path from "node:path";
 import type { NextConfig } from "next";
+import withPWAInit from "@ducanh2912/next-pwa";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
-/** Project Pages: /pos · Custom domain: để trống GITHUB_PAGES_BASE_PATH */
 const basePath =
   isGithubPages && process.env.GITHUB_PAGES_BASE_PATH
     ? process.env.GITHUB_PAGES_BASE_PATH
     : "";
+
+const withPWA = withPWAInit({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development" || isGithubPages,
+  register: true,
+});
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -29,4 +35,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

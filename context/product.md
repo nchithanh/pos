@@ -13,9 +13,9 @@
 7. Doanh thu / báo cáo  
 8. Nhân viên / phân quyền  
 
-## Expansion (nhẹ trong prototype)
+## Expansion đã đưa vào app
 
-- Dolphin Customer (hồ sơ, lịch sử, nhắc quay lại)  
-- Dolphin AI (đề xuất khách sắp mua lại)  
+- Dolphin Customer (CRUD, lịch sử, điểm, công nợ khách)  
+- Dolphin AI (rule-based gợi ý quay lại trên Dashboard / Khách hàng)  
 
-Không đưa CRM vào navigation core.
+Vertical config: Pet / Cafe / Clothing / General (Cài đặt).

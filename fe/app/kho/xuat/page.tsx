@@ -1,168 +1,100 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { STOCK_OUT_REASONS } from "@/data/stock";
-import { usePosStore } from "@/store/usePosStore";
+import { useEffect, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { toast } from "sonner";
+import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { db } from "@/lib/db";
+import { stockOut } from "@/lib/services/inventory";
+import { useAuthStore } from "@/stores/auth-store";
 
-type Line = { productId: string; quantity: string };
+const REASONS = [
+  "Hàng lỗi / đổi trả NCC",
+  "Hết hạn sử dụng",
+  "Sử dụng nội bộ / trưng bày",
+  "Điều chỉnh kiểm kê",
+  "Khác",
+];
 
 export default function StockOutPage() {
   const router = useRouter();
-  const products = usePosStore((s) => s.products);
-  const stockOut = usePosStore((s) => s.stockOut);
-  const stockOuts = usePosStore((s) => s.stockOuts);
-
-  const [reason, setReason] = useState(STOCK_OUT_REASONS[0]);
+  const products = useLiveQuery(() => db.products.toArray()) ?? [];
+  const user = useAuthStore((s) => s.user);
+  const [reason, setReason] = useState(REASONS[0]);
   const [note, setNote] = useState("");
-  const [lines, setLines] = useState<Line[]>([
-    { productId: products[0]?.id ?? "", quantity: "1" },
-  ]);
+  const [productId, setProductId] = useState("");
+  const [qty, setQty] = useState("1");
 
-  const submit = () => {
-    const items = lines
-      .map((l) => ({
-        productId: l.productId,
-        quantity: Number(l.quantity) || 0,
-      }))
-      .filter((l) => l.productId && l.quantity > 0);
-    if (items.length === 0) return;
-    stockOut({ items, reason, note });
-    router.push("/kho");
-  };
+  useEffect(() => {
+    if (!productId && products[0]) setProductId(products[0].id);
+  }, [products, productId]);
 
   return (
     <AppShell>
       <PageHeader
         title="Xuất kho"
-        description="Chọn sản phẩm · số lượng · lý do · xác nhận"
         actions={
-          <Link href="/kho" className="pos-btn pos-btn-outline">
-            <ArrowLeft size={16} />
-            Quay lại kho
+          <Link href="/kho">
+            <Button variant="outline">Quay lại</Button>
           </Link>
         }
       />
-
-      <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <div className="pos-card space-y-4 p-4">
-          <label className="block">
-            <span className="pos-label">Lý do xuất</span>
-            <select
-              className="pos-input pos-input-rect"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-            >
-              {STOCK_OUT_REASONS.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div className="space-y-3">
-            {lines.map((line, index) => {
-              const p = products.find((x) => x.id === line.productId);
-              return (
-                <div
-                  key={index}
-                  className="grid gap-2 rounded-[10px] border border-[var(--pos-border)] p-3 sm:grid-cols-[1.6fr_0.8fr_auto]"
-                >
-                  <select
-                    className="pos-input pos-input-rect"
-                    value={line.productId}
-                    onChange={(e) =>
-                      setLines((prev) =>
-                        prev.map((l, i) =>
-                          i === index ? { ...l, productId: e.target.value } : l,
-                        ),
-                      )
-                    }
-                  >
-                    {products.map((prod) => (
-                      <option key={prod.id} value={prod.id}>
-                        {prod.name} (tồn {prod.stock})
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="number"
-                    className="pos-input pos-input-rect"
-                    min={1}
-                    max={p?.stock}
-                    value={line.quantity}
-                    onChange={(e) =>
-                      setLines((prev) =>
-                        prev.map((l, i) =>
-                          i === index ? { ...l, quantity: e.target.value } : l,
-                        ),
-                      )
-                    }
-                  />
-                  <button
-                    type="button"
-                    className="flex h-11 w-11 items-center justify-center rounded-[10px] text-rose-600 hover:bg-rose-50"
-                    onClick={() => setLines((prev) => prev.filter((_, i) => i !== index))}
-                    aria-label="Xóa dòng"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            className="pos-btn pos-btn-outline"
-            onClick={() =>
-              setLines((prev) => [
-                ...prev,
-                { productId: products[0]?.id ?? "", quantity: "1" },
-              ])
-            }
+      <Card className="mx-auto max-w-xl space-y-3 p-4">
+        <label className="block text-sm">
+          <span className="mb-1 block text-slate-500">Lý do</span>
+          <select
+            className="h-11 w-full rounded-[10px] border px-3 dark:bg-slate-900"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
           >
-            <Plus size={16} />
-            Thêm dòng
-          </button>
-
-          <label className="block">
-            <span className="pos-label">Ghi chú</span>
-            <textarea
-              className="pos-input pos-input-rect min-h-24 py-3"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
-          </label>
-        </div>
-
-        <div className="space-y-4">
-          <div className="pos-card p-4">
-            <p className="text-sm text-slate-500">
-              Sau khi xác nhận, tồn kho sẽ trừ ngay trên prototype.
-            </p>
-            <button type="button" className="pos-btn pos-btn-primary mt-4 w-full" onClick={submit}>
-              Xác nhận xuất kho
-            </button>
-          </div>
-          <div className="pos-card p-4">
-            <h2 className="mb-3 text-base font-bold">Phiếu xuất gần đây</h2>
-            <ul className="space-y-2">
-              {stockOuts.slice(0, 5).map((r) => (
-                <li key={r.id} className="rounded-[10px] bg-slate-50 px-3 py-2 text-sm">
-                  <p className="font-semibold">{r.code}</p>
-                  <p className="text-xs text-slate-500">{r.reason}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
+            {REASONS.map((r) => (
+              <option key={r}>{r}</option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block text-slate-500">Sản phẩm</span>
+          <select
+            className="h-11 w-full rounded-[10px] border px-3 dark:bg-slate-900"
+            value={productId}
+            onChange={(e) => setProductId(e.target.value)}
+          >
+            {products.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} (tồn {p.stock})
+              </option>
+            ))}
+          </select>
+        </label>
+        <Input type="number" value={qty} onChange={(e) => setQty(e.target.value)} />
+        <Input placeholder="Ghi chú" value={note} onChange={(e) => setNote(e.target.value)} />
+        <Button
+          className="w-full"
+          onClick={async () => {
+            if (!user) return;
+            try {
+              await stockOut({
+                user,
+                reason,
+                note,
+                items: [{ productId, quantity: Number(qty) || 0 }],
+              });
+              toast.success("Xuất kho thành công");
+              router.push("/kho");
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "Lỗi");
+            }
+          }}
+        >
+          Xác nhận xuất kho
+        </Button>
+      </Card>
     </AppShell>
   );
 }

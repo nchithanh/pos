@@ -1,159 +1,162 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowDownToLine, ArrowUpFromLine, Package } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { StatCard } from "@/components/ui/StatCard";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { SearchBar } from "@/components/ui/SearchBar";
-import { getStockStatus } from "@/data/products";
-import { formatVnd } from "@/lib/format";
-import { usePosStore } from "@/store/usePosStore";
+import { useMemo, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { toast } from "sonner";
+import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Dialog } from "@/components/ui/dialog";
+import { db, getStockStatus } from "@/lib/db";
+import { stockAdjust } from "@/lib/services/inventory";
+import { formatVnd } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function InventoryPage() {
-  const products = usePosStore((s) => s.products);
-  const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "in_stock" | "low" | "out">("all");
+  const products = useLiveQuery(() => db.products.toArray());
+  const movements = useLiveQuery(() => db.movements.orderBy("createdAt").reverse().limit(20).toArray());
+  const user = useAuthStore((s) => s.user);
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<"all" | "low" | "out">("all");
+  const [adjustId, setAdjustId] = useState<string | null>(null);
+  const [newStock, setNewStock] = useState("0");
 
   const stats = useMemo(() => {
-    const totalQty = products.reduce((s, p) => s + p.stock, 0);
-    const totalValue = products.reduce((s, p) => s + p.stock * p.costPrice, 0);
-    const low = products.filter((p) => getStockStatus(p.stock, p.minStock) === "low").length;
-    const out = products.filter((p) => getStockStatus(p.stock, p.minStock) === "out").length;
-    return { totalQty, totalValue, low, out };
+    const list = products ?? [];
+    return {
+      qty: list.reduce((s, p) => s + p.stock, 0),
+      value: list.reduce((s, p) => s + p.stock * p.costPrice, 0),
+      low: list.filter((p) => getStockStatus(p.stock, p.minStock) === "low").length,
+      out: list.filter((p) => getStockStatus(p.stock, p.minStock) === "out").length,
+    };
   }, [products]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return products.filter((p) => {
-      const status = getStockStatus(p.stock, p.minStock);
-      if (statusFilter !== "all" && status !== statusFilter) return false;
-      if (!q) return true;
-      return p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
+    return (products ?? []).filter((p) => {
+      const st = getStockStatus(p.stock, p.minStock);
+      if (filter === "low" && st !== "low") return false;
+      if (filter === "out" && st !== "out") return false;
+      const query = q.trim().toLowerCase();
+      if (!query) return true;
+      return p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query);
     });
-  }, [products, query, statusFilter]);
+  }, [products, q, filter]);
 
   return (
     <AppShell>
       <PageHeader
         title="Kho hàng"
-        description="Theo dõi tồn kho và luân chuyển nhập / xuất"
+        description="Tồn kho real-time · phiếu nhập/xuất/điều chỉnh"
         actions={
           <>
-            <Link href="/kho/nhap" className="pos-btn pos-btn-primary">
-              <ArrowDownToLine size={16} />
-              Nhập kho
-            </Link>
-            <Link href="/kho/xuat" className="pos-btn pos-btn-outline">
-              <ArrowUpFromLine size={16} />
-              Xuất kho
-            </Link>
+            <Link href="/kho/nhap"><Button><ArrowDownToLine size={16} /> Nhập</Button></Link>
+            <Link href="/kho/xuat"><Button variant="outline"><ArrowUpFromLine size={16} /> Xuất</Button></Link>
           </>
         }
       />
-
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Tổng tồn kho" value={`${stats.totalQty}`} icon={Package} tone="green" />
-        <StatCard label="Giá trị tồn" value={formatVnd(stats.totalValue)} tone="sky" />
-        <StatCard label="Sắp hết" value={String(stats.low)} tone="amber" />
-        <StatCard label="Hết hàng" value={String(stats.out)} tone="rose" />
+        {[
+          ["Tổng tồn", String(stats.qty)],
+          ["Giá trị", formatVnd(stats.value)],
+          ["Sắp hết", String(stats.low)],
+          ["Hết hàng", String(stats.out)],
+        ].map(([l, v]) => (
+          <Card key={l} className="p-4">
+            <p className="text-sm text-slate-500">{l}</p>
+            <p className="mt-1 text-xl font-bold">{v}</p>
+          </Card>
+        ))}
       </div>
 
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <SearchBar
-          value={query}
-          onChange={setQuery}
-          placeholder="Tìm trong kho..."
-          className="flex-1"
-          rect
-        />
-        <div className="flex flex-wrap gap-2">
-          {(
-            [
-              ["all", "Tất cả"],
-              ["in_stock", "Còn hàng"],
-              ["low", "Sắp hết"],
-              ["out", "Hết hàng"],
-            ] as const
-          ).map(([id, label]) => (
-            <button
-              key={id}
-              type="button"
-              className={`rounded-full border px-3 py-2 text-xs font-semibold ${
-                statusFilter === id
-                  ? "border-[var(--pos-green)] bg-[var(--pos-green)] text-white"
-                  : "border-[var(--pos-border)] bg-white"
-              }`}
-              onClick={() => setStatusFilter(id)}
-            >
-              {label}
-            </button>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+        <Input className="flex-1" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm trong kho…" />
+        <div className="flex gap-2">
+          {(["all", "low", "out"] as const).map((f) => (
+            <Button key={f} variant={filter === f ? "default" : "outline"} size="sm" onClick={() => setFilter(f)}>
+              {f === "all" ? "Tất cả" : f === "low" ? "Sắp hết" : "Hết"}
+            </Button>
           ))}
         </div>
       </div>
 
       <div className="mt-4 space-y-3 md:hidden">
-        {filtered.map((p) => {
-          const status = getStockStatus(p.stock, p.minStock);
-          return (
-            <article key={p.id} className="pos-card p-3">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="font-semibold">{p.name}</p>
-                  <p className="text-xs text-slate-400">{p.sku}</p>
-                </div>
-                <StatusBadge status={status} />
+        {filtered.map((p) => (
+          <Card key={p.id} className="p-3">
+            <div className="flex justify-between gap-2">
+              <div>
+                <p className="font-semibold">{p.name}</p>
+                <p className="text-xs text-slate-400">{p.stock} / min {p.minStock}</p>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p className="text-slate-500">Tồn kho</p>
-                  <p className="font-semibold">
-                    {p.stock} {p.unit}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-slate-500">Tối thiểu</p>
-                  <p className="font-semibold">{p.minStock}</p>
-                </div>
-              </div>
-            </article>
-          );
-        })}
+              <Badge status={getStockStatus(p.stock, p.minStock)} />
+            </div>
+            <Button className="mt-2 w-full" size="sm" variant="outline" onClick={() => { setAdjustId(p.id); setNewStock(String(p.stock)); }}>
+              Điều chỉnh
+            </Button>
+          </Card>
+        ))}
       </div>
 
-      <div className="pos-card mt-4 hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[700px] text-left text-sm">
-          <thead className="border-b border-[var(--pos-border)] bg-slate-50 text-slate-500">
+      <Card className="mt-4 hidden overflow-x-auto md:block">
+        <table className="w-full min-w-[720px] text-left text-sm">
+          <thead className="border-b bg-slate-50 dark:bg-slate-800">
             <tr>
-              <th className="px-4 py-3 font-semibold">Sản phẩm</th>
-              <th className="px-4 py-3 font-semibold">Tồn kho</th>
-              <th className="px-4 py-3 font-semibold">Mức tối thiểu</th>
-              <th className="px-4 py-3 font-semibold">Giá trị</th>
-              <th className="px-4 py-3 font-semibold">Trạng thái</th>
+              {["Sản phẩm", "Tồn", "Tối thiểu", "Giá trị", "TT", ""].map((h) => (
+                <th key={h} className="px-4 py-3 font-semibold text-slate-500">{h}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {filtered.map((p) => (
-              <tr key={p.id} className="border-b border-[var(--pos-border)] last:border-0">
-                <td className="px-4 py-3">
-                  <p className="font-medium">{p.name}</p>
-                  <p className="text-xs text-slate-400">{p.sku}</p>
-                </td>
-                <td className="px-4 py-3">
-                  {p.stock} {p.unit}
-                </td>
+              <tr key={p.id} className="border-b last:border-0">
+                <td className="px-4 py-3 font-medium">{p.name}</td>
+                <td className="px-4 py-3">{p.stock} {p.unit}</td>
                 <td className="px-4 py-3">{p.minStock}</td>
                 <td className="px-4 py-3">{formatVnd(p.stock * p.costPrice)}</td>
+                <td className="px-4 py-3"><Badge status={getStockStatus(p.stock, p.minStock)} /></td>
                 <td className="px-4 py-3">
-                  <StatusBadge status={getStockStatus(p.stock, p.minStock)} />
+                  <Button size="sm" variant="outline" onClick={() => { setAdjustId(p.id); setNewStock(String(p.stock)); }}>Điều chỉnh</Button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      </Card>
+
+      <Card className="mt-4 p-4">
+        <h2 className="mb-3 font-bold">Lịch sử gần đây</h2>
+        <ul className="space-y-2 text-sm">
+          {(movements ?? []).map((m) => (
+            <li key={m.id} className="flex justify-between rounded-[10px] bg-slate-50 px-3 py-2 dark:bg-slate-800">
+              <span className="font-medium">{m.code} · {m.type}</span>
+              <span className="text-slate-500">{m.userName}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      <Dialog open={!!adjustId} onClose={() => setAdjustId(null)} title="Điều chỉnh tồn">
+        <Input type="number" value={newStock} onChange={(e) => setNewStock(e.target.value)} />
+        <Button
+          className="mt-4 w-full"
+          onClick={async () => {
+            if (!user || !adjustId) return;
+            try {
+              await stockAdjust({ productId: adjustId, newStock: Number(newStock) || 0, user });
+              toast.success("Đã điều chỉnh");
+              setAdjustId(null);
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "Lỗi");
+            }
+          }}
+        >
+          Lưu
+        </Button>
+      </Dialog>
     </AppShell>
   );
 }

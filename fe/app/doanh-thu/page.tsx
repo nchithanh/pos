@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { format, subDays, startOfMonth, isAfter, parseISO } from "date-fns";
 import {
   Area,
   AreaChart,
@@ -12,131 +14,147 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AppShell } from "@/components/layout/AppShell";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { StatCard } from "@/components/ui/StatCard";
-import { DASHBOARD_STATS, REVENUE_SERIES } from "@/data/dashboard";
-import { formatVnd } from "@/lib/format";
+import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { db } from "@/lib/db";
+import { formatVnd } from "@/lib/utils";
 
-type RangeKey = "today" | "7d" | "30d" | "month";
-
-const RANGES: { id: RangeKey; label: string }[] = [
-  { id: "today", label: "Hôm nay" },
-  { id: "7d", label: "7 ngày" },
-  { id: "30d", label: "30 ngày" },
-  { id: "month", label: "Tháng này" },
-];
+type Range = "today" | "7d" | "30d" | "month";
 
 export default function RevenuePage() {
-  const [range, setRange] = useState<RangeKey>("7d");
-  const data = REVENUE_SERIES[range];
+  const orders = useLiveQuery(() => db.orders.toArray()) ?? [];
+  const [range, setRange] = useState<Range>("7d");
 
-  const chartData = useMemo(
-    () =>
-      data.daily.map((d) => ({
-        ...d,
-        label: `${d.date.slice(8)}/${d.date.slice(5, 7)}`,
-      })),
-    [data],
-  );
+  const filtered = useMemo(() => {
+    const now = new Date("2026-10-06T23:59:59");
+    let from = subDays(now, 6);
+    if (range === "today") from = new Date("2026-10-06T00:00:00");
+    if (range === "30d") from = subDays(now, 29);
+    if (range === "month") from = startOfMonth(now);
+    return orders.filter((o) => isAfter(parseISO(o.createdAt), from) || o.createdAt.startsWith(format(from, "yyyy-MM-dd")));
+  }, [orders, range]);
+
+  const metrics = useMemo(() => {
+    const revenue = filtered.reduce((s, o) => s + o.total, 0);
+    const cogs = filtered.reduce(
+      (s, o) => s + o.items.reduce((x, i) => x + i.costPrice * i.quantity, 0),
+      0,
+    );
+    const profit = revenue - cogs;
+    const count = filtered.length;
+    const aov = count ? Math.round(revenue / count) : 0;
+    return { revenue, profit, count, aov };
+  }, [filtered]);
+
+  const daily = useMemo(() => {
+    const map = new Map<string, { revenue: number; orders: number }>();
+    for (const o of filtered) {
+      const key = o.createdAt.slice(0, 10);
+      const cur = map.get(key) ?? { revenue: 0, orders: 0 };
+      cur.revenue += o.total;
+      cur.orders += 1;
+      map.set(key, cur);
+    }
+    return [...map.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([date, v]) => ({
+        label: `${date.slice(8)}/${date.slice(5, 7)}`,
+        ...v,
+      }));
+  }, [filtered]);
+
+  const byCashier = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const o of filtered) {
+      map.set(o.cashierName, (map.get(o.cashierName) ?? 0) + o.total);
+    }
+    return [...map.entries()].map(([name, revenue]) => ({ name, revenue }));
+  }, [filtered]);
+
+  const exportCsv = () => {
+    const rows = [
+      ["code", "date", "cashier", "total", "method"],
+      ...filtered.map((o) => [o.code, o.createdAt, o.cashierName, String(o.total), o.paymentMethod]),
+    ];
+    const csv = rows.map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `doanh-thu-${range}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <AppShell>
       <PageHeader
         title="Doanh thu"
-        description="Báo cáo bán hàng theo khoảng thời gian"
+        description="Báo cáo từ đơn hàng thực · export CSV"
+        actions={<Button variant="outline" onClick={exportCsv}>Export CSV</Button>}
       />
-
       <div className="mb-4 flex flex-wrap gap-2">
-        {RANGES.map((r) => (
-          <button
-            key={r.id}
-            type="button"
-            className={`rounded-full border px-4 py-2 text-sm font-semibold ${
-              range === r.id
-                ? "border-[var(--pos-green)] bg-[var(--pos-green)] text-white"
-                : "border-[var(--pos-border)] bg-white text-slate-600"
-            }`}
-            onClick={() => setRange(r.id)}
-          >
-            {r.label}
-          </button>
+        {([
+          ["today", "Hôm nay"],
+          ["7d", "7 ngày"],
+          ["30d", "30 ngày"],
+          ["month", "Tháng này"],
+        ] as const).map(([id, label]) => (
+          <Button key={id} size="sm" variant={range === id ? "default" : "outline"} onClick={() => setRange(id)}>
+            {label}
+          </Button>
         ))}
       </div>
-
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Doanh thu" value={formatVnd(data.revenue)} tone="green" />
-        <StatCard label="Lợi nhuận" value={formatVnd(data.profit)} tone="sky" />
-        <StatCard label="Số đơn" value={String(data.orders)} />
-        <StatCard label="Đơn trung bình" value={formatVnd(data.aov)} tone="amber" />
+        <Card className="p-4"><p className="text-sm text-slate-500">Doanh thu</p><p className="text-xl font-bold">{formatVnd(metrics.revenue)}</p></Card>
+        <Card className="p-4"><p className="text-sm text-slate-500">Lợi nhuận</p><p className="text-xl font-bold">{formatVnd(metrics.profit)}</p></Card>
+        <Card className="p-4"><p className="text-sm text-slate-500">Số đơn</p><p className="text-xl font-bold">{metrics.count}</p></Card>
+        <Card className="p-4"><p className="text-sm text-slate-500">Đơn TB</p><p className="text-xl font-bold">{formatVnd(metrics.aov)}</p></Card>
       </div>
-
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
-        <div className="pos-card p-4">
-          <h2 className="mb-3 text-base font-bold">Doanh thu theo ngày</h2>
+        <Card className="p-4">
+          <h2 className="mb-3 font-bold">Doanh thu theo ngày</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="rev2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#22c55e" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
+              <AreaChart data={daily}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                <YAxis
-                  tick={{ fontSize: 11 }}
-                  tickFormatter={(v) => `${Math.round(Number(v) / 1_000_000)}tr`}
-                />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${Math.round(Number(v) / 1e6)}tr`} />
                 <Tooltip formatter={(v: number) => formatVnd(v)} />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#16a34a"
-                  fill="url(#rev2)"
-                  strokeWidth={2}
-                />
+                <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="#10b98133" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
-
-        <div className="pos-card p-4">
-          <h2 className="mb-3 text-base font-bold">Số đơn theo ngày</h2>
+        </Card>
+        <Card className="p-4">
+          <h2 className="mb-3 font-bold">Số đơn</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
+              <BarChart data={daily}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} />
                 <Tooltip />
-                <Bar dataKey="orders" fill="#22c55e" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="orders" fill="#10b981" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </Card>
       </div>
-
-      <div className="pos-card mt-4 p-4">
-        <h2 className="mb-3 text-base font-bold">Top sản phẩm</h2>
-        <ul className="divide-y divide-[var(--pos-border)]">
-          {DASHBOARD_STATS.topProducts.map((p, i) => (
-            <li key={p.productId} className="flex items-center justify-between gap-3 py-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--pos-green-soft)] text-xs font-bold text-[var(--pos-green-dark)]">
-                  {i + 1}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate font-semibold">{p.name}</p>
-                  <p className="text-xs text-slate-500">Đã bán {p.sold}</p>
-                </div>
-              </div>
-              <p className="shrink-0 font-bold">{formatVnd(p.revenue)}</p>
+      <Card className="mt-4 p-4">
+        <h2 className="mb-3 font-bold">Theo nhân viên</h2>
+        <ul className="space-y-2">
+          {byCashier.map((r) => (
+            <li key={r.name} className="flex justify-between text-sm">
+              <span>{r.name}</span>
+              <span className="font-bold">{formatVnd(r.revenue)}</span>
             </li>
           ))}
+          {!byCashier.length ? <li className="text-slate-500">Chưa có dữ liệu trong khoảng này.</li> : null}
         </ul>
-      </div>
+      </Card>
     </AppShell>
   );
 }

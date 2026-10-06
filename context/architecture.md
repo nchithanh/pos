@@ -3,34 +3,27 @@
 | Layer | Choice |
 | --- | --- |
 | Framework | Next.js 16 App Router |
-| UI | React 19 + Tailwind CSS 4 |
-| Icons | Lucide React |
-| State | Zustand (`store/usePosStore.ts`) |
+| UI | React 19 · Tailwind 4 · Lucide |
+| Forms | React Hook Form + Zod |
+| Client state | Zustand (auth, cart) |
+| Server/cache | TanStack Query (sẵn sàng mở rộng) |
+| Persistence | Dexie IndexedDB (`lib/db.ts`) |
 | Charts | Recharts |
-| Data | Hardcoded `fe/data/*.ts` |
+| PWA | `@ducanh2912/next-pwa` |
 
-## Routes (`fe/app`)
+## Folder (`fe/`)
 
-| Path | Screen |
-| --- | --- |
-| `/` | Tổng quan |
-| `/ban-hang` | POS |
-| `/san-pham` | Sản phẩm |
-| `/kho` | Kho |
-| `/kho/nhap` | Nhập kho |
-| `/kho/xuat` | Xuất kho |
-| `/nha-cung-cap` | NCC |
-| `/nha-cung-cap/[id]` | NCC detail |
-| `/cong-no` | Công nợ |
-| `/doanh-thu` | Doanh thu |
-| `/nhan-vien` | Nhân viên |
-| `/khach-hang` | Customer expansion |
-
-Dev: `npm run dev` → port **3012**.
+```
+app/           # routes
+components/    # ui, layout
+lib/           # db, seed, services, print, utils
+stores/        # zustand
+types/         # shared types
+public/        # manifest + icons
+```
 
 ## Deploy
 
-- GitHub Pages via `.github/workflows/deploy-pages.yml`
-- Static export: `GITHUB_PAGES=true` · project basePath `/pos`
-- Docs: `fe/documentations/deploy.md`
-- Live (project Pages): https://nchithanh.github.io/pos/
+- Dev: `npm run dev` → :3012  
+- Vercel: `npm run build`  
+- Pages: `npm run build:pages` · workflow `.github/workflows/deploy-pages.yml` · https://nchithanh.github.io/pos/

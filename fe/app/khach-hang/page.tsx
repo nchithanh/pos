@@ -1,119 +1,140 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft, Sparkles, Users } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { AI_SUGGESTIONS, INITIAL_CUSTOMERS } from "@/data/customers";
-import { daysAgoLabel, formatDate, formatVnd } from "@/lib/format";
-import { usePosStore } from "@/store/usePosStore";
+import { useMemo, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { differenceInDays, parseISO } from "date-fns";
+import { Plus, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Dialog } from "@/components/ui/dialog";
+import { db } from "@/lib/db";
+import { formatDate, formatVnd, uid } from "@/lib/utils";
 
-const FEATURES = [
-  "Hồ sơ khách hàng",
-  "Lịch sử mua hàng",
-  "Tổng chi tiêu",
-  "Lần mua gần nhất",
-  "Nhóm khách hàng",
-  "Nhắc khách quay lại",
-];
+export default function CustomersPage() {
+  const customers = useLiveQuery(() => db.customers.toArray());
+  const orders = useLiveQuery(() => db.orders.toArray());
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [group, setGroup] = useState("Khách lẻ");
 
-export default function CustomerExpansionPage() {
-  const addToast = usePosStore((s) => s.addToast);
+  const filtered = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    return (customers ?? []).filter(
+      (c) => !query || c.name.toLowerCase().includes(query) || c.phone.includes(query),
+    );
+  }, [customers, q]);
+
+  const ai = useMemo(() => {
+    return (customers ?? [])
+      .map((c) => {
+        const days = c.lastPurchaseAt
+          ? differenceInDays(new Date("2026-10-06"), parseISO(c.lastPurchaseAt))
+          : 999;
+        return { ...c, days };
+      })
+      .filter((c) => c.days >= 20)
+      .sort((a, b) => b.days - a.days)
+      .slice(0, 5);
+  }, [customers]);
+
+  const history = (orders ?? []).filter((o) => o.customerId === detailId);
 
   return (
     <AppShell>
       <PageHeader
-        title="Dolphin Customer"
-        description="Expansion feature — giới thiệu cho Founder demo upsell"
-        actions={
-          <Link href="/" className="pos-btn pos-btn-outline">
-            <ArrowLeft size={16} />
-            Về tổng quan
-          </Link>
-        }
+        title="Khách hàng"
+        description="Dolphin Customer · điểm tích lũy · AI nhắc quay lại"
+        actions={<Button onClick={() => setOpen(true)}><Plus size={16} /> Thêm</Button>}
       />
-
-      <div className="mb-4 rounded-[12px] bg-gradient-to-br from-[var(--pos-green)] to-emerald-400 p-5 text-white">
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <Users size={18} />
-          Quản lý khách hàng và tăng tỷ lệ khách quay lại
-        </div>
-        <p className="mt-2 max-w-2xl text-sm text-emerald-50">
-          Đây không phải core POS. Module giúp cửa hàng nhớ khách thân, theo dõi
-          chu kỳ mua cát / thức ăn, và nhắc quay lại đúng lúc.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {FEATURES.map((f) => (
-            <span
-              key={f}
-              className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold"
-            >
-              {f}
-            </span>
-          ))}
-        </div>
-      </div>
+      <Input className="mb-4" placeholder="Tìm tên / SĐT…" value={q} onChange={(e) => setQ(e.target.value)} />
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="pos-card p-4 lg:col-span-2">
-          <h2 className="mb-3 text-base font-bold">Khách hàng mẫu</h2>
-          <ul className="space-y-3">
-            {INITIAL_CUSTOMERS.map((c) => (
-              <li
-                key={c.id}
-                className="flex flex-col gap-2 rounded-[10px] border border-[var(--pos-border)] p-3 sm:flex-row sm:items-center sm:justify-between"
-              >
+        <div className="space-y-3 lg:col-span-2">
+          {filtered.map((c) => (
+            <Card key={c.id} className="cursor-pointer p-4" onClick={() => setDetailId(c.id)}>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="font-semibold">{c.name}</p>
+                  <p className="font-bold">{c.name}</p>
+                  <p className="text-xs text-slate-500">{c.phone} · {c.group}</p>
                   <p className="text-xs text-slate-500">
-                    {c.phone} · {c.group}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Mua gần nhất {formatDate(c.lastPurchaseAt)} · {c.visitCount} lần
+                    {c.lastPurchaseAt ? `Mua gần nhất ${formatDate(c.lastPurchaseAt)}` : "Chưa mua"} · {c.points} điểm
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-sm font-bold">{formatVnd(c.totalSpent)}</p>
-                  <p className="text-xs text-slate-500">Tổng chi tiêu</p>
+                  <p className="font-bold">{formatVnd(c.totalSpent)}</p>
+                  {c.debt > 0 ? <p className="text-xs text-amber-600">Nợ {formatVnd(c.debt)}</p> : null}
                 </div>
-              </li>
-            ))}
-          </ul>
+              </div>
+            </Card>
+          ))}
         </div>
-
-        <div className="rounded-[12px] border border-emerald-200 bg-emerald-50/60 p-4">
-          <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--pos-green-dark)]">
-            <Sparkles size={16} />
-            Dolphin AI
+        <Card className="border-emerald-200 bg-emerald-50/50 p-4 dark:bg-emerald-950/30">
+          <div className="mb-2 flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300">
+            <Sparkles size={16} /> AI gợi ý quay lại
           </div>
-          <p className="text-sm font-semibold text-slate-900">
-            3 khách hàng có khả năng quay lại mua cát trong 5 ngày tới.
-          </p>
-          <ul className="mt-3 space-y-2">
-            {AI_SUGGESTIONS.map((s) => (
-              <li key={s.customerId} className="rounded-[10px] bg-white p-3 text-sm">
-                <p className="font-semibold">{s.name}</p>
-                <p className="text-xs text-slate-500">{s.insight}</p>
-                <p className="mt-1 text-xs text-[var(--pos-green-dark)]">
-                  Gợi ý: {s.productHint}
-                </p>
+          <ul className="space-y-2">
+            {ai.map((c) => (
+              <li key={c.id} className="rounded-[10px] bg-white p-3 text-sm dark:bg-slate-900">
+                <p className="font-semibold">{c.name}</p>
+                <p className="text-xs text-slate-500">Cách lần mua cuối: {c.days} ngày</p>
               </li>
             ))}
           </ul>
-          <button
-            type="button"
-            className="pos-btn pos-btn-primary mt-4 w-full"
-            onClick={() =>
-              addToast("info", "Đã mở danh sách đề xuất chăm sóc (mock demo)")
-            }
-          >
-            Xem đề xuất
-          </button>
-          <p className="mt-3 text-xs text-slate-500">
-            Ví dụ: khách A mua cát lần cuối {daysAgoLabel("2026-09-09")}.
-          </p>
-        </div>
+        </Card>
       </div>
+
+      <Dialog open={open} onClose={() => setOpen(false)} title="Thêm khách hàng">
+        <div className="space-y-3">
+          <Input placeholder="Tên" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input placeholder="SĐT" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <Input placeholder="Nhóm" value={group} onChange={(e) => setGroup(e.target.value)} />
+          <Button
+            className="w-full"
+            onClick={async () => {
+              if (!name.trim() || !phone.trim()) return toast.error("Thiếu thông tin");
+              await db.customers.add({
+                id: uid("cus"),
+                name: name.trim(),
+                phone: phone.trim(),
+                group,
+                points: 0,
+                totalSpent: 0,
+                visitCount: 0,
+                debt: 0,
+                createdAt: new Date().toISOString(),
+              });
+              toast.success("Đã thêm khách");
+              setOpen(false);
+              setName("");
+              setPhone("");
+            }}
+          >
+            Lưu
+          </Button>
+        </div>
+      </Dialog>
+
+      <Dialog open={!!detailId} onClose={() => setDetailId(null)} title="Lịch sử mua hàng">
+        <ul className="max-h-72 space-y-2 overflow-auto text-sm">
+          {history.length === 0 ? (
+            <li className="text-slate-500">Chưa có đơn gắn khách này.</li>
+          ) : (
+            history.map((o) => (
+              <li key={o.id} className="flex justify-between rounded-[8px] bg-slate-50 px-3 py-2 dark:bg-slate-800">
+                <span>{o.code}</span>
+                <span className="font-semibold">{formatVnd(o.total)}</span>
+              </li>
+            ))
+          )}
+        </ul>
+      </Dialog>
     </AppShell>
   );
 }

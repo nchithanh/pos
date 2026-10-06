@@ -34,7 +34,7 @@ export const viewport: Viewport = {
 };
 
 /** Chống FOUC theme — không dùng <script> trong client component (React 19) */
-const THEME_INIT = `(function(){try{var k='dolphin-pos-theme';var t=localStorage.getItem(k)||'system';var d=window.matchMedia('(prefers-color-scheme: dark)').matches;var r=t==='system'?(d?'dark':'light'):t;var e=document.documentElement;e.classList.remove('light','dark');e.classList.add(r);e.style.colorScheme=r;}catch(e){}})();`;
+const THEME_INIT = `(function(){try{var k='dolphin-pos-theme';var t=localStorage.getItem(k)||'light';var d=window.matchMedia('(prefers-color-scheme: dark)').matches;var r=t==='system'?(d?'dark':'light'):t;var e=document.documentElement;e.classList.remove('light','dark');e.classList.add(r);e.style.colorScheme=r;}catch(e){}})();`;
 
 export default function RootLayout({
   children,

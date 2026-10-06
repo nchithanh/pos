@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, Pencil, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CardListSkeleton, TableSkeleton } from "@/components/ui/skeleton";
+import { useConfirm } from "@/hooks/use-confirm";
 import { db, getStockStatus } from "@/lib/db";
+import { notify } from "@/lib/notify";
 import { formatVnd, uid } from "@/lib/utils";
 
 const schema = z.object({
@@ -24,12 +27,16 @@ const schema = z.object({
   barcode: z.string().optional(),
   categoryId: z.string().min(1),
   brand: z.string().optional(),
-  sellPrice: z.number().positive(),
-  costPrice: z.number().min(0),
-  stock: z.number().min(0),
+  sellPrice: z.number().positive("Giá bán phải > 0"),
+  costPrice: z.number().min(0, "Giá nhập ≥ 0"),
+  stock: z.number().min(0, "Tồn không âm"),
   minStock: z.number().min(0),
   unit: z.string().min(1),
   supplierId: z.string().optional(),
+  imageUrl: z
+    .string()
+    .refine((v) => !v || /^https?:\/\//i.test(v), "URL ảnh không hợp lệ")
+    .optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -37,6 +44,7 @@ type FormValues = z.infer<typeof schema>;
 const PAGE_SIZE = 10;
 
 export default function ProductsPage() {
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const products = useLiveQuery(() => db.products.toArray());
   const categories = useLiveQuery(() => db.categories.toArray());
   const suppliers = useLiveQuery(() => db.suppliers.toArray());
@@ -45,6 +53,14 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const loading = products === undefined;
+  const lowCount = useMemo(
+    () =>
+      (products ?? []).filter(
+        (p) => getStockStatus(p.stock, p.minStock) !== "in_stock",
+      ).length,
+    [products],
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -96,6 +112,7 @@ export default function ProductsPage() {
       minStock: 5,
       unit: "cái",
       supplierId: suppliers?.[0]?.id,
+      imageUrl: "",
     });
     setOpen(true);
   };
@@ -116,34 +133,46 @@ export default function ProductsPage() {
       minStock: p.minStock,
       unit: p.unit,
       supplierId: p.supplierId,
+      imageUrl: p.imageUrl ?? "",
     });
     setOpen(true);
   };
 
   const onSubmit = form.handleSubmit(async (values) => {
     const now = new Date().toISOString();
+    const imageUrl = values.imageUrl?.trim() || undefined;
+    const payload = { ...values, imageUrl };
     if (editId) {
-      await db.products.update(editId, { ...values, updatedAt: now });
-      toast.success("Đã cập nhật sản phẩm");
+      await db.products.update(editId, { ...payload, updatedAt: now });
+      notify.success("Đã cập nhật sản phẩm");
     } else {
       await db.products.add({
         id: uid("p"),
-        ...values,
+        ...payload,
         imageColor: "#E8F5E9",
         emoji: "🐾",
         active: true,
         createdAt: now,
         updatedAt: now,
       });
-      toast.success("Đã thêm sản phẩm");
+      notify.success("Đã thêm sản phẩm");
     }
     setOpen(false);
   });
 
   const remove = async (id: string) => {
-    if (!confirm("Xóa sản phẩm này?")) return;
+    const p = products?.find((x) => x.id === id);
+    const ok = await confirm({
+      title: "Xóa sản phẩm?",
+      description: p
+        ? `“${p.name}” sẽ bị xóa khỏi danh mục. Tồn kho và lịch sử liên quan vẫn giữ trong sổ kho cũ.`
+        : "Sản phẩm sẽ bị xóa khỏi danh mục.",
+      confirmLabel: "Xóa",
+      variant: "danger",
+    });
+    if (!ok) return;
     await db.products.delete(id);
-    toast.success("Đã xóa");
+    notify.deleted("Đã xóa sản phẩm");
   };
 
   const bulkDemo = async () => {
@@ -165,11 +194,12 @@ export default function ProductsPage() {
       createdAt: now,
       updatedAt: now,
     });
-    toast.success("Đã import 1 dòng mẫu");
+    notify.success("Đã import 1 dòng mẫu");
   };
 
   return (
     <AppShell>
+      {confirmDialog}
       <PageHeader
         title="Sản phẩm"
         description={`${products?.length ?? 0} SKU · lưu IndexedDB`}
@@ -180,6 +210,19 @@ export default function ProductsPage() {
           </>
         }
       />
+      {lowCount > 0 ? (
+        <Card className="mb-3 flex flex-wrap items-center justify-between gap-2 border-amber-300 bg-amber-50 p-3 dark:bg-amber-950/40">
+          <p className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-200">
+            <AlertTriangle size={16} />
+            {lowCount} SKU sắp hết / hết hàng
+          </p>
+          <Link href="/kho">
+            <Button size="sm" variant="outline">
+              Xem kho
+            </Button>
+          </Link>
+        </Card>
+      ) : null}
       <Input
         className="mb-3"
         placeholder="Tìm tên / SKU / barcode…"
@@ -223,7 +266,16 @@ export default function ProductsPage() {
         ))}
       </div>
 
-      {!filtered.length ? (
+      {loading ? (
+        <>
+          <div className="md:hidden">
+            <CardListSkeleton count={4} />
+          </div>
+          <div className="hidden md:block">
+            <TableSkeleton rows={6} cols={6} />
+          </div>
+        </>
+      ) : !filtered.length ? (
         <Card><EmptyState title="Không có sản phẩm" action={<Button onClick={openCreate}>Thêm sản phẩm</Button>} /></Card>
       ) : (
         <>
@@ -336,10 +388,35 @@ export default function ProductsPage() {
           </label>
           {(["sellPrice", "costPrice", "stock", "minStock"] as const).map((key) => (
             <label key={key} className="block text-sm">
-              <span className="mb-1 block text-slate-500">{key}</span>
+              <span className="mb-1 block text-slate-500">
+                {key === "sellPrice"
+                  ? "Giá bán"
+                  : key === "costPrice"
+                    ? "Giá nhập"
+                    : key === "stock"
+                      ? "Tồn kho"
+                      : "Tồn tối thiểu"}
+              </span>
               <Input type="number" {...form.register(key, { valueAsNumber: true })} />
+              {form.formState.errors[key] ? (
+                <p className="mt-1 text-xs text-rose-600">
+                  {form.formState.errors[key]?.message}
+                </p>
+              ) : null}
             </label>
           ))}
+          <label className="block text-sm sm:col-span-2">
+            <span className="mb-1 block text-slate-500">URL ảnh (tuỳ chọn)</span>
+            <Input
+              placeholder="https://…"
+              {...form.register("imageUrl")}
+            />
+            {form.formState.errors.imageUrl ? (
+              <p className="mt-1 text-xs text-rose-600">
+                {form.formState.errors.imageUrl.message}
+              </p>
+            ) : null}
+          </label>
           <div className="sm:col-span-2">
             <Button type="submit" className="w-full">Lưu</Button>
           </div>

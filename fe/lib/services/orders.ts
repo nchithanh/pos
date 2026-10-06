@@ -33,9 +33,14 @@ export function calcLineTotal(
   return Math.round(raw * (1 - Math.min(100, Math.max(0, discountPercent)) / 100));
 }
 
+/** 1 điểm = 1.000 VND khi đổi điểm */
+export const POINT_VALUE_VND = 1000;
+
 export async function checkoutOrder(input: {
   lines: CartLine[];
   cartDiscount: number;
+  /** Điểm khách muốn đổi (cần customerId) */
+  pointsToRedeem?: number;
   paymentMethod: PaymentMethod;
   payments?: PaymentSplit[];
   cashReceived?: number;
@@ -74,9 +79,30 @@ export async function checkoutOrder(input: {
   });
 
   const subtotal = items.reduce((s, i) => s + i.lineTotal, 0);
-  const discount = Math.min(Math.max(0, input.cartDiscount), subtotal);
+  const cartDiscount = Math.min(Math.max(0, input.cartDiscount), subtotal);
+
+  let customer: Customer | undefined;
+  if (input.customerId) {
+    customer = await db.customers.get(input.customerId);
+  }
+
+  let pointsToRedeem = Math.max(0, Math.floor(input.pointsToRedeem ?? 0));
+  if (pointsToRedeem > 0) {
+    if (!customer) throw new Error("Chọn khách để dùng điểm");
+    if (pointsToRedeem > customer.points) {
+      throw new Error(`Khách chỉ còn ${customer.points} điểm`);
+    }
+  }
+  const afterCart = subtotal - cartDiscount;
+  const maxPointsByMoney = Math.floor(afterCart / POINT_VALUE_VND);
+  pointsToRedeem = Math.min(pointsToRedeem, maxPointsByMoney);
+  const pointsDiscount = pointsToRedeem * POINT_VALUE_VND;
+  const discount = cartDiscount + pointsDiscount;
+
   const settings = await db.settings.get("store");
-  const tax = Math.round((subtotal - discount) * ((settings?.taxRate ?? 0) / 100));
+  const tax = Math.round(
+    (subtotal - discount) * ((settings?.taxRate ?? 0) / 100),
+  );
   const total = subtotal - discount + tax;
 
   let payments = input.payments ?? [];
@@ -109,10 +135,6 @@ export async function checkoutOrder(input: {
   }
 
   const seq = await nextOrderSeq();
-  let customer: Customer | undefined;
-  if (input.customerId) {
-    customer = await db.customers.get(input.customerId);
-  }
 
   const order: Order = {
     id: uid("ord"),
@@ -137,6 +159,7 @@ export async function checkoutOrder(input: {
       input.paymentMethod === "cash" && input.cashReceived != null
         ? input.cashReceived - total
         : undefined,
+    pointsRedeemed: pointsToRedeem || undefined,
     note: input.note,
     status: input.paymentMethod === "debt" ? "debt" : "paid",
   };
@@ -175,11 +198,14 @@ export async function checkoutOrder(input: {
       });
 
       if (customer) {
+        const earned =
+          order.status === "paid" ? Math.floor(order.total / 10000) : 0;
         await db.customers.update(customer.id, {
-          totalSpent: customer.totalSpent + (order.status === "paid" ? order.total : 0),
+          totalSpent:
+            customer.totalSpent + (order.status === "paid" ? order.total : 0),
           visitCount: customer.visitCount + 1,
           lastPurchaseAt: order.createdAt,
-          points: customer.points + Math.floor(order.total / 10000),
+          points: Math.max(0, customer.points - pointsToRedeem + earned),
           debt:
             order.status === "debt"
               ? customer.debt + order.total

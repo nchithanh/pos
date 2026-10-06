@@ -40,7 +40,7 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system");
+  const [theme, setThemeState] = useState<Theme>("light");
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
   const [systemTheme, setSystemTheme] = useState<"light" | "dark">("light");
 
@@ -53,10 +53,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setThemeState(stored);
         setResolvedTheme(applyTheme(stored));
       } else {
-        setResolvedTheme(applyTheme("system"));
+        setResolvedTheme(applyTheme("light"));
       }
     } catch {
-      setResolvedTheme(applyTheme("system"));
+      setResolvedTheme(applyTheme("light"));
     }
     setSystemTheme(getSystemTheme());
     setBooted(true);
@@ -107,7 +107,7 @@ export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
     return {
-      theme: "system",
+      theme: "light",
       setTheme: () => undefined,
       resolvedTheme: "light",
       themes: ["light", "dark", "system"],

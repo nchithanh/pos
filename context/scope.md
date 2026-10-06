@@ -12,9 +12,15 @@
 - Nhân viên/permissions · cài đặt 3 tab (cửa hàng / HĐĐT SePay mock / NV) · backup/restore/theme  
 - PWA (prod) · GitHub Pages + Vercel-ready  
 
+## Recently polished (FE)
+
+- Dashboard KPI/charts · loyalty điểm · bill PDF · SePay **simulator**  
+- Offline banner · POS kiosk layout · ConfirmDialog / skeletons  
+
 ## Out of scope / later
 
 - Supabase sync thật (adapter stub chưa nối)  
+- SePay sandbox API thật (cần credential + server proxy)  
 - Gateway thanh toán online  
 - Capacitor native wrapper  
 - Multi-store / multi-warehouse đầy đủ  

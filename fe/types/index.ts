@@ -21,6 +21,8 @@ export type PermissionKey =
 /** Mock SePay-style e-invoice account config (admin settings). */
 export interface EInvoiceConfig {
   provider: "sepay" | "none";
+  /** simulator = docs contract local; sandbox = TODO real API when có credential */
+  mode: "simulator" | "sandbox";
   connected: boolean;
   /** Mock provider_account_id */
   providerAccountId: string;
@@ -33,6 +35,8 @@ export interface EInvoiceConfig {
   sellerStoreXid: string;
   storeLabel: string;
   lastCheckedAt?: string;
+  /** Placeholder — không dùng trên client static Pages */
+  sandboxClientId?: string;
 }
 
 export interface StoreSettings {
@@ -105,6 +109,8 @@ export interface Product {
   supplierId?: string;
   imageColor: string;
   emoji: string;
+  /** URL ảnh sản phẩm (tùy chọn) — placeholder emoji nếu trống */
+  imageUrl?: string;
   active: boolean;
   note?: string;
   createdAt: string;
@@ -177,6 +183,10 @@ export interface EInvoiceMock {
   invoiceTemplateLabel?: string;
   storeLabel?: string;
   accountLabel?: string;
+  /** SePay-style tracking (simulator / sandbox) */
+  trackingCode?: string;
+  trackingUrl?: string;
+  status?: "draft" | "processing" | "issued" | "failed";
 }
 
 export interface Order {
@@ -199,6 +209,8 @@ export interface Order {
   payments: PaymentSplit[];
   cashReceived?: number;
   changeDue?: number;
+  /** Điểm khách đã đổi (1 điểm = 1.000đ) */
+  pointsRedeemed?: number;
   note?: string;
   status: "paid" | "debt" | "void";
   eInvoice?: EInvoiceMock;

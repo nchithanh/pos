@@ -84,7 +84,6 @@ export function ElectronicInvoiceModal({
     }
     setBusy(true);
     try {
-      await new Promise((r) => setTimeout(r, 500));
       const updated = await issueMockEInvoice(order.id, {
         customerType,
         companyName: name,
@@ -94,7 +93,11 @@ export function ElectronicInvoiceModal({
       });
       setIssued(updated.eInvoice ?? null);
       onIssued?.(updated);
-      toast.success("Demo: đã phát hành hóa đơn");
+      toast.success(
+        cfg.mode === "simulator"
+          ? "Simulator SePay: đã phát hành (tracking)"
+          : "Đã phát hành hóa đơn",
+      );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Không phát hành được");
     } finally {
@@ -125,6 +128,12 @@ export function ElectronicInvoiceModal({
               Số HĐ: {issued.invoiceSeries ?? cfg.invoiceSeries}-
               {issued.number}
             </p>
+            {issued.trackingCode ? (
+              <p className="mt-1 text-xs text-slate-500">
+                Tracking: {issued.trackingCode}
+                {issued.status ? ` · ${issued.status}` : ""}
+              </p>
+            ) : null}
             <p className="mt-1 text-slate-500">
               Ngày: {formatDate(issued.issuedAt)}
             </p>

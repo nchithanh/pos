@@ -44,7 +44,38 @@ Local-first POS (IndexedDB) cho pet shop & cafe.
 
 Xuất HĐĐT trên POS đọc `settings.eInvoice` (phải *Đã kết nối*).
 
+## POS (`/ban-hang`)
+
+- Product card: hover, badge tồn thấp/hết · toast khi thêm
+- Dòng giỏ: ghi chú · giảm % dòng · +/- qty · click chọn dòng
+- Giảm đơn: chế độ `đ` / `%` · split cash + method khác
+- Checkout success: motion ngắn + actions bill / HĐĐT
+
+## UX feedback
+
+- Toast qua `lib/notify.ts` (success / error / warning / info)
+- Confirm destructive: `hooks/use-confirm` + `ConfirmDialog` (không dùng `window.confirm`)
+- Skeleton: `TableSkeleton` · `CardListSkeleton` · `ProductGridSkeleton`
+- Page enter: `PageTransition` trong `AppShell`
+- Offline banner · POS kiosk (sidebar từ `xl` trên `/ban-hang`)
+
+## Loyalty
+
+- Tích điểm: `floor(total/10000)` mỗi đơn paid
+- Đổi điểm tại POS: 1 điểm = 1.000đ (`POINT_VALUE_VND`) — cần chọn khách
+
+## HĐĐT SePay
+
+- Mode mặc định **Simulator** (`lib/services/sepay-simulator.ts`) — contract docs, không credential
+- Mode **Sandbox thật** = TODO (cần `client_id`/`secret` + API proxy; Pages static không gọi trực tiếp)
+- Xuất HĐ lưu `trackingCode` / `trackingUrl` / `status` trên `order.eInvoice`
+
+## Bill
+
+- Preview + `window.print` nhiệt 58/80 (`settings.receiptWidth`)
+- Tải PDF: `lib/pdf-receipt.ts` (jsPDF)
+
 ## Shortcuts
 
 - `Ctrl/Cmd+K` command palette
-- POS: `F2` focus search · `F4` checkout · `Enter` trên search = barcode/add
+- POS: `F2` search · `F4` checkout · `Enter` barcode/add · `Esc` đóng modal / xóa giỏ · `+`/`-` qty dòng đang chọn

@@ -1,5 +1,6 @@
 import { format as dfFormat, subDays, setHours, setMinutes } from "date-fns";
 import { db } from "@/lib/db";
+import { DEFAULT_EINVOICE_CONFIG } from "@/lib/einvoice-config";
 import type {
   Category,
   Customer,
@@ -175,19 +176,8 @@ const SETTINGS: StoreSettings = {
   currency: "VND",
   receiptWidth: 80,
   logoEmoji: "🐬",
-  theme: "system",
-  eInvoice: {
-    provider: "sepay",
-    connected: true,
-    providerAccountId: "acc_demo_petdolphin",
-    accountLabel: "CÔNG TY TNHH PET DOLPHIN",
-    invoiceTemplateId: "tpl_sale",
-    invoiceTemplateLabel: "Hóa đơn bán hàng",
-    invoiceSeries: "C26TSE",
-    sellerStoreXid: "store_pmh",
-    storeLabel: "Cửa hàng Phú Mỹ Hưng",
-    lastCheckedAt: "2026-10-06T08:00:00.000Z",
-  },
+  theme: "light",
+  eInvoice: { ...DEFAULT_EINVOICE_CONFIG },
   updatedAt: new Date().toISOString(),
 };
 

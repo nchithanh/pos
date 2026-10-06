@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { FolderPlus, Pencil, Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -12,15 +11,24 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CardListSkeleton } from "@/components/ui/skeleton";
+import { useConfirm } from "@/hooks/use-confirm";
 import { db, getStockStatus } from "@/lib/db";
+import { notify } from "@/lib/notify";
 import { cn, formatVnd, uid } from "@/lib/utils";
 import type { Category, Product } from "@/types";
 
 const EMOJI_PRESETS = ["🥣", "📦", "🥫", "🦴", "🧸", "🧴", "🎀", "🐾", "☕", "👕", "🆕"];
 
 export default function CategoriesPage() {
-  const categories = useLiveQuery(() => db.categories.orderBy("sort").toArray()) ?? [];
-  const products = useLiveQuery(() => db.products.toArray()) ?? [];
+  const { confirm, dialog: confirmDialog } = useConfirm();
+  const categoriesRaw = useLiveQuery(() =>
+    db.categories.orderBy("sort").toArray(),
+  );
+  const productsRaw = useLiveQuery(() => db.products.toArray());
+  const loading = categoriesRaw === undefined || productsRaw === undefined;
+  const categories = categoriesRaw ?? [];
+  const products = productsRaw ?? [];
   const [selectedId, setSelectedId] = useState<string>("all");
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
@@ -58,7 +66,7 @@ export default function CategoriesPage() {
 
   const save = async () => {
     if (!name.trim()) {
-      toast.error("Nhập tên danh mục");
+      notify.error("Nhập tên danh mục");
       return;
     }
     if (editing) {
@@ -66,7 +74,7 @@ export default function CategoriesPage() {
         name: name.trim(),
         emoji,
       });
-      toast.success("Đã cập nhật danh mục");
+      notify.success("Đã cập nhật danh mục");
     } else {
       const id = uid("cat").replace(/_/g, "-");
       const maxSort = categories.reduce((m, c) => Math.max(m, c.sort), 0);
@@ -76,7 +84,7 @@ export default function CategoriesPage() {
         emoji,
         sort: maxSort + 1,
       });
-      toast.success("Đã thêm danh mục");
+      notify.success("Đã thêm danh mục");
       setSelectedId(id);
     }
     setFormOpen(false);
@@ -85,17 +93,24 @@ export default function CategoriesPage() {
   const remove = async (cat: Category) => {
     const count = counts[cat.id] ?? 0;
     if (count > 0) {
-      toast.error(`Không thể xóa — còn ${count} sản phẩm trong danh mục`);
+      notify.error(`Không thể xóa — còn ${count} sản phẩm trong danh mục`);
       return;
     }
-    if (!confirm(`Xóa danh mục “${cat.name}”?`)) return;
+    const ok = await confirm({
+      title: "Xóa danh mục?",
+      description: `“${cat.name}” sẽ bị xóa. Thao tác không thể hoàn tác.`,
+      confirmLabel: "Xóa",
+      variant: "danger",
+    });
+    if (!ok) return;
     await db.categories.delete(cat.id);
     if (selectedId === cat.id) setSelectedId("all");
-    toast.success("Đã xóa danh mục");
+    notify.deleted("Đã xóa danh mục");
   };
 
   return (
     <AppShell>
+      {confirmDialog}
       <PageHeader
         title="Danh mục sản phẩm"
         description="Quản lý category kiểu menu — lọc và thêm nhanh"
@@ -107,6 +122,9 @@ export default function CategoriesPage() {
         }
       />
 
+      {loading ? (
+        <CardListSkeleton count={6} />
+      ) : (
       <div className="flex flex-col gap-4 lg:h-[calc(100dvh-11rem)] lg:flex-row">
         {/* Category list — Like Food middle pane */}
         <aside className="flex w-full shrink-0 flex-col lg:w-[260px]">
@@ -188,6 +206,7 @@ export default function CategoriesPage() {
           )}
         </section>
       </div>
+      )}
 
       <Dialog
         open={formOpen}

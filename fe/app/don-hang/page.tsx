@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CardListSkeleton, TableSkeleton } from "@/components/ui/skeleton";
 import { db } from "@/lib/db";
 import { paymentLabel } from "@/lib/payment-labels";
 import { printReceipt } from "@/lib/print-receipt";
@@ -130,7 +131,16 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {!filtered.length ? (
+      {orders === undefined ? (
+        <>
+          <div className="md:hidden">
+            <CardListSkeleton count={4} />
+          </div>
+          <div className="hidden md:block">
+            <TableSkeleton rows={6} cols={5} />
+          </div>
+        </>
+      ) : !filtered.length ? (
         <Card>
           <EmptyState
             title="Chưa có đơn hàng"

@@ -11,14 +11,15 @@ import {
   Users,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
-import { toast } from "sonner";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { useConfirm } from "@/hooks/use-confirm";
 import { db } from "@/lib/db";
+import { notify } from "@/lib/notify";
 import {
   DEFAULT_EINVOICE_CONFIG,
   EINVOICE_STORES,
@@ -27,6 +28,7 @@ import {
   normalizeEInvoiceConfig,
 } from "@/lib/einvoice-config";
 import { resetDatabase } from "@/lib/seed";
+import { checkEInvoiceConnection } from "@/lib/services/einvoice";
 import { cn, formatDateTime } from "@/lib/utils";
 import type { EInvoiceConfig, StoreVertical } from "@/types";
 
@@ -39,6 +41,7 @@ const TABS: { id: SettingsTab; label: string; icon: typeof Building2 }[] = [
 ];
 
 export default function SettingsPage() {
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const settings = useLiveQuery(() => db.settings.get("store"));
   const users = useLiveQuery(() => db.users.toArray()) ?? [];
   const { setTheme } = useTheme();
@@ -95,7 +98,7 @@ export default function SettingsPage() {
       currency: "VND",
       receiptWidth: Number(receiptWidth) as 58 | 80,
       logoEmoji: logoEmoji || "🐬",
-      theme: settings?.theme ?? "system",
+      theme: settings?.theme ?? "light",
       eInvoice: extra?.eInvoice ?? normalizeEInvoiceConfig(ei),
       updatedAt: new Date().toISOString(),
     });
@@ -103,29 +106,41 @@ export default function SettingsPage() {
 
   const saveStore = async () => {
     await persistStore();
-    toast.success("Đã lưu thông tin cửa hàng");
+    notify.success("Đã lưu thông tin cửa hàng");
   };
 
   const saveEInvoice = async () => {
     const next = normalizeEInvoiceConfig(ei);
     setEi(next);
     await persistStore({ eInvoice: next });
-    toast.success("Đã lưu cấu hình hóa đơn điện tử (demo)");
+    notify.success("Đã lưu cấu hình hóa đơn điện tử (demo)");
   };
 
   const checkConnection = async () => {
     setChecking(true);
-    await new Promise((r) => setTimeout(r, 700));
-    const next: EInvoiceConfig = {
-      ...normalizeEInvoiceConfig(ei),
-      provider: "sepay",
-      connected: true,
-      lastCheckedAt: new Date().toISOString(),
-    };
-    setEi(next);
-    await persistStore({ eInvoice: next });
-    setChecking(false);
-    toast.success("Demo: kết nối SePay thành công");
+    try {
+      const nextBase = normalizeEInvoiceConfig({ ...ei, provider: "sepay" });
+      setEi(nextBase);
+      await persistStore({ eInvoice: nextBase });
+      const res = await checkEInvoiceConnection();
+      const next: EInvoiceConfig = {
+        ...nextBase,
+        connected: res.ok,
+        lastCheckedAt: new Date().toISOString(),
+        mode: res.ok ? "simulator" : nextBase.mode,
+      };
+      if (res.ok) {
+        setEi(next);
+        await persistStore({ eInvoice: next });
+        notify.success(res.message);
+      } else {
+        notify.warning(res.message);
+      }
+    } catch (e) {
+      notify.fromError(e, "Không kiểm tra được kết nối");
+    } finally {
+      setChecking(false);
+    }
   };
 
   const backup = async () => {
@@ -152,7 +167,7 @@ export default function SettingsPage() {
     a.download = `dolphin-pos-backup-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Đã tải backup");
+    notify.success("Đã tải backup");
   };
 
   const restore = async (file: File) => {
@@ -174,7 +189,7 @@ export default function SettingsPage() {
       if (data.shifts) await db.shifts.bulkPut(data.shifts as never[]);
       if (data.meta) await db.meta.bulkPut(data.meta as never[]);
     });
-    toast.success("Đã khôi phục dữ liệu");
+    notify.success("Đã khôi phục dữ liệu");
     window.location.reload();
   };
 
@@ -183,6 +198,7 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
+      {confirmDialog}
       <PageHeader
         title="Cài đặt"
         description="Cửa hàng · hóa đơn điện tử · nhân viên"
@@ -369,9 +385,16 @@ export default function SettingsPage() {
                 variant="danger"
                 className="w-full"
                 onClick={async () => {
-                  if (!confirm("Xóa toàn bộ dữ liệu local và seed lại?")) return;
+                  const ok = await confirm({
+                    title: "Reset dữ liệu demo?",
+                    description:
+                      "Toàn bộ dữ liệu local sẽ bị xóa và seed lại từ đầu. Không thể hoàn tác.",
+                    confirmLabel: "Reset",
+                    variant: "danger",
+                  });
+                  if (!ok) return;
                   await resetDatabase();
-                  toast.success("Đã reset DB");
+                  notify.success("Đã reset DB");
                   window.location.href = "/login";
                 }}
               >
@@ -387,10 +410,28 @@ export default function SettingsPage() {
           <div>
             <h2 className="text-lg font-bold">Hóa đơn điện tử</h2>
             <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
-              Demo cấu hình kiểu SePay — không gọi API thật / không phát hành
-              hóa đơn pháp lý.
+              Mode Simulator theo contract docs SePay — không phát hành hóa đơn
+              pháp lý. Sandbox thật cần credential + API server (TODO).
             </p>
           </div>
+
+          <label className="block text-sm">
+            <span className="mb-1 block font-medium text-slate-500">Mode</span>
+            <select
+              className={selectClass}
+              value={ei.mode}
+              onChange={(e) =>
+                setEi((s) => ({
+                  ...s,
+                  mode: e.target.value as EInvoiceConfig["mode"],
+                  connected: e.target.value === "simulator" ? s.connected : false,
+                }))
+              }
+            >
+              <option value="simulator">Simulator (docs / demo)</option>
+              <option value="sandbox">Sandbox thật (cần credential)</option>
+            </select>
+          </label>
 
           <label className="block text-sm">
             <span className="mb-1 block font-medium text-slate-500">

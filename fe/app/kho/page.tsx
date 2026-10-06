@@ -9,7 +9,6 @@ import {
   ClipboardCheck,
   Download,
 } from "lucide-react";
-import { toast } from "sonner";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CardListSkeleton, TableSkeleton } from "@/components/ui/skeleton";
 import { db, getStockStatus } from "@/lib/db";
+import { notify } from "@/lib/notify";
 import {
   downloadInventoryCsv,
   stockAdjust,
@@ -253,7 +254,16 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          {!filtered.length ? (
+          {products === undefined ? (
+            <div className="mt-4">
+              <div className="md:hidden">
+                <CardListSkeleton count={4} />
+              </div>
+              <div className="hidden md:block">
+                <TableSkeleton rows={6} cols={5} />
+              </div>
+            </div>
+          ) : !filtered.length ? (
             <Card className="mt-4">
               <EmptyState
                 title="Không có sản phẩm"
@@ -474,10 +484,10 @@ export default function InventoryPage() {
                     note: adjustNote,
                     user,
                   });
-                  toast.success("Đã điều chỉnh tồn");
+                  notify.success("Đã điều chỉnh tồn");
                   setAdjustId(null);
                 } catch (e) {
-                  toast.error(e instanceof Error ? e.message : "Lỗi");
+                  notify.fromError(e, "Lỗi");
                 }
               }}
             >
@@ -557,11 +567,11 @@ export default function InventoryPage() {
                   note: "Kiểm kho",
                   user,
                 });
-                toast.success("Đã ghi kiểm kho");
+                notify.success("Đã ghi kiểm kho");
                 setStocktakeOpen(false);
                 setTab("ledger");
               } catch (e) {
-                toast.error(e instanceof Error ? e.message : "Lỗi");
+                notify.fromError(e, "Lỗi");
               }
             }}
           >

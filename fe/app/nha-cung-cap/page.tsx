@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Plus, Truck } from "lucide-react";
-import { toast } from "sonner";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CardListSkeleton } from "@/components/ui/skeleton";
 import { db } from "@/lib/db";
+import { notify } from "@/lib/notify";
 import { formatVnd, uid } from "@/lib/utils";
 
 export default function SuppliersPage() {
@@ -41,7 +42,9 @@ export default function SuppliersPage() {
         actions={<Button onClick={() => setOpen(true)}><Plus size={16} /> Thêm</Button>}
       />
       <Input className="mb-4" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm NCC…" />
-      {!filtered.length ? (
+      {suppliers === undefined ? (
+        <CardListSkeleton count={6} />
+      ) : !filtered.length ? (
         <Card><EmptyState title="Chưa có NCC" icon={Truck} /></Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -85,7 +88,7 @@ export default function SuppliersPage() {
           <Button
             className="w-full"
             onClick={async () => {
-              if (!name.trim()) return toast.error("Nhập tên");
+              if (!name.trim()) return notify.error("Nhập tên");
               await db.suppliers.add({
                 id: uid("sup"),
                 name: name.trim(),
@@ -98,7 +101,7 @@ export default function SuppliersPage() {
                 debt: 0,
                 createdAt: new Date().toISOString(),
               });
-              toast.success("Đã thêm NCC");
+              notify.success("Đã thêm NCC");
               setOpen(false);
             }}
           >

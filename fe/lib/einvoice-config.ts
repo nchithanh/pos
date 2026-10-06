@@ -28,6 +28,7 @@ export const EINVOICE_STORES = [
 
 export const DEFAULT_EINVOICE_CONFIG: EInvoiceConfig = {
   provider: "sepay",
+  mode: "simulator",
   connected: true,
   providerAccountId: "acc_demo_petdolphin",
   accountLabel: "CÔNG TY TNHH PET DOLPHIN",
@@ -47,6 +48,9 @@ export function normalizeEInvoiceConfig(
   const base = { ...DEFAULT_EINVOICE_CONFIG, ...raw };
   if (!seriesValues.has(base.invoiceSeries)) {
     base.invoiceSeries = seriesOpts[0]!.value;
+  }
+  if (base.mode !== "simulator" && base.mode !== "sandbox") {
+    base.mode = "simulator";
   }
   const tpl = EINVOICE_TEMPLATES.find((t) => t.id === base.invoiceTemplateId);
   if (tpl) base.invoiceTemplateLabel = tpl.label;

@@ -14,17 +14,21 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLiveQuery } from "dexie-react-hooks";
-import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { NAV_ITEMS } from "@/lib/nav";
-import { cn, formatDateTime, todayKey } from "@/lib/utils";
+import { cn, formatDateTime, formatVnd, todayKey } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { CommandPalette } from "@/components/layout/command-palette";
+import { OfflineBanner } from "@/components/layout/offline-banner";
+import { PageTransition } from "@/components/layout/page-transition";
+import { useConfirm } from "@/hooks/use-confirm";
+import { notify } from "@/lib/notify";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
@@ -42,6 +46,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [shiftOpen, setShiftOpen] = useState(false);
   const [cash, setCash] = useState("500000");
+  /** Tablet landscape / kiosk: ẩn sidebar cố định, full-width main */
+  const isPosKiosk = pathname.startsWith("/ban-hang");
 
   const nav = useMemo(() => {
     if (!user) return NAV_ITEMS;
@@ -52,23 +58,37 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const mobileNav = nav.filter((n) => n.mobilePrimary).slice(0, 4);
 
   const onShiftAction = async () => {
+    const amount = Number(cash) || 0;
     try {
       if (shift) {
-        await closeShift(Number(cash) || 0);
-        toast.success("Đã đóng ca");
+        const ok = await confirm({
+          title: "Đóng ca làm việc?",
+          description: `Tiền mặt cuối ca: ${formatVnd(amount)}. Sau khi đóng ca, thu ngân cần mở ca mới để bán tiếp.`,
+          confirmLabel: "Đóng ca",
+          variant: "danger",
+        });
+        if (!ok) return;
+        await closeShift(amount);
+        notify.success("Đã đóng ca");
       } else {
-        await openShift(Number(cash) || 0);
-        toast.success("Đã mở ca");
+        await openShift(amount);
+        notify.success("Đã mở ca");
       }
       setShiftOpen(false);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Lỗi ca làm");
+      notify.fromError(e, "Lỗi ca làm");
     }
   };
 
   return (
     <div className="flex h-dvh overflow-hidden bg-[var(--background)]">
-      <aside className="hidden h-full w-[260px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--card)] lg:flex">
+      <aside
+        className={cn(
+          "h-full w-[260px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--card)]",
+          /* Desktop: hiện sidebar; tablet landscape kiosk POS: ẩn */
+          isPosKiosk ? "hidden xl:flex" : "hidden lg:flex",
+        )}
+      >
         <div className="flex shrink-0 items-center gap-2.5 px-5 py-5">
           <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-emerald-500 text-white">
             <Fish size={22} />
@@ -142,11 +162,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <OfflineBanner />
         <header className="z-30 flex shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card)]/95 px-3 py-3 backdrop-blur sm:px-5">
           <Button
             variant="outline"
             size="icon"
-            className="lg:hidden"
+            className={cn(
+              isPosKiosk ? "xl:hidden max-xl:landscape:inline-flex" : "lg:hidden",
+            )}
             onClick={() => setMenuOpen(true)}
             aria-label="Menu"
           >
@@ -192,7 +215,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-3 py-4 pb-24 sm:px-5 lg:pb-6">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
       </div>
 
@@ -286,6 +309,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </Dialog>
 
       <CommandPalette />
+      {confirmDialog}
     </div>
   );
 }

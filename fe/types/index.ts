@@ -18,6 +18,23 @@ export type PermissionKey =
   | "nhan-vien"
   | "cai-dat";
 
+/** Mock SePay-style e-invoice account config (admin settings). */
+export interface EInvoiceConfig {
+  provider: "sepay" | "none";
+  connected: boolean;
+  /** Mock provider_account_id */
+  providerAccountId: string;
+  accountLabel: string;
+  invoiceTemplateId: string;
+  invoiceTemplateLabel: string;
+  /** Must be chosen from account options (e.g. C26TSE), not free-typed */
+  invoiceSeries: string;
+  /** Mock seller_store_xid */
+  sellerStoreXid: string;
+  storeLabel: string;
+  lastCheckedAt?: string;
+}
+
 export interface StoreSettings {
   id: string;
   name: string;
@@ -25,11 +42,18 @@ export interface StoreSettings {
   vertical: StoreVertical;
   address: string;
   phone: string;
+  email?: string;
+  /** Tên pháp nhân (hiển thị nội bộ) — ≠ tài khoản HĐĐT provider */
+  legalName?: string;
+  /** MST cửa hàng (thông tin Dolphin) — không dùng làm MST phát hành HĐ */
+  taxCode?: string;
+  billFooter?: string;
   taxRate: number;
   currency: "VND";
   receiptWidth: 58 | 80;
   logoEmoji: string;
   theme: "light" | "dark" | "system";
+  eInvoice?: EInvoiceConfig;
   updatedAt: string;
 }
 
@@ -148,6 +172,11 @@ export interface EInvoiceMock {
   taxCode: string;
   address: string;
   email: string;
+  provider?: "sepay";
+  invoiceSeries?: string;
+  invoiceTemplateLabel?: string;
+  storeLabel?: string;
+  accountLabel?: string;
 }
 
 export interface Order {

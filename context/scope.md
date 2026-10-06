@@ -9,7 +9,7 @@
 - CRUD sản phẩm · kho nhập/xuất/điều chỉnh  
 - Khách hàng + điểm + AI rule-based  
 - NCC · công nợ (table, partial pay, lịch sử, CSV, nhắc nợ demo) · doanh thu/export CSV  
-- Nhân viên/permissions · cài đặt/backup/restore/theme  
+- Nhân viên/permissions · cài đặt 3 tab (cửa hàng / HĐĐT SePay mock / NV) · backup/restore/theme  
 - PWA (prod) · GitHub Pages + Vercel-ready  
 
 ## Out of scope / later

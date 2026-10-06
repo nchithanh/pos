@@ -4,10 +4,13 @@ import { Providers } from "@/components/providers";
 import { AuthGate } from "@/components/layout/auth-gate";
 import "./globals.css";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export const metadata: Metadata = {
   title: "Dolphin POS",
   description: "POS local-first cho pet shop & cafe — Dolphin Software",
-  manifest: "/manifest.webmanifest",
+  /** Absolute-from-origin path must include Pages basePath (/pos). */
+  manifest: `${basePath}/manifest.webmanifest`,
   appleWebApp: {
     capable: true,
     title: "Dolphin POS",

@@ -167,11 +167,27 @@ const SETTINGS: StoreSettings = {
   vertical: "pet",
   address: "12 Nguyễn Thị Minh Khai, Q.1, TP.HCM",
   phone: "028 3822 5566",
+  email: "hello@petdolphin.vn",
+  legalName: "CÔNG TY TNHH PET DOLPHIN",
+  taxCode: "0312345678",
+  billFooter: "Cảm ơn quý khách! Hẹn gặp lại lần sau",
   taxRate: 0,
   currency: "VND",
   receiptWidth: 80,
   logoEmoji: "🐬",
   theme: "system",
+  eInvoice: {
+    provider: "sepay",
+    connected: true,
+    providerAccountId: "acc_demo_petdolphin",
+    accountLabel: "CÔNG TY TNHH PET DOLPHIN",
+    invoiceTemplateId: "tpl_sale",
+    invoiceTemplateLabel: "Hóa đơn bán hàng",
+    invoiceSeries: "C26TSE",
+    sellerStoreXid: "store_pmh",
+    storeLabel: "Cửa hàng Phú Mỹ Hưng",
+    lastCheckedAt: "2026-10-06T08:00:00.000Z",
+  },
   updatedAt: new Date().toISOString(),
 };
 
@@ -360,11 +376,27 @@ async function seedDemoOrdersIfEmpty(): Promise<void> {
   await db.meta.put({ key: "ordersSeeded", value: "1" });
 }
 
+async function migrateStoreSettingsIfNeeded(): Promise<void> {
+  const row = await db.settings.get("store");
+  if (!row) return;
+  if (row.eInvoice && row.legalName && row.email) return;
+  await db.settings.put({
+    ...row,
+    email: row.email ?? SETTINGS.email,
+    legalName: row.legalName ?? SETTINGS.legalName,
+    taxCode: row.taxCode ?? SETTINGS.taxCode,
+    billFooter: row.billFooter ?? SETTINGS.billFooter,
+    eInvoice: row.eInvoice ?? SETTINGS.eInvoice,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
 export async function ensureSeeded(): Promise<void> {
   const seeded = await db.meta.get("seeded");
   if (seeded?.value === "1") {
     // DB cũ thiếu đơn mẫu → bổ sung để Dashboard có data
     await seedDemoOrdersIfEmpty();
+    await migrateStoreSettingsIfNeeded();
     return;
   }
 

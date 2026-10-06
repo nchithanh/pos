@@ -110,8 +110,11 @@ export function ReceiptPreview({
       <div className="my-3 border-t border-dashed border-slate-300 dark:border-slate-600" />
 
       <div className="text-center text-slate-500">
-        <p>Cảm ơn quý khách!</p>
-        <p>Hẹn gặp lại lần sau</p>
+        {(store?.billFooter ?? "Cảm ơn quý khách!\nHẹn gặp lại lần sau")
+          .split("\n")
+          .map((line) => (
+            <p key={line}>{line}</p>
+          ))}
       </div>
     </div>
   );

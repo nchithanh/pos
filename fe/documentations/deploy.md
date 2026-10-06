@@ -23,6 +23,10 @@ Workflow: `.github/workflows/deploy-pages.yml` (repo root)
 | Project Pages | https://nchithanh.github.io/pos/ |
 | Custom domain | `https://<domain>/` — để `GITHUB_PAGES_BASE_PATH` rỗng |
 
+## PWA manifest
+
+`layout` metadata `manifest` = `${NEXT_PUBLIC_BASE_PATH}/manifest.webmanifest` (vd. `/pos/…`). File `public/manifest.webmanifest` dùng path tương đối (`./`) để icon/start_url khớp project Pages.
+
 ## Local artifact (giống CI)
 
 ```bash

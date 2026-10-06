@@ -69,7 +69,7 @@ export function buildReceiptHtml(order: Order, store?: StoreSettings): string {
   <div style="margin-top:6px">Thanh toán: ${escapeHtml(paymentLabel(order.paymentMethod))}</div>
   ${cashBlock}
   <hr class="hr"/>
-  <div class="center foot muted">Cảm ơn quý khách!<br/>Hẹn gặp lại lần sau</div>
+  <div class="center foot muted">${escapeHtml(store?.billFooter ?? "Cảm ơn quý khách!\\nHẹn gặp lại lần sau").replaceAll("\\n", "<br/>").replaceAll("\n", "<br/>")}</div>
   <script>window.onload=function(){window.focus();window.print();}</script>
   </body></html>`;
 }

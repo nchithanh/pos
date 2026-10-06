@@ -29,6 +29,16 @@ Local-first POS (IndexedDB) cho pet shop & cafe.
 2. `/don-hang` — cột Hóa đơn (Chưa xuất / Đã xuất), chi tiết tái dùng `ReceiptActions`
 3. HĐĐT là **demo** (không kết nối cơ quan thuế / provider thật)
 
+## Cài đặt (`/cai-dat`)
+
+3 tab:
+
+1. **Cửa hàng** — shop, pháp lý nội bộ, bill, theme, backup  
+2. **Hóa đơn điện tử** — mock SePay (`provider_account_id`, mẫu, ký hiệu chọn list `C26…`, địa điểm)  
+3. **Nhân viên & phân quyền** — tóm tắt roles + link `/nhan-vien`  
+
+Xuất HĐĐT trên POS đọc `settings.eInvoice` (phải *Đã kết nối*).
+
 ## Shortcuts
 
 - `Ctrl/Cmd+K` command palette

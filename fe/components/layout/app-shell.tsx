@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Fish,
   LogOut,
   Menu,
   Moon,
@@ -12,10 +11,11 @@ import {
   Sun,
   X,
 } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 import { useTheme } from "@/components/theme-provider";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
-import { NAV_ITEMS } from "@/lib/nav";
+import { isNavActive, NAV_GROUPS, type NavItem } from "@/lib/nav";
 import { cn, formatDateTime, formatVnd, todayKey } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
@@ -49,13 +49,45 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   /** Tablet landscape / kiosk: ẩn sidebar cố định, full-width main */
   const isPosKiosk = pathname.startsWith("/ban-hang");
 
-  const nav = useMemo(() => {
-    if (!user) return NAV_ITEMS;
-    return NAV_ITEMS.filter(
-      (item) => !item.permission || user.permissions[item.permission],
-    );
+  const groups = useMemo(() => {
+    return NAV_GROUPS.map((group) => ({
+      ...group,
+      items: group.items.filter(
+        (item) => !user || !item.permission || user.permissions[item.permission],
+      ),
+    })).filter((group) => group.items.length > 0);
   }, [user]);
+  const nav = groups.flatMap((g) => g.items);
   const mobileNav = nav.filter((n) => n.mobilePrimary).slice(0, 4);
+
+  const renderLink = (item: NavItem, onNavigate?: () => void) => {
+    const active = isNavActive(item.href, pathname);
+    const Icon = item.icon;
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        onClick={onNavigate}
+        className={cn(
+          "relative flex min-h-11 items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium",
+          active
+            ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white"
+            : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/60",
+        )}
+      >
+        {active ? (
+          <span className="absolute top-1/2 left-0 h-6 w-1 -translate-y-1/2 rounded-r-full bg-emerald-500" />
+        ) : null}
+        <Icon size={18} className={active ? "text-emerald-600" : undefined} />
+        <span className="flex-1">{item.label}</span>
+        {item.badgeTodayOrders && (todayOrders ?? 0) > 0 ? (
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold text-white">
+            {todayOrders}
+          </span>
+        ) : null}
+      </Link>
+    );
+  };
 
   const onShiftAction = async () => {
     const amount = Number(cash) || 0;
@@ -90,9 +122,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="flex shrink-0 items-center gap-2.5 px-5 py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-emerald-500 text-white">
-            <Fish size={22} />
-          </div>
+          <BrandMark className="h-10 w-10" />
           <div>
             <p className="text-sm font-bold tracking-wide text-emerald-600">
               DOLPHIN POS
@@ -102,40 +132,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </p>
           </div>
         </div>
-        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-4">
-          {nav.map((item) => {
-            const active =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.href);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "relative flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium",
-                  active
-                    ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white"
-                    : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/60",
-                )}
-              >
-                {active ? (
-                  <span className="absolute top-1/2 left-0 h-6 w-1 -translate-y-1/2 rounded-r-full bg-emerald-500" />
-                ) : null}
-                <Icon
-                  size={18}
-                  className={active ? "text-emerald-600" : undefined}
-                />
-                <span className="flex-1">{item.label}</span>
-                {item.badgeTodayOrders && (todayOrders ?? 0) > 0 ? (
-                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold text-white">
-                    {todayOrders}
-                  </span>
-                ) : null}
-              </Link>
-            );
-          })}
+        <nav className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pb-4">
+          {groups.map((group) => (
+            <div key={group.id}>
+              <p className="mb-1 px-3 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
+                {group.label}
+              </p>
+              {group.items.map((item) => renderLink(item))}
+            </div>
+          ))}
         </nav>
         <div className="shrink-0 border-t border-[var(--border)] p-3">
           <div className="flex min-w-0 items-center gap-2.5">
@@ -222,10 +227,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-[var(--card)] px-2 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden">
         <div className="grid grid-cols-5 gap-1">
           {mobileNav.map((item) => {
-            const active =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.href);
+            const active = isNavActive(item.href, pathname);
             const Icon = item.icon;
             return (
               <Link
@@ -237,7 +239,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 )}
               >
                 <Icon size={20} />
-                {item.label}
+                {item.mobileLabel ?? item.label}
               </Link>
             );
           })}
@@ -261,27 +263,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           />
           <div className="fixed top-0 left-0 z-[51] flex h-full w-[min(86vw,320px)] flex-col bg-[var(--card)] shadow-2xl lg:hidden">
             <div className="flex items-center justify-between px-4 py-4">
-              <p className="font-bold text-emerald-600">Dolphin POS</p>
+              <div className="flex items-center gap-2">
+                <BrandMark className="h-8 w-8" />
+                <p className="font-bold text-emerald-600">Dolphin POS</p>
+              </div>
               <Button variant="ghost" size="icon" onClick={() => setMenuOpen(false)}>
                 <X size={18} />
               </Button>
             </div>
-            <nav className="space-y-1 px-3 pb-6">
-              {nav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-sm font-medium"
-                >
-                  <item.icon size={18} />
-                  <span className="flex-1">{item.label}</span>
-                  {item.badgeTodayOrders && (todayOrders ?? 0) > 0 ? (
-                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold text-white">
-                      {todayOrders}
-                    </span>
-                  ) : null}
-                </Link>
+            <nav className="space-y-3 overflow-y-auto px-3 pb-6">
+              {groups.map((group) => (
+                <div key={group.id}>
+                  <p className="mb-1 px-3 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
+                    {group.label}
+                  </p>
+                  {group.items.map((item) => renderLink(item, () => setMenuOpen(false)))}
+                </div>
               ))}
             </nav>
           </div>

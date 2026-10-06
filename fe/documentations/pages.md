@@ -9,11 +9,32 @@
 | `/san-pham` | yes | |
 | `/danh-muc` | yes | |
 | `/don-hang` | yes | |
-| `/kho` | yes | |
+| `/kho` | yes | Tổng quan kho |
+| `/kho/ton` | yes | Tồn khả dụng / giữ chỗ / hỏng |
+| `/kho/don-nhap` | yes | Kiểm nhận → nhập theo số thực nhận |
+| `/kho/don-xuat` | yes | Duyệt → soạn → xuất |
+| `/kho/kiem-ke` | yes | Kiểm kê |
+| `/kho/dieu-chinh` | yes | Điều chỉnh tồn |
+| `/kho/chuyen-kho` | yes | Chuyển kho |
+| `/kho/lich-su` | yes | Biến động trước/sau |
+| `/kho/goi-y` | yes | Gợi ý tồn (mock) |
+| `/kho/nhap` | yes | Phiếu nhập nhanh |
+| `/kho/xuat` | yes | Phiếu xuất nhanh |
 | `/khach-hang` | yes | |
 | `/nha-cung-cap` | yes | |
-| `/cong-no` | yes | |
-| `/doanh-thu` | yes | |
+| `/finance` | yes | Tổng quan tài chính |
+| `/finance/cash-flow` | yes | Dòng tiền, phiếu thu/chi, chuyển tiền, đối soát |
+| `/finance/revenue` | yes | Doanh thu |
+| `/finance/expenses` | yes | Chi phí |
+| `/finance/debts` | yes | Công nợ |
+| `/finance/accounts` | yes | Quỹ & tài khoản |
+| `/finance/profit` | yes | Lợi nhuận |
+| `/finance/shifts` | yes | Ca & đối soát |
+| `/finance/reports` | yes | Báo cáo |
+| `/finance/forecast` | yes | Dự báo (mock) |
+| `/finance/alerts` | yes | Cảnh báo |
+| `/cong-no` | yes | Chuyển tới `/finance/debts` |
+| `/doanh-thu` | yes | Chuyển tới `/finance/revenue` |
 | `/nhan-vien` | yes | |
 | `/cai-dat` | yes | Đổi lĩnh vực → `/chon-linh-vuc` |
 

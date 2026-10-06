@@ -1,7 +1,14 @@
 # Changelog — Dolphin POS FE
 
+## 2026-10-07
+
+- **Kho demo:** thêm đơn nhập/xuất/chuyển kho nhiều trạng thái (NK00089 vẫn là phiếu kiểm nhận đang mở).
+- **Kho vận hành:** đơn nhập kiểm nhận theo số thực nhận, đơn xuất duyệt/soạn/xuất, tồn khả dụng, lịch sử trước/sau. Bán hàng ghi biến động xuất bán.
+- **Tài chính:** nhóm sidebar Tài chính · `/finance/*` (dòng tiền, doanh thu, chi phí, công nợ, quỹ, lợi nhuận, ca, báo cáo, dự báo). Sổ quỹ local; bán hàng / trả nợ / nhập trả ngay cập nhật số dư. `/cong-no` và `/doanh-thu` chuyển vào module mới.
+
 ## 2026-10-06
 
+- **Logo:** mark UI (sidebar, login, chọn lĩnh vực) dùng `public/brand/logo-dolphin.webp` thay icon cá. Favicon + icon PWA (`favicon.ico`, `icon-192.png`, `icon-512.png`) cùng logo, nền trong.  
 - **+3 lĩnh vực + accent:** Trà sữa (pink) · Thời trang (violet) · Nhà hàng (orange); Cafe amber · Pet emerald · `data-vertical` theme remap.  
 - **Lĩnh vực + seed JSON:** `/chon-linh-vuc` trước login · data `fe/data/{pet\|cafe\|tra-sua\|thoi-trang\|nha-hang}/` · IndexedDB `dolphin_pos_{vertical}` · docs `data.md` / `verticals.md` / `pages.md`.  
 - **Full polish Sprint 3–7 + SePay sim:** Dashboard · loyalty · PDF · simulator HĐĐT · offline/kiosk · ConfirmDialog/skeleton.  

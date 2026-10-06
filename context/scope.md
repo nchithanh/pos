@@ -6,10 +6,11 @@
 - Auth PIN/email · roles · mở/đóng ca  
 - Dashboard real stats/charts  
 - POS core: cart, barcode, hold, customer, payments, receipt  
-- CRUD sản phẩm · kho (phiếu nhiều dòng, barcode, kiểm kho, sổ biến động, ghi nợ NCC)  
+- CRUD sản phẩm · kho vận hành (kiểm nhận, xuất có duyệt/soạn, kiểm kê, sổ trước/sau)  
 - Khách hàng + điểm + AI rule-based  
 - NCC · công nợ (table, partial pay, lịch sử, CSV, nhắc nợ demo) · doanh thu/export CSV  
 - Nhân viên/permissions · cài đặt 3 tab (cửa hàng / HĐĐT SePay mock / NV) · backup/restore/theme  
+- Tài chính vận hành `/finance` (sổ quỹ local, không kế toán/ngân hàng thật)  
 - PWA (prod) · GitHub Pages + Vercel-ready  
 
 ## Recently polished (FE)

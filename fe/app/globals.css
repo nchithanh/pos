@@ -206,16 +206,28 @@ a {
   text-decoration: none;
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-300) transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--brand-300);
   border-radius: 999px;
 }
+.dark,
+.dark * {
+  scrollbar-color: var(--brand-400) transparent;
+}
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--brand-400);
 }
 
 /* Print: only the receipt body (opened print window or in-page preview). */

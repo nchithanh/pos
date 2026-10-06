@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { useFinanceStore } from "@/stores/finance-store";
 import { formatDate, formatVnd, todayKey, uid } from "@/lib/utils";
 import type {
   Debt,
@@ -161,6 +162,15 @@ export async function payDebt(input: {
       }
     },
   );
+
+  useFinanceStore.getState().applyDebtCash({
+    debtId: debt.id,
+    type: debt.type,
+    amount: pay,
+    method: input.method,
+    partyName: debt.partyName,
+    userName: input.user.name,
+  });
 }
 
 export function buildDebtsCsv(debts: Debt[]): string {

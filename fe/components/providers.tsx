@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { reopenDb } from "@/lib/db";
 import { ensureSeeded } from "@/lib/seed";
 import { applyVerticalTheme, getStoredVertical } from "@/lib/vertical";
+import { useFinanceStore } from "@/stores/finance-store";
+import { useWarehouseStore } from "@/stores/warehouse-store";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -19,6 +21,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     (async () => {
       const vertical = getStoredVertical();
       applyVerticalTheme(vertical);
+      useFinanceStore.getState().ensureVertical(vertical ?? "pet");
+      useWarehouseStore.getState().ensureVertical(vertical ?? "pet");
       if (vertical) {
         reopenDb(vertical);
         await ensureSeeded(vertical);

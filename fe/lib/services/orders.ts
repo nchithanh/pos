@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { useFinanceStore } from "@/stores/finance-store";
 import { orderCode, todayKey, uid } from "@/lib/utils";
 import type {
   CartLine,
@@ -170,11 +171,27 @@ export async function checkoutOrder(input: {
     async () => {
       await db.orders.add(order);
 
+      const movementItems: {
+        productId: string;
+        quantity: number;
+        unitCost: number;
+        beforeQty: number;
+        afterQty: number;
+      }[] = [];
       for (const item of items) {
         const p = await db.products.get(item.productId);
         if (!p) continue;
+        const beforeQty = p.stock;
+        const afterQty = Math.max(0, p.stock - item.quantity);
+        movementItems.push({
+          productId: item.productId,
+          quantity: item.quantity,
+          unitCost: item.costPrice,
+          beforeQty,
+          afterQty,
+        });
         await db.products.update(item.productId, {
-          stock: p.stock - item.quantity,
+          stock: afterQty,
           updatedAt: new Date().toISOString(),
         });
       }
@@ -187,13 +204,9 @@ export async function checkoutOrder(input: {
         createdAt: order.createdAt,
         userId: input.user.id,
         userName: input.user.name,
-        reason: "Bán hàng",
+        reason: "Xuất bán hàng",
         note: order.code,
-        items: items.map((i) => ({
-          productId: i.productId,
-          quantity: i.quantity,
-          unitCost: i.costPrice,
-        })),
+        items: movementItems,
         totalCost: items.reduce((s, i) => s + i.costPrice * i.quantity, 0),
       });
 
@@ -231,5 +244,6 @@ export async function checkoutOrder(input: {
     },
   );
 
+  useFinanceStore.getState().applySale(order);
   return order;
 }

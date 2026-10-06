@@ -27,8 +27,8 @@ Chi tiết routes: [pages.md](./pages.md) · seed: [data.md](./data.md).
 ## Modules
 
 - POS `/ban-hang` — giỏ, giảm đ/%, điểm, split, shortcuts F2/F4/Esc  
-- Kho — phiếu nhiều dòng, barcode, kiểm kho  
-- Công nợ — thu/trả từng phần, CSV  
+- Kho — kiểm nhận theo số thực nhận, xuất có duyệt/soạn, tồn khả dụng, lịch sử trước/sau  
+- Tài chính `/finance` — doanh thu, dòng tiền, quỹ, công nợ, lợi nhuận, ca, báo cáo, dự báo mock  
 - Cài đặt — 3 tab (cửa hàng / HĐĐT / NV) + đổi lĩnh vực  
 
 ## Loyalty

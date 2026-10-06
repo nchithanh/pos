@@ -250,6 +250,8 @@ export interface InventoryMovement {
     unitCost?: number;
     /** HSD (YYYY-MM-DD) — tùy chọn trên phiếu nhập */
     expiryDate?: string;
+    beforeQty?: number;
+    afterQty?: number;
   }[];
   totalCost: number;
 }

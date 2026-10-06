@@ -5,7 +5,7 @@
 | Framework | Next.js 16 App Router |
 | UI | React 19 · Tailwind 4 · Lucide |
 | Forms | React Hook Form + Zod |
-| Client state | Zustand (auth, cart) |
+| Client state | Zustand (auth, cart, sổ quỹ `finance-store`) |
 | Server/cache | TanStack Query (sẵn sàng mở rộng) |
 | Persistence | Dexie IndexedDB (`lib/db.ts`) |
 | Charts | Recharts |
@@ -30,6 +30,7 @@ documentations/   # FE docs SoT
 | `/login` | Đăng nhập |
 | `/` | Tổng quan |
 | `/ban-hang` | POS |
+| `/finance` … | Tài chính vận hành (mock, local) |
 | `/don-hang` · `/san-pham` · `/danh-muc` · `/kho`… | Modules |
 | `/cai-dat` | Cài đặt (+ đổi lĩnh vực) |
 

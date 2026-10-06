@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Fish } from "lucide-react";
 import { notify } from "@/lib/notify";
+import { BrandMark } from "@/components/brand-mark";
 import { ensureSeeded } from "@/lib/seed";
 import { reopenDb } from "@/lib/db";
 import {
@@ -37,9 +37,7 @@ export default function ChooseVerticalPage() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-[var(--background)] px-4 py-10">
       <div className="mb-8 flex flex-col items-center text-center">
-        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[12px] bg-slate-900 text-white">
-          <Fish size={28} />
-        </div>
+        <BrandMark className="mb-3 h-14 w-14" />
         <h1 className="text-2xl font-bold tracking-tight">Dolphin POS</h1>
         <p className="mt-2 max-w-md text-sm text-slate-500">
           Chọn lĩnh vực cửa hàng để tải dữ liệu demo phù hợp. Mỗi lĩnh vực có

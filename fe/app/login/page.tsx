@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fish } from "lucide-react";
 import { notify } from "@/lib/notify";
+import { BrandMark } from "@/components/brand-mark";
 import { getDemoAccounts } from "@/lib/seed";
 import { getStoredVertical, VERTICAL_OPTIONS } from "@/lib/vertical";
 import { useAuthStore } from "@/stores/auth-store";
@@ -52,9 +52,7 @@ export default function LoginPage() {
     <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-slate-100 p-4 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950">
       <Card className="w-full max-w-md p-6">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-[12px] bg-emerald-500 text-white">
-            <Fish size={28} />
-          </div>
+          <BrandMark className="mx-auto mb-3 h-14 w-14" />
           <h1 className="text-2xl font-bold">Dolphin POS</h1>
           <p className="mt-1 text-sm text-slate-500">
             {verticalMeta

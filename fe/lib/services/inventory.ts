@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { useFinanceStore } from "@/stores/finance-store";
 import { nextMovementSeq } from "@/lib/services/orders";
 import { todayKey, uid } from "@/lib/utils";
 import type { InventoryMovement, PaymentMethod, User } from "@/types";
@@ -88,6 +89,17 @@ export async function stockIn(input: {
       }
     },
   );
+
+  if (payNow && totalCost > 0) {
+    const sup = await db.suppliers.get(input.supplierId);
+    useFinanceStore.getState().applyPurchasePayment({
+      amount: totalCost,
+      method: input.payMethod ?? "cash",
+      code: movement.code,
+      supplierName: sup?.name ?? "Nhà cung cấp",
+      userName: input.user.name,
+    });
+  }
 
   return movement;
 }

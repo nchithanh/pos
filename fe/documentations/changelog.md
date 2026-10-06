@@ -2,6 +2,10 @@
 
 ## 2026-10-07
 
+- **Biểu đồ & quỹ:** màu biểu đồ theo ý nghĩa (xanh vào, đỏ ra), không theo theme lĩnh vực. Thẻ quỹ có dấu nhận diện tiền mặt, VCB, MB, MoMo.
+- **Tài chính UI:** tổng quan có 6 chỉ số, biểu đồ dòng tiền và lãi lỗ; dòng tiền lọc ngang; công nợ có tuổi nợ và bảng phải thu/phải trả.
+- **Kho UI:** tổng quan có thao tác nhanh và số liệu tô màu; tồn kho là bảng lọc/sắp xếp/chọn nhiều dòng; nhập–xuất có chip lọc; kiểm kê một sản phẩm hoặc theo lô. Sidebar chỉ sáng mục Kho khi đang ở module.
+- **Kho theo lĩnh vực + thủ kho:** phiếu demo dùng hàng và nhân viên của đúng vertical. Login thêm Thủ kho (PIN `3333`) — quyền sản phẩm, kho, nhà cung cấp.
 - **Kho demo:** thêm đơn nhập/xuất/chuyển kho nhiều trạng thái (NK00089 vẫn là phiếu kiểm nhận đang mở).
 - **Kho vận hành:** đơn nhập kiểm nhận theo số thực nhận, đơn xuất duyệt/soạn/xuất, tồn khả dụng, lịch sử trước/sau. Bán hàng ghi biến động xuất bán.
 - **Tài chính:** nhóm sidebar Tài chính · `/finance/*` (dòng tiền, doanh thu, chi phí, công nợ, quỹ, lợi nhuận, ca, báo cáo, dự báo). Sổ quỹ local; bán hàng / trả nợ / nhập trả ngay cập nhật số dư. `/cong-no` và `/doanh-thu` chuyển vào module mới.

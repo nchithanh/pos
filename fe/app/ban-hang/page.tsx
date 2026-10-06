@@ -875,7 +875,7 @@ function PosPageInner() {
                           ) : (
                             <span className="drop-shadow-sm">{p.emoji}</span>
                           )}
-                          <div className="absolute top-2 right-2">
+                          <div className="absolute top-1.5 right-1.5 z-10">
                             <Badge status={status} />
                           </div>
                         </div>

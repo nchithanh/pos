@@ -69,11 +69,19 @@ export function periodSnapshot(
   const revenue = cur.revenue;
   const collected = cur.collected + debtIn(window.start, window.end);
   const spent = cashOut(window.start, window.end);
-  const profit = revenue - cur.cogs - opex(window.start, window.end);
-  const prevProfit =
-    prev.revenue - prev.cogs - opex(window.prevStart, window.prevEnd);
+  const curOpex = opex(window.start, window.end);
+  const prevOpex = opex(window.prevStart, window.prevEnd);
+  const gross = revenue - cur.cogs;
+  const prevGross = prev.revenue - prev.cogs;
+  const profit = gross - curOpex;
+  const prevProfit = prevGross - prevOpex;
   const prevCollected =
     prev.collected + debtIn(window.prevStart, window.prevEnd);
+  const prevSpent = cashOut(window.prevStart, window.prevEnd);
+  const margin = revenue ? (gross / revenue) * 100 : 0;
+  const prevMargin = prev.revenue ? (prevGross / prev.revenue) * 100 : 0;
+  const net = collected - spent;
+  const prevNet = prevCollected - prevSpent;
 
   return {
     revenue,
@@ -84,13 +92,19 @@ export function periodSnapshot(
     aov: cur.count ? Math.round(revenue / cur.count) : 0,
     discounts: cur.discounts,
     cogs: cur.cogs,
-    opex: opex(window.start, window.end),
-    gross: revenue - cur.cogs,
+    opex: curOpex,
+    gross,
+    margin,
+    net,
     delta: {
       revenue: pctChange(revenue, prev.revenue),
       collected: pctChange(collected, prevCollected),
-      spent: pctChange(spent, cashOut(window.prevStart, window.prevEnd)),
+      spent: pctChange(spent, prevSpent),
       profit: pctChange(profit, prevProfit),
+      opex: pctChange(curOpex, prevOpex),
+      gross: pctChange(gross, prevGross),
+      margin: pctChange(margin, prevMargin),
+      net: pctChange(net, prevNet),
     },
   };
 }
@@ -220,6 +234,30 @@ export function revenueByMethod(orders: Order[], start: Date, end: Date) {
 
 export function debtRemain(d: Debt) {
   return Math.max(0, d.amount - d.paidAmount);
+}
+
+export type AgeBucket = "current" | "d30" | "d60" | "d60p" | "paid";
+
+export function debtAgeBucket(d: Debt, now = new Date()): AgeBucket {
+  if (debtRemain(d) <= 0 || d.status === "paid") return "paid";
+  const due = new Date(d.dueDate);
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  const days = Math.floor((start.getTime() - due.getTime()) / 86400000);
+  if (days <= 0) return "current";
+  if (days <= 30) return "d30";
+  if (days <= 60) return "d60";
+  return "d60p";
+}
+
+export function agingSums(debts: Debt[]) {
+  const buckets = { current: 0, d30: 0, d60: 0, d60p: 0 };
+  for (const d of debts) {
+    const bucket = debtAgeBucket(d);
+    if (bucket === "paid") continue;
+    buckets[bucket] += debtRemain(d);
+  }
+  return buckets;
 }
 
 export function debtUiStatus(d: Debt, now = new Date()) {

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   DateRangeFilter,
@@ -61,11 +62,18 @@ export default function RevenuePage() {
   );
   const daily = useMemo(() => {
     const map = new Map<string, number>();
+    const cursor = new Date(bounds.start);
+    while (cursor <= bounds.end) {
+      const key = `${String(cursor.getDate()).padStart(2, "0")}/${String(cursor.getMonth() + 1).padStart(2, "0")}`;
+      map.set(key, 0);
+      cursor.setDate(cursor.getDate() + 1);
+      if (map.size > 120) break;
+    }
     for (const o of books.orders) {
       if (o.status === "void") continue;
       const t = new Date(o.createdAt);
       if (t < bounds.start || t > bounds.end) continue;
-      const key = o.createdAt.slice(5, 10).replace("-", "/");
+      const key = `${String(t.getDate()).padStart(2, "0")}/${String(t.getMonth() + 1).padStart(2, "0")}`;
       map.set(key, (map.get(key) ?? 0) + o.total);
     }
     return [...map.entries()].map(([name, revenue]) => ({ name, revenue }));
@@ -102,8 +110,23 @@ export default function RevenuePage() {
       {books.loading ? <LoadingBlock /> : null}
       {!books.loading ? (
         <div className="space-y-4">
+          <div className="flex items-center justify-end">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                downloadCsv(
+                  "doanh-thu.csv",
+                  ["Tên", "Giá trị"],
+                  (tab === "product" ? byProduct.map((r) => [r.name, r.revenue]) : tab === "staff" ? byStaff.map((r) => [r.name, r.revenue]) : daily.map((r) => [r.name, r.revenue])),
+                )
+              }
+            >
+              Xuất Excel
+            </Button>
+          </div>
           <div className="flex gap-3 overflow-x-auto lg:grid lg:grid-cols-4">
-            <KpiCard label="Doanh thu" value={formatVnd(snap.revenue)} />
+            <KpiCard label="Doanh thu" value={formatVnd(snap.revenue)} delta={snap.delta.revenue} />
             <KpiCard label="Đơn hàng" value={String(snap.orders)} />
             <KpiCard label="Giá trị đơn TB" value={formatVnd(snap.aov)} />
             <KpiCard label="Giảm giá" value={formatVnd(snap.discounts)} />
@@ -160,6 +183,21 @@ export default function RevenuePage() {
       ) : null}
     </AppShell>
   );
+}
+
+function downloadCsv(filename: string, header: string[], rows: (string | number)[][]) {
+  const lines = rows.map((row) =>
+    row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","),
+  );
+  const blob = new Blob(["\uFEFF" + [header.join(","), ...lines].join("\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function DataList({

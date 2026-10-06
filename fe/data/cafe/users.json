@@ -67,5 +67,28 @@
       "cai-dat": false
     },
     "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "u_warehouse",
+    "name": "Hoàng Minh Khang",
+    "email": "kho@dolphincafe.vn",
+    "phone": "0904 888 111",
+    "role": "manager",
+    "status": "active",
+    "pin": "3333",
+    "password": "kho123",
+    "avatarColor": "#D97706",
+    "permissions": {
+      "ban-hang": false,
+      "san-pham": true,
+      "kho": true,
+      "khach-hang": false,
+      "nha-cung-cap": true,
+      "cong-no": false,
+      "doanh-thu": false,
+      "nhan-vien": false,
+      "cai-dat": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
   }
 ]

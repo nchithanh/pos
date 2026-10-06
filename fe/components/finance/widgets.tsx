@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Area,
   AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -21,37 +22,10 @@ import {
 } from "@/lib/finance/range";
 import type { FinancePackage } from "@/lib/finance/model";
 
-export function useChartTheme() {
-  const [theme, setTheme] = useState({
-    brand: "#10b981",
-    brandSoft: "#10b98133",
-    ink: "#0f172a",
-    grid: "#e2e8f0",
-  });
-
-  useEffect(() => {
-    const read = () => {
-      const cs = getComputedStyle(document.documentElement);
-      const raw = cs.getPropertyValue("--brand-500").trim();
-      const brand = raw.startsWith("#") && raw.length === 7 ? raw : "#10b981";
-      setTheme({
-        brand,
-        brandSoft: `${brand}33`,
-        ink: cs.getPropertyValue("--foreground").trim() || "#0f172a",
-        grid: cs.getPropertyValue("--border").trim() || "#e2e8f0",
-      });
-    };
-    read();
-    const obs = new MutationObserver(read);
-    obs.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class", "data-vertical"],
-    });
-    return () => obs.disconnect();
-  }, []);
-
-  return theme;
-}
+const CHART_GRID = "#e2e8f0";
+const COLOR_IN = "#10B981";
+const COLOR_OUT = "#F43F5E";
+const COLOR_NET = "#64748B";
 
 const PACKAGE_LABEL: Record<FinancePackage, string> = {
   basic: "BASIC",
@@ -68,27 +42,49 @@ export function PackageBadge({ tier }: { tier: FinancePackage }) {
   );
 }
 
+export function Sparkline({ points, up = true }: { points: number[]; up?: boolean }) {
+  const nums = points.length > 1 ? points : [0, 0];
+  const max = Math.max(...nums, 1);
+  const min = Math.min(...nums, 0);
+  const w = 72;
+  const h = 28;
+  const d = nums
+    .map((n, i) => {
+      const x = (i / (nums.length - 1)) * w;
+      const y = h - ((n - min) / (max - min || 1)) * (h - 4) - 2;
+      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden className={up ? "text-emerald-500" : "text-rose-500"}>
+      <path d={d} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function KpiCard({
   label,
   value,
   delta,
+  spark,
+  valueClass,
 }: {
   label: string;
   value: string;
   delta?: number;
+  spark?: number[];
+  valueClass?: string;
 }) {
   const up = (delta ?? 0) >= 0;
   return (
-    <Card className="min-w-[200px] flex-1 p-4">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-xl font-bold tracking-tight">{value}</p>
+    <Card className="min-w-[200px] flex-1 p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm text-slate-500">{label}</p>
+        {spark ? <Sparkline points={spark} up={up} /> : null}
+      </div>
+      <p className={cn("mt-1 text-xl font-bold tracking-tight tabular-nums", valueClass)}>{value}</p>
       {delta != null ? (
-        <p
-          className={cn(
-            "mt-1 text-xs font-semibold",
-            up ? "text-emerald-600" : "text-rose-600",
-          )}
-        >
+        <p className={cn("mt-1 text-xs font-semibold", up ? "text-emerald-600" : "text-rose-600")}>
           {formatPct(delta)} so với kỳ trước
         </p>
       ) : null}
@@ -205,15 +201,14 @@ function VndTooltip({
 }
 
 export function CashflowChart({ data }: { data: Point[] }) {
-  const chart = useChartTheme();
   if (!data.some((d) => d.inflow || d.outflow)) {
-    return <EmptyBlock text="Chưa có dòng tiền trong 30 ngày này." />;
+    return <EmptyBlock text="Chưa có dòng tiền trong khoảng này." />;
   }
   return (
     <div className="h-64 w-full min-w-0">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+          <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
           <XAxis dataKey="label" tick={{ fontSize: 11 }} />
           <YAxis
             tick={{ fontSize: 11 }}
@@ -224,22 +219,22 @@ export function CashflowChart({ data }: { data: Point[] }) {
             type="monotone"
             dataKey="inflow"
             name="Tiền vào"
-            stroke={chart.brand}
-            fill={chart.brandSoft}
+            stroke={COLOR_IN}
+            fill="#10B98133"
           />
           <Area
             type="monotone"
             dataKey="outflow"
             name="Tiền ra"
-            stroke="#f43f5e"
-            fill="#f43f5e22"
+            stroke={COLOR_OUT}
+            fill="#F43F5E22"
           />
           <Area
             type="monotone"
             dataKey="net"
             name="Ròng"
-            stroke={chart.ink}
-            fill={`${chart.ink}11`}
+            stroke={COLOR_NET}
+            fill="#64748B22"
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -251,18 +246,21 @@ export function SimpleBar({
   data,
   xKey,
   yKey,
+  fill = COLOR_IN,
 }: {
   data: Record<string, string | number>[];
   xKey: string;
   yKey: string;
+  /** Màu cột. Xanh = tiền vào, đỏ = tiền ra. Từng dòng có thể ghi đè bằng `color`. */
+  fill?: string;
 }) {
-  const chart = useChartTheme();
   if (!data.length) return <EmptyBlock text="Chưa có số liệu cho biểu đồ." />;
+  const mixed = data.some((row) => typeof row.color === "string");
   return (
     <div className="h-56 w-full min-w-0">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+          <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
           <XAxis dataKey={xKey} tick={{ fontSize: 11 }} />
           <YAxis
             tick={{ fontSize: 11 }}
@@ -271,7 +269,13 @@ export function SimpleBar({
           <Tooltip
             formatter={(v) => formatVnd(Number(v ?? 0))}
           />
-          <Bar dataKey={yKey} fill={chart.brand} radius={[6, 6, 0, 0]} />
+          <Bar dataKey={yKey} fill={fill} radius={[6, 6, 0, 0]}>
+            {mixed
+              ? data.map((row, i) => (
+                  <Cell key={i} fill={String(row.color ?? fill)} />
+                ))
+              : null}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -296,8 +300,8 @@ export function Tabs({
           className={cn(
             "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-3 text-sm font-semibold",
             value === o.id
-              ? "bg-emerald-500 text-white"
-              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+              ? "bg-emerald-500 !text-white"
+              : "bg-slate-100 text-slate-600 hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:bg-slate-800 dark:text-slate-300",
           )}
           onClick={() => onChange(o.id)}
         >

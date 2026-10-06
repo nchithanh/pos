@@ -11,7 +11,6 @@ import {
   Wallet,
 } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useChartTheme } from "@/components/finance/widgets";
 import {
   Area,
   AreaChart,
@@ -68,7 +67,6 @@ export default function DashboardPage() {
   const customers = useLiveQuery(() => db.customers.toArray());
   const settings = useLiveQuery(() => db.settings.get("store"));
   const [range, setRange] = useState<ChartRange>(7);
-  const chart = useChartTheme();
   const [highlight, setHighlight] = useState<
     "revenue" | "orders" | "low" | "recv" | "pay" | null
   >(null);
@@ -267,7 +265,7 @@ export default function DashboardPage() {
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={stats.days}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis
                       dataKey="label"
                       tick={{ fontSize: 11 }}
@@ -283,8 +281,8 @@ export default function DashboardPage() {
                     <Area
                       type="monotone"
                       dataKey="revenue"
-                      stroke={chart.brand}
-                      fill={chart.brandSoft}
+                      stroke="#10B981"
+                      fill="#10B98133"
                       strokeWidth={2}
                     />
                   </AreaChart>
@@ -298,7 +296,7 @@ export default function DashboardPage() {
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.days}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis
                       dataKey="label"
                       tick={{ fontSize: 11 }}
@@ -308,7 +306,7 @@ export default function DashboardPage() {
                     <Tooltip content={<ChartTooltip />} />
                     <Bar
                       dataKey="orders"
-                      fill={chart.brand}
+                      fill="#3B82F6"
                       radius={[6, 6, 0, 0]}
                     />
                   </BarChart>

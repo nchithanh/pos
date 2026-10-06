@@ -3,7 +3,7 @@
 ## In scope (shipped)
 
 - Local-first IndexedDB (Dexie) + seed Pet Shop  
-- Auth PIN/email · roles · mở/đóng ca  
+- Auth PIN/email · roles · thủ kho (PIN 3333, quyền kho) · mở/đóng ca  
 - Dashboard real stats/charts  
 - POS core: cart, barcode, hold, customer, payments, receipt  
 - CRUD sản phẩm · kho vận hành (kiểm nhận, xuất có duyệt/soạn, kiểm kê, sổ trước/sau)  

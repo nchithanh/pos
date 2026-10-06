@@ -24,6 +24,13 @@ import { EXPENSE_CATEGORIES } from "@/lib/finance/model";
 import { formatVnd } from "@/lib/utils";
 import { notify } from "@/lib/notify";
 
+function nextDueLabel(day: number) {
+  const now = new Date();
+  const due = new Date(now.getFullYear(), now.getMonth(), Math.min(28, day));
+  if (due < now) due.setMonth(due.getMonth() + 1);
+  return due.toLocaleDateString("vi-VN");
+}
+
 export default function ExpensesPage() {
   const books = useBooks();
   const range = useRangeState();
@@ -79,14 +86,31 @@ export default function ExpensesPage() {
             <KpiCard
               label="Chi phí vận hành"
               value={formatVnd(snap.opex)}
-              delta={snap.delta.spent}
+              delta={snap.delta.opex}
+              valueClass="text-rose-600"
             />
             <KpiCard label="Giá vốn hàng bán" value={formatVnd(snap.cogs)} />
           </div>
           <p className="text-sm text-slate-500">{formatPct(snap.delta.spent)} so với kỳ trước (tiền chi)</p>
           <Card className="p-4">
             <h2 className="mb-2 text-sm font-bold">Cơ cấu chi phí vận hành</h2>
-            <SimpleBar data={breakdown} xKey="name" yKey="amount" />
+            <SimpleBar data={breakdown} xKey="name" yKey="amount" fill="#F43F5E" />
+            <ul className="mt-4 space-y-2">
+              {breakdown.map((row) => {
+                const max = breakdown[0]?.amount || 1;
+                return (
+                  <li key={row.name}>
+                    <div className="mb-1 flex justify-between text-sm">
+                      <span>{row.name}</span>
+                      <span className="tabular-nums">{formatVnd(row.amount)}</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full bg-rose-400" style={{ width: `${Math.round((row.amount / max) * 100)}%` }} />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           </Card>
           <Card className="p-4 text-sm">
             <p className="font-semibold">Giá vốn (không gộp vào chi phí mặt bằng)</p>
@@ -134,7 +158,7 @@ export default function ExpensesPage() {
               >
                 <p className="font-semibold">{r.name}</p>
                 <p className="text-slate-500">
-                  {formatVnd(r.amount)} / tháng · Ngày {r.dayOfMonth}
+                  {formatVnd(r.amount)} / tháng · Ngày {r.dayOfMonth} · Kỳ tới {nextDueLabel(r.dayOfMonth)}
                 </p>
               </li>
             ))}

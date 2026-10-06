@@ -291,6 +291,13 @@ export function getDemoAccounts(vertical?: SeedVerticalId | null) {
 /** @deprecated dùng getDemoAccounts() theo vertical */
 export const DEMO_ACCOUNTS = PACKS.pet.demoAccounts;
 
+async function migrateMissingUsers(pack: VerticalPack): Promise<void> {
+  for (const user of pack.users) {
+    const existing = await db.users.get(user.id);
+    if (!existing) await db.users.add(user);
+  }
+}
+
 async function migrateStoreSettingsIfNeeded(pack: VerticalPack): Promise<void> {
   const row = await db.settings.get("store");
   if (!row) return;
@@ -336,6 +343,7 @@ export async function ensureSeeded(
       });
     }
     await migrateStoreSettingsIfNeeded(pack);
+    await migrateMissingUsers(pack);
     return;
   }
 

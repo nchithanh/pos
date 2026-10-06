@@ -1,6 +1,4 @@
 import {
-  ArrowDownToLine,
-  ArrowUpFromLine,
   LayoutDashboard,
   ShoppingCart,
   ClipboardList,
@@ -95,18 +93,7 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: Warehouse,
         permission: "kho",
         mobilePrimary: true,
-      },
-      {
-        href: "/kho/don-nhap",
-        label: "Đơn nhập",
-        icon: ArrowDownToLine,
-        permission: "kho",
-      },
-      {
-        href: "/kho/don-xuat",
-        label: "Đơn xuất",
-        icon: ArrowUpFromLine,
-        permission: "kho",
+        mobileLabel: "Kho",
       },
       {
         href: "/nha-cung-cap",
@@ -223,6 +210,7 @@ export function isNavActive(href: string, pathname: string) {
     pathname.length > 1 && pathname.endsWith("/")
       ? pathname.slice(0, -1)
       : pathname;
-  if (href === "/" || href === "/finance" || href === "/kho") return path === href;
+  if (href === "/" || href === "/finance") return path === href;
+  if (href === "/kho") return path === "/kho" || path.startsWith("/kho/");
   return path === href || path.startsWith(`${href}/`);
 }

@@ -9,7 +9,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { EmptyBlock, LoadingBlock, Tabs } from "@/components/finance/widgets";
 import { useBooks } from "@/lib/finance/use-books";
-import { debtRemain, debtUiStatus } from "@/lib/finance/metrics";
+import { agingSums, debtAgeBucket, debtRemain, debtUiStatus } from "@/lib/finance/metrics";
 import { payDebt } from "@/lib/services/debts";
 import { useAuthStore } from "@/stores/auth-store";
 import { formatDate, formatVnd } from "@/lib/utils";
@@ -25,6 +25,9 @@ export default function FinanceDebtsPage() {
   const [amount, setAmount] = useState("");
   const [accountId, setAccountId] = useState("acc_cash");
   const [channel, setChannel] = useState<"zalo" | "sms" | "email">("zalo");
+  const [q, setQ] = useState("");
+  const [status, setStatus] = useState("all");
+  const [selected, setSelected] = useState<string[]>([]);
 
   const recv = books.debts.filter((d) => d.type === "receivable");
   const pay = books.debts.filter((d) => d.type === "payable");
@@ -58,58 +61,46 @@ export default function FinanceDebtsPage() {
       {books.loading ? <LoadingBlock /> : null}
       {!books.loading && tab === "overview" ? (
         <div className="grid gap-3 sm:grid-cols-2">
-          <Card className="p-4">
-            <p className="text-sm text-slate-500">Phải thu</p>
-            <p className="text-2xl font-bold">{formatVnd(recvOpen)}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-sm text-slate-500">Phải trả</p>
-            <p className="text-2xl font-bold">{formatVnd(payOpen)}</p>
-          </Card>
+          <AgingCard title="Phải thu" total={recvOpen} rows={recv} />
+          <AgingCard title="Phải trả" total={payOpen} rows={pay} />
         </div>
       ) : null}
       {!books.loading && (tab === "recv" || tab === "pay") ? (
-        list.length === 0 ? (
-          <EmptyBlock text="Chưa có khoản công nợ." />
-        ) : (
-          <ul className="space-y-2">
-            {list.map((d) => (
-              <li
-                key={d.id}
-                className="rounded-[10px] border border-slate-200 p-3 text-sm dark:border-slate-700"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold">{d.partyName}</p>
-                    <p className="text-slate-500">{d.note}</p>
-                    <p className="text-xs text-slate-400">
-                      Hạn {formatDate(d.dueDate)} · {debtUiStatus(d)}
-                    </p>
-                  </div>
-                  <p className="font-bold">{formatVnd(debtRemain(d))}</p>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {debtRemain(d) > 0 ? (
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setPayRow(d);
-                        setAmount(String(debtRemain(d)));
-                      }}
-                    >
-                      Thanh toán
-                    </Button>
-                  ) : null}
-                  {d.type === "receivable" ? (
-                    <Button size="sm" variant="outline" onClick={() => setRemindRow(d)}>
-                      Nhắc khách
-                    </Button>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )
+        <DebtTable
+          rows={list.filter((d) => {
+            if (q && !d.partyName.toLowerCase().includes(q.toLowerCase())) return false;
+            if (status !== "all" && debtUiStatus(d) !== status) return false;
+            return true;
+          })}
+          kind={tab}
+          q={q}
+          setQ={setQ}
+          status={status}
+          setStatus={setStatus}
+          selected={selected}
+          setSelected={setSelected}
+          onPay={(d) => {
+            setPayRow(d);
+            setAmount(String(debtRemain(d)));
+          }}
+          onRemind={(d) => setRemindRow(d)}
+          onBulkRemind={() => {
+            const targets = list.filter((d) => selected.includes(d.id) && d.type === "receivable");
+            if (!targets.length) {
+              notify.error("Chọn khoản phải thu để nhắc");
+              return;
+            }
+            for (const d of targets) {
+              books.finance.addReminder({
+                debtId: d.id,
+                partyName: d.partyName,
+                channel,
+              });
+            }
+            notify.success(`Đã tạo ${targets.length} nhắc nợ`);
+            setSelected([]);
+          }}
+        />
       ) : null}
       {!books.loading && tab === "payments" ? (
         payments.length === 0 ? (
@@ -227,5 +218,151 @@ export default function FinanceDebtsPage() {
         ) : null}
       </Dialog>
     </AppShell>
+  );
+}
+
+function AgingCard({ title, total, rows }: { title: string; total: number; rows: Debt[] }) {
+  const aging = agingSums(rows);
+  const items = [
+    ["Chưa đến hạn", aging.current],
+    ["1–30 ngày", aging.d30],
+    ["31–60 ngày", aging.d60],
+    ["Trên 60 ngày", aging.d60p],
+  ] as const;
+  return (
+    <Card className="p-4 shadow-sm">
+      <p className="text-sm text-slate-500">{title}</p>
+      <p className="text-2xl font-bold tabular-nums">{formatVnd(total)}</p>
+      <ul className="mt-3 space-y-1 text-sm">
+        {items.map(([label, amount]) => (
+          <li key={label} className="flex justify-between">
+            <span className={label === "Trên 60 ngày" ? "text-rose-600" : "text-slate-500"}>{label}</span>
+            <span className="tabular-nums">{formatVnd(amount)}</span>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
+function DebtTable({
+  rows,
+  kind,
+  q,
+  setQ,
+  status,
+  setStatus,
+  selected,
+  setSelected,
+  onPay,
+  onRemind,
+  onBulkRemind,
+}: {
+  rows: Debt[];
+  kind: string;
+  q: string;
+  setQ: (v: string) => void;
+  status: string;
+  setStatus: (v: string) => void;
+  selected: string[];
+  setSelected: (v: string[]) => void;
+  onPay: (d: Debt) => void;
+  onRemind: (d: Debt) => void;
+  onBulkRemind: () => void;
+}) {
+  if (!rows.length && !q && status === "all") return <EmptyBlock text="Chưa có khoản công nợ." />;
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm khách hoặc nhà cung cấp" aria-label="Tìm công nợ" className="max-w-xs" />
+        <select
+          className="min-h-11 rounded-[10px] border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
+          value={status}
+          aria-label="Trạng thái"
+          onChange={(e) => setStatus(e.target.value)}
+        >
+          <option value="all">Mọi trạng thái</option>
+          <option>Quá hạn</option>
+          <option>Sắp đến hạn</option>
+          <option>Chưa đến hạn</option>
+          <option>Đã thanh toán một phần</option>
+          <option>Đã thanh toán</option>
+        </select>
+        {kind === "recv" && selected.length > 0 ? (
+          <Button size="sm" variant="outline" onClick={onBulkRemind}>
+            Gửi nhắc nợ ({selected.length})
+          </Button>
+        ) : null}
+      </div>
+      <div className="max-h-[70vh] overflow-auto rounded-[10px] border border-slate-200">
+        <table className="w-full min-w-[760px] text-left text-sm">
+          <thead className="sticky top-0 bg-slate-50 text-xs uppercase text-slate-500">
+            <tr>
+              <th className="px-3 py-3">
+                <input
+                  type="checkbox"
+                  aria-label="Chọn tất cả"
+                  checked={rows.length > 0 && rows.every((d) => selected.includes(d.id))}
+                  onChange={(e) => setSelected(e.target.checked ? rows.map((d) => d.id) : [])}
+                />
+              </th>
+              <th className="px-3 py-3">{kind === "pay" ? "Nhà cung cấp" : "Khách hàng"}</th>
+              <th className="px-3 py-3 text-right">Tổng nợ</th>
+              <th className="px-3 py-3 text-right">Đã thu</th>
+              <th className="px-3 py-3 text-right">Còn lại</th>
+              <th className="px-3 py-3">Ngày đến hạn</th>
+              <th className="px-3 py-3">Trạng thái</th>
+              <th className="px-3 py-3">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((d) => {
+              const st = debtUiStatus(d);
+              const bucket = debtAgeBucket(d);
+              return (
+                <tr key={d.id} className="border-t border-slate-100">
+                  <td className="px-3 py-2">
+                    <input
+                      type="checkbox"
+                      aria-label={`Chọn ${d.partyName}`}
+                      checked={selected.includes(d.id)}
+                      onChange={(e) =>
+                        setSelected(
+                          e.target.checked ? [...selected, d.id] : selected.filter((id) => id !== d.id),
+                        )
+                      }
+                    />
+                  </td>
+                  <td className="px-3 py-2 font-semibold">{d.partyName}</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{formatVnd(d.amount)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{formatVnd(d.paidAmount)}</td>
+                  <td className="px-3 py-2 text-right font-semibold tabular-nums">{formatVnd(debtRemain(d))}</td>
+                  <td className="px-3 py-2">{formatDate(d.dueDate)}</td>
+                  <td className="px-3 py-2">
+                    <span className={st === "Quá hạn" || bucket === "d60p" ? "font-semibold text-rose-600" : st === "Sắp đến hạn" ? "font-semibold text-amber-700" : ""}>
+                      {st}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="flex gap-2">
+                      {debtRemain(d) > 0 ? (
+                        <Button size="sm" onClick={() => onPay(d)}>
+                          Thanh toán
+                        </Button>
+                      ) : null}
+                      {d.type === "receivable" && debtRemain(d) > 0 ? (
+                        <Button size="sm" variant="outline" onClick={() => onRemind(d)}>
+                          Nhắc nợ
+                        </Button>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

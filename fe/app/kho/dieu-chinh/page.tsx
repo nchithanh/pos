@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/layout/app-shell";
 import { WarehouseNav } from "@/components/kho/warehouse-nav";
@@ -22,6 +22,11 @@ export default function AdjustPage() {
   const [reason, setReason] = useState("Hàng hỏng");
   const product = products.find((p) => p.id === productId);
   const allowed = user?.role === "owner" || user?.role === "manager";
+
+  useEffect(() => {
+    const product = new URLSearchParams(window.location.search).get("product");
+    if (product) setProductId(product);
+  }, []);
 
   const submit = async () => {
     if (!allowed) {

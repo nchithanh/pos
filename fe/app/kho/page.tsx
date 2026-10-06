@@ -3,18 +3,25 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { WarehouseNav } from "@/components/kho/warehouse-nav";
+import {
+  ProductThumb,
+  QuickLink,
+  Sparkline,
+  StockMeter,
+  stockLevel,
+} from "@/components/kho/ui";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { db, getStockStatus } from "@/lib/db";
-import { PackageBadge } from "@/components/finance/widgets";
-import { PURCHASE_LABEL, OUTBOUND_LABEL } from "@/lib/warehouse/types";
 import { useWarehouseStore } from "@/stores/warehouse-store";
 import { formatVnd } from "@/lib/utils";
 
 export default function WarehouseOverviewPage() {
   const products = useLiveQuery(() => db.products.toArray()) ?? [];
+  const movements = useLiveQuery(() => db.movements.toArray()) ?? [];
   const purchases = useWarehouseStore((s) => s.purchases);
   const outbounds = useWarehouseStore((s) => s.outbounds);
   const active = products.filter((p) => p.active);
@@ -23,37 +30,48 @@ export default function WarehouseOverviewPage() {
   const low = active.filter((p) => getStockStatus(p.stock, p.minStock) === "low");
   const out = active.filter((p) => getStockStatus(p.stock, p.minStock) === "out");
   const waitIn = purchases.filter((p) => p.status === "awaiting_receive" || p.status === "receiving");
-  const variance = purchases.filter((p) => p.status === "variance");
   const waitOut = outbounds.filter((o) =>
     ["pending", "approved", "picking", "partial", "ready"].includes(o.status),
   );
-  const pendingApprove = outbounds.filter((o) => o.status === "pending");
 
-  const inboundBuckets = useMemo(
-    () => ({
-      wait: purchases.filter((p) => p.status === "awaiting_receive").length,
-      doing: purchases.filter((p) => p.status === "receiving" || p.status === "variance").length,
-      done: purchases.filter((p) => p.status === "done").length,
-    }),
-    [purchases],
-  );
-  const outboundBuckets = useMemo(
-    () => ({
-      wait: outbounds.filter((o) => o.status === "pending").length,
-      pick: outbounds.filter((o) => o.status === "picking" || o.status === "approved" || o.status === "partial").length,
-      hand: outbounds.filter((o) => o.status === "ready").length,
-    }),
-    [outbounds],
-  );
+  const series = useMemo(() => {
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      const day = d.toISOString().slice(0, 10);
+      return movements
+        .filter((m) => m.createdAt.slice(0, 10) === day)
+        .reduce((s, m) => s + m.items.reduce((a, line) => a + line.quantity, 0), 0);
+    });
+  }, [movements]);
+  const trendUp = series[series.length - 1] >= series[0];
 
-  const cards = [
-    ["Tổng sản phẩm tồn", String(qty), "/kho/ton"],
-    ["Giá trị tồn kho", formatVnd(value), "/kho/ton"],
-    ["Đang chờ nhập", String(waitIn.length), "/kho/don-nhap"],
-    ["Đang chờ xuất", String(waitOut.length), "/kho/don-xuat"],
-    ["Sắp hết", String(low.length), "/kho/ton"],
-    ["Hết hàng", String(out.length), "/kho/ton"],
-  ] as const;
+  const inbound = {
+    wait: purchases.filter((p) => p.status === "awaiting_receive").length,
+    doing: purchases.filter((p) => p.status === "receiving" || p.status === "variance").length,
+    done: purchases.filter((p) => p.status === "done").length,
+  };
+  const outbound = {
+    wait: outbounds.filter((o) => o.status === "pending").length,
+    pick: outbounds.filter((o) => ["picking", "approved", "partial"].includes(o.status)).length,
+    hand: outbounds.filter((o) => o.status === "ready").length,
+  };
+
+  const cards: {
+    label: string;
+    value: string;
+    href: string;
+    tone?: "warn" | "danger";
+  }[] = [
+    { label: "Tổng sản phẩm tồn", value: String(qty), href: "/kho/ton" },
+    { label: "Giá trị tồn kho", value: formatVnd(value), href: "/kho/ton" },
+    { label: "Đang chờ nhập", value: String(waitIn.length), href: "/kho/don-nhap?status=awaiting_receive" },
+    { label: "Đang chờ xuất", value: String(waitOut.length), href: "/kho/don-xuat?status=pending" },
+    { label: "Sắp hết", value: String(low.length), href: "/kho/ton?level=low", tone: "warn" },
+    { label: "Hết hàng", value: String(out.length), href: "/kho/ton?level=out", tone: "danger" },
+  ];
+
+  const watch = [...out, ...low].slice(0, 5);
 
   return (
     <AppShell>
@@ -62,118 +80,123 @@ export default function WarehouseOverviewPage() {
         description="Quản lý hàng nhập, tồn kho, xuất kho và biến động hàng hóa."
       />
       <WarehouseNav />
+
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {cards.map(([label, valueText, href]) => (
-          <Link key={label} href={href}>
-            <Card className="p-4 hover:border-emerald-300">
-              <p className="text-sm text-slate-500">{label}</p>
-              <p className="mt-1 text-xl font-bold">{valueText}</p>
+        {cards.map((card) => (
+          <Link key={card.label} href={card.href} className="rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+            <Card className="p-4 shadow-sm transition hover:border-emerald-300">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm text-slate-500">{card.label}</p>
+                <Sparkline points={series} />
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <p
+                  className={
+                    card.tone === "danger"
+                      ? "text-2xl font-bold text-rose-600"
+                      : card.tone === "warn"
+                        ? "text-2xl font-bold text-amber-600"
+                        : "text-2xl font-bold"
+                  }
+                >
+                  {card.value}
+                </p>
+                {trendUp ? (
+                  <TrendingUp className="h-4 w-4 text-emerald-600" aria-hidden />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-slate-400" aria-hidden />
+                )}
+              </div>
             </Card>
           </Link>
         ))}
       </div>
 
+      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <QuickLink href="/kho/don-nhap?create=1" primary>
+          + Nhập kho
+        </QuickLink>
+        <QuickLink href="/kho/don-xuat?create=1">+ Xuất kho</QuickLink>
+        <QuickLink href="/kho/kiem-ke?mode=batch">Tạo phiếu kiểm kê</QuickLink>
+        <QuickLink href="/kho/dieu-chinh">Điều chỉnh tồn</QuickLink>
+      </div>
+
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
-        <Card className="p-4">
-          <h2 className="mb-3 text-sm font-bold">Quy trình đang xử lý · Nhập kho</h2>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link href="/kho/don-nhap" className="flex min-h-11 items-center justify-between">
-                <span>Chờ kiểm nhận</span>
-                <b>{inboundBuckets.wait} phiếu</b>
-              </Link>
-            </li>
-            <li>
-              <Link href="/kho/don-nhap" className="flex min-h-11 items-center justify-between">
-                <span>Đang nhập / sai lệch</span>
-                <b>{inboundBuckets.doing} phiếu</b>
-              </Link>
-            </li>
-            <li>
-              <Link href="/kho/don-nhap" className="flex min-h-11 items-center justify-between">
-                <span>Hoàn tất</span>
-                <b>{inboundBuckets.done} phiếu</b>
-              </Link>
-            </li>
+        <Card className="p-4 shadow-sm">
+          <h2 className="mb-3 text-base font-medium">Quy trình đang xử lý · Nhập kho</h2>
+          <ul className="space-y-1 text-sm">
+            <CountLink href="/kho/don-nhap?status=awaiting_receive" label="Chờ kiểm nhận" count={inbound.wait} />
+            <CountLink href="/kho/don-nhap?status=working" label="Đang nhập / sai lệch" count={inbound.doing} />
+            <CountLink href="/kho/don-nhap?status=done" label="Hoàn tất" count={inbound.done} />
           </ul>
         </Card>
-        <Card className="p-4">
-          <h2 className="mb-3 text-sm font-bold">Quy trình đang xử lý · Xuất kho</h2>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link href="/kho/don-xuat" className="flex min-h-11 items-center justify-between">
-                <span>Chờ duyệt</span>
-                <b>{outboundBuckets.wait} phiếu</b>
-              </Link>
-            </li>
-            <li>
-              <Link href="/kho/don-xuat" className="flex min-h-11 items-center justify-between">
-                <span>Đang soạn</span>
-                <b>{outboundBuckets.pick} phiếu</b>
-              </Link>
-            </li>
-            <li>
-              <Link href="/kho/don-xuat" className="flex min-h-11 items-center justify-between">
-                <span>Chờ bàn giao</span>
-                <b>{outboundBuckets.hand} phiếu</b>
-              </Link>
-            </li>
+        <Card className="p-4 shadow-sm">
+          <h2 className="mb-3 text-base font-medium">Quy trình đang xử lý · Xuất kho</h2>
+          <ul className="space-y-1 text-sm">
+            <CountLink href="/kho/don-xuat?status=pending" label="Chờ duyệt" count={outbound.wait} />
+            <CountLink href="/kho/don-xuat?status=picking" label="Đang soạn" count={outbound.pick} />
+            <CountLink href="/kho/don-xuat?status=ready" label="Chờ bàn giao" count={outbound.hand} />
           </ul>
         </Card>
       </section>
 
-      <section className="mt-6">
-        <h2 className="mb-3 text-sm font-bold">Sản phẩm cần chú ý</h2>
-        <ul className="space-y-2">
-          {[...out, ...low].slice(0, 5).map((p) => (
-            <li
-              key={p.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-[10px] border border-slate-200 px-3 py-3 text-sm dark:border-slate-700"
-            >
-              <span>
-                <span className="block font-semibold">{p.name}</span>
-                <span className="text-slate-500">
-                  Tồn {p.stock} · Tối thiểu {p.minStock} ·{" "}
-                  {p.stock <= 0 ? "Hết hàng" : "Sắp hết"}
-                </span>
-              </span>
-              <span className="flex gap-2">
-                <Link href="/kho/ton" className="font-semibold text-emerald-700">
-                  Xem sản phẩm
-                </Link>
-                <Link href="/kho/don-nhap" className="font-semibold text-emerald-700">
-                  Tạo yêu cầu nhập
-                </Link>
-              </span>
-            </li>
-          ))}
-        </ul>
+      <section className="mt-6" aria-labelledby="kho-watch">
+        <h2 id="kho-watch" className="mb-3 text-base font-medium">
+          Sản phẩm cần chú ý
+        </h2>
+        {watch.length === 0 ? (
+          <p className="text-sm text-slate-500">Không có sản phẩm sắp hết hoặc hết hàng.</p>
+        ) : (
+          <ul className="space-y-2">
+            {watch.map((p) => {
+              const level = stockLevel(p.stock, p.minStock, p.active);
+              return (
+                <li
+                  key={p.id}
+                  className="flex flex-wrap items-center gap-3 rounded-[10px] border border-slate-200 px-3 py-3 text-sm shadow-sm dark:border-slate-700"
+                >
+                  <ProductThumb
+                    name={p.name}
+                    emoji={p.emoji}
+                    imageColor={p.imageColor}
+                    imageUrl={p.imageUrl}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold">{p.name}</span>
+                    <span className="text-slate-500">
+                      {p.sku} · Tồn {p.stock} · Tối thiểu {p.minStock}
+                    </span>
+                    <span className="mt-2 block">
+                      <StockMeter stock={p.stock} minStock={p.minStock} />
+                    </span>
+                  </span>
+                  <span className={level === "out" ? "font-semibold text-rose-600" : "font-semibold text-amber-600"}>
+                    {level === "out" ? "Hết hàng" : "Sắp hết"}
+                  </span>
+                  <QuickLink href={`/kho/don-nhap?create=1&product=${p.id}`} primary>
+                    Tạo yêu cầu nhập
+                  </QuickLink>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
-
-      <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          ["Tồn kho thấp", String(low.length), "/kho/ton"],
-          ["Phiếu có sai lệch", String(variance.length), "/kho/don-nhap"],
-          ["Đơn xuất chờ duyệt", String(pendingApprove.length), "/kho/don-xuat"],
-          ["Hàng sắp hết hạn", "3 lô", "/kho/goi-y"],
-        ].map(([label, n, href]) => (
-          <Link key={label} href={href}>
-            <Card className="p-3 text-sm hover:border-emerald-300">
-              <p className="text-slate-500">{label}</p>
-              <p className="font-bold">{n}</p>
-            </Card>
-          </Link>
-        ))}
-      </section>
-
-      <p className="mt-4 text-xs text-slate-400">
-        Trạng thái phiếu:{" "}
-        {Object.values(PURCHASE_LABEL).slice(0, 3).join(" · ")} ·{" "}
-        {Object.values(OUTBOUND_LABEL).slice(0, 3).join(" · ")}
-        <span className="ml-2 inline-flex">
-          <PackageBadge tier="basic" />
-        </span>
-      </p>
+      <p className="mt-4 text-xs text-slate-400">Phím / trên trang tồn kho để tìm nhanh.</p>
     </AppShell>
+  );
+}
+
+function CountLink({ href, label, count }: { href: string; label: string; count: number }) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className="flex min-h-11 items-center justify-between rounded-[10px] px-2 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:hover:bg-slate-800"
+      >
+        <span>{label}</span>
+        <b>{count} phiếu</b>
+      </Link>
+    </li>
   );
 }

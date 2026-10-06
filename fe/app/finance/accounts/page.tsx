@@ -22,6 +22,42 @@ const TYPES: { id: AccountType | "all"; label: string }[] = [
   { id: "other", label: "Tài khoản khác" },
 ];
 
+function AccountMark({
+  id,
+  name,
+  type,
+}: {
+  id: string;
+  name: string;
+  type: AccountType;
+}) {
+  const known =
+    id === "acc_cash" || /tiền mặt/i.test(name)
+      ? { letters: "₫", bg: "#ECFDF5", fg: "#047857" }
+      : id === "acc_vcb" || /vietcombank|\bvcb\b/i.test(name)
+        ? { letters: "VCB", bg: "#006B3F", fg: "#FFFFFF" }
+        : id === "acc_mb" || /mb bank|\bmb\b/i.test(name)
+          ? { letters: "MB", bg: "#1D4ED8", fg: "#FFFFFF" }
+          : id === "acc_momo" || /momo/i.test(name)
+            ? { letters: "Mo", bg: "#A50064", fg: "#FFFFFF" }
+            : type === "cash"
+              ? { letters: "₫", bg: "#ECFDF5", fg: "#047857" }
+              : type === "ewallet"
+                ? { letters: "Ví", bg: "#FDF2F8", fg: "#9D174D" }
+                : type === "bank"
+                  ? { letters: name.slice(0, 2).toUpperCase(), bg: "#EFF6FF", fg: "#1D4ED8" }
+                  : { letters: name.slice(0, 1).toUpperCase(), bg: "#F1F5F9", fg: "#334155" };
+  return (
+    <span
+      className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] text-sm font-bold"
+      style={{ backgroundColor: known.bg, color: known.fg }}
+      aria-hidden
+    >
+      {known.letters}
+    </span>
+  );
+}
+
 export default function AccountsPage() {
   const books = useBooks();
   const [tab, setTab] = useState<string>("all");
@@ -64,12 +100,15 @@ export default function AccountsPage() {
       <div className="grid gap-3 sm:grid-cols-2">
         {rows.map((a) => (
           <button key={a.id} type="button" className="text-left" onClick={() => setSelected(a.id)}>
-            <Card className="p-4 hover:border-emerald-300">
-              <p className="text-sm text-slate-500">{a.name}</p>
-              <p className="text-xl font-bold">{formatVnd(a.balance)}</p>
-              <p className="mt-1 text-xs text-slate-400">
-                Số dư đầu {formatVnd(a.openingBalance)} · {a.active ? "Đang dùng" : "Ngưng"}
-              </p>
+            <Card className="flex items-center gap-3 p-4 hover:border-emerald-300">
+              <AccountMark id={a.id} name={a.name} type={a.type} />
+              <span className="min-w-0">
+                <p className="text-sm text-slate-500">{a.name}</p>
+                <p className="text-xl font-bold tabular-nums">{formatVnd(a.balance)}</p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Số dư đầu {formatVnd(a.openingBalance)} · {a.active ? "Đang dùng" : "Ngưng"}
+                </p>
+              </span>
             </Card>
           </button>
         ))}

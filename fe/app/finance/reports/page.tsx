@@ -125,6 +125,7 @@ export default function ReportsPage() {
               data={chart as { name: string; amount: number }[]}
               xKey="name"
               yKey="amount"
+              fill={tab === "expense" ? "#F43F5E" : tab === "profit" ? "#047857" : "#10B981"}
             />
           </Card>
           {tab === "debt" ? (

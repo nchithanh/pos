@@ -10,7 +10,7 @@ Local-first POS (IndexedDB) — demo nhiều lĩnh vực (chọn trước login)
 | State | Zustand (auth/cart) · TanStack Query · dexie-react-hooks |
 | Data | JSON `fe/data/{vertical}/` → Dexie `dolphin_pos_{vertical}` |
 | Theme | `data-vertical` + `--brand-*` (remap `emerald-*`) |
-| Auth | Chọn lĩnh vực → PIN / email · shift open/close |
+| Auth | Chọn lĩnh vực → PIN / email · thủ kho PIN 3333 · shift open/close |
 | Print | `lib/print-receipt.ts` + PDF `lib/pdf-receipt.ts` |
 | HĐĐT | SePay **simulator** (docs contract) |
 

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/layout/app-shell";
-import { StatusPill, WarehouseNav } from "@/components/kho/warehouse-nav";
+import { WarehouseNav } from "@/components/kho/warehouse-nav";
+import { EmptyBlock, FilterChip, StatusPill, fieldClass, purchaseTone } from "@/components/kho/ui";
 import { PackageBadge } from "@/components/finance/widgets";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -15,11 +16,12 @@ import { confirmReceive } from "@/lib/warehouse/ops";
 import { PURCHASE_LABEL, type PurchaseLine, type PurchaseOrder } from "@/lib/warehouse/types";
 import { useAuthStore } from "@/stores/auth-store";
 import { useWarehouseStore } from "@/stores/warehouse-store";
-import { formatVnd, uid } from "@/lib/utils";
+import { formatDateTime, formatVnd, uid } from "@/lib/utils";
 
 export default function PurchasePage() {
   const products = useLiveQuery(() => db.products.toArray()) ?? [];
   const suppliers = useLiveQuery(() => db.suppliers.toArray()) ?? [];
+  const users = useLiveQuery(() => db.users.toArray()) ?? [];
   const user = useAuthStore((s) => s.user);
   const purchases = useWarehouseStore((s) => s.purchases);
   const ensureDemo = useWarehouseStore((s) => s.ensureDemo);
@@ -30,13 +32,44 @@ export default function PurchasePage() {
   const [supplierId, setSupplierId] = useState("");
   const [productId, setProductId] = useState("");
   const [qty, setQty] = useState("50");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [range, setRange] = useState("all");
+  const [supplierFilter, setSupplierFilter] = useState("all");
   const current = purchases.find((p) => p.id === open) ?? null;
 
   useEffect(() => {
-    if (products.length && suppliers.length) {
-      ensureDemo(products, suppliers, user?.name ?? "Phạm Đức Thành");
+    if (products.length && suppliers.length && users.length) {
+      ensureDemo(products, suppliers, users);
     }
-  }, [products, suppliers, ensureDemo, user?.name]);
+  }, [products, suppliers, users, ensureDemo]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("status");
+    if (status) setStatusFilter(status);
+    if (params.get("create") === "1") setCreating(true);
+    const product = params.get("product");
+    if (product) {
+      setProductId(product);
+      setCreating(true);
+    }
+    const openId = params.get("open");
+    if (openId) setOpen(openId);
+  }, []);
+
+  const visible = useMemo(() => {
+    return purchases.filter((po) => {
+      if (statusFilter === "working") {
+        if (po.status !== "receiving" && po.status !== "variance") return false;
+      } else if (statusFilter !== "all" && po.status !== statusFilter) return false;
+      if (supplierFilter !== "all" && po.supplierId !== supplierFilter) return false;
+      if (range !== "all") {
+        const days = range === "7" ? 7 : 30;
+        if (Date.now() - new Date(po.createdAt).getTime() > days * 86400000) return false;
+      }
+      return true;
+    });
+  }, [purchases, statusFilter, supplierFilter, range]);
 
   const updateLine = (po: PurchaseOrder, index: number, patch: Partial<PurchaseLine>) => {
     const lines = po.lines.map((l, i) => (i === index ? { ...l, ...patch } : l));
@@ -168,26 +201,71 @@ export default function PurchasePage() {
         </Card>
       ) : null}
 
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <FilterChip active={statusFilter === "all"} onClick={() => setStatusFilter("all")}>
+          Tất cả
+        </FilterChip>
+        <FilterChip active={statusFilter === "awaiting_receive"} onClick={() => setStatusFilter("awaiting_receive")}>
+          Chờ kiểm nhận
+        </FilterChip>
+        <FilterChip active={statusFilter === "working"} onClick={() => setStatusFilter("working")}>
+          Đang nhập
+        </FilterChip>
+        <FilterChip active={statusFilter === "done"} onClick={() => setStatusFilter("done")}>
+          Hoàn tất
+        </FilterChip>
+        <FilterChip active={range === "7"} onClick={() => setRange(range === "7" ? "all" : "7")}>
+          7 ngày
+        </FilterChip>
+        <FilterChip active={range === "30"} onClick={() => setRange(range === "30" ? "all" : "30")}>
+          30 ngày
+        </FilterChip>
+        <select
+          className={fieldClass}
+          aria-label="Nhà cung cấp"
+          value={supplierFilter}
+          onChange={(e) => setSupplierFilter(e.target.value)}
+        >
+          <option value="all">Mọi nhà cung cấp</option>
+          {suppliers.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {visible.length === 0 ? (
+        <EmptyBlock
+          title="Chưa có phiếu nhập"
+          body="Tạo đơn nhập để kiểm nhận số thực nhận trước khi cộng tồn."
+        />
+      ) : null}
+
       <ul className="space-y-2">
-        {purchases.map((po) => (
-          <li key={po.id}>
+        {visible.map((po) => {
+          const total = po.lines.reduce((s, l) => s + l.ordered * l.cost, 0);
+          return (
+          <li key={po.id} className="group">
             <button
               type="button"
-              className="flex w-full items-center justify-between gap-2 rounded-[10px] border border-slate-200 px-3 py-3 text-left dark:border-slate-700"
+              className="flex w-full items-center justify-between gap-3 rounded-[10px] border border-slate-200 px-3 py-3 text-left shadow-sm hover:border-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-700"
               onClick={() => setOpen(po.id === open ? null : po.id)}
             >
-              <span>
+              <span className="min-w-0">
                 <span className="block font-semibold">
                   {po.code} · {po.supplierName}
                 </span>
                 <span className="text-xs text-slate-500">
-                  {po.lines.length} dòng · {po.createdBy}
+                  {formatDateTime(po.createdAt)} · {po.createdBy} · {po.lines.length} dòng · {formatVnd(total)}
                 </span>
               </span>
-              <StatusPill
-                label={PURCHASE_LABEL[po.status]}
-                warn={po.status === "variance" || po.status === "awaiting_receive"}
-              />
+              <span className="flex items-center gap-2">
+                <span className="hidden text-xs font-semibold text-emerald-700 group-hover:inline">
+                  Mở phiếu
+                </span>
+                <StatusPill label={PURCHASE_LABEL[po.status]} tone={purchaseTone(po.status)} />
+              </span>
             </button>
             {current?.id === po.id ? (
               <Card className="mt-2 space-y-3 p-4">
@@ -255,7 +333,8 @@ export default function PurchasePage() {
               </Card>
             ) : null}
           </li>
-        ))}
+          );
+        })}
       </ul>
     </AppShell>
   );

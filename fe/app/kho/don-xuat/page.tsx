@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/layout/app-shell";
-import { StatusPill, WarehouseNav } from "@/components/kho/warehouse-nav";
+import { WarehouseNav } from "@/components/kho/warehouse-nav";
+import { EmptyBlock, FilterChip, StatusPill, outboundTone } from "@/components/kho/ui";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,7 +19,7 @@ import {
   reservedQty,
   useWarehouseStore,
 } from "@/stores/warehouse-store";
-import { formatDateTime, uid } from "@/lib/utils";
+import { formatDateTime, formatVnd, uid } from "@/lib/utils";
 
 const PURPOSES = ["Bán hàng", "Chuyển kho", "Nội bộ", "Hàng mẫu", "Hư hỏng", "Khác"];
 
@@ -33,7 +34,29 @@ export default function OutboundPage() {
   const [productId, setProductId] = useState("");
   const [qty, setQty] = useState("10");
   const [purpose, setPurpose] = useState(PURPOSES[0]);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [range, setRange] = useState("all");
   const canApprove = user?.role === "owner" || user?.role === "manager";
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("status");
+    if (status) setStatusFilter(status);
+    if (params.get("create") === "1") setCreating(true);
+  }, []);
+
+  const visible = useMemo(() => {
+    return outbounds.filter((order) => {
+      if (statusFilter === "picking") {
+        if (!["picking", "approved", "partial"].includes(order.status)) return false;
+      } else if (statusFilter !== "all" && order.status !== statusFilter) return false;
+      if (range !== "all") {
+        const days = range === "7" ? 7 : 30;
+        if (Date.now() - new Date(order.createdAt).getTime() > days * 86400000) return false;
+      }
+      return true;
+    });
+  }, [outbounds, statusFilter, range]);
 
   const create = () => {
     const product = products.find((p) => p.id === productId);
@@ -145,14 +168,39 @@ export default function OutboundPage() {
         </Card>
       ) : null}
 
-      {outbounds.length === 0 ? (
-        <p className="text-sm text-slate-500">
-          Chưa có phiếu xuất. Sau khi nhập kho, tạo yêu cầu xuất 10 đơn vị để chạy demo.
-        </p>
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <FilterChip active={statusFilter === "all"} onClick={() => setStatusFilter("all")}>
+          Tất cả
+        </FilterChip>
+        <FilterChip active={statusFilter === "pending"} onClick={() => setStatusFilter("pending")}>
+          Chờ duyệt
+        </FilterChip>
+        <FilterChip active={statusFilter === "picking"} onClick={() => setStatusFilter("picking")}>
+          Đang soạn
+        </FilterChip>
+        <FilterChip active={statusFilter === "ready"} onClick={() => setStatusFilter("ready")}>
+          Chờ bàn giao
+        </FilterChip>
+        <FilterChip active={statusFilter === "shipped"} onClick={() => setStatusFilter("shipped")}>
+          Đã xuất
+        </FilterChip>
+        <FilterChip active={range === "7"} onClick={() => setRange(range === "7" ? "all" : "7")}>
+          7 ngày
+        </FilterChip>
+        <FilterChip active={range === "30"} onClick={() => setRange(range === "30" ? "all" : "30")}>
+          30 ngày
+        </FilterChip>
+      </div>
+
+      {visible.length === 0 ? (
+        <EmptyBlock
+          title="Chưa có phiếu xuất"
+          body="Sau khi nhập kho, tạo yêu cầu xuất để chạy quy trình duyệt và soạn hàng."
+        />
       ) : null}
 
       <ul className="space-y-2">
-        {outbounds.map((order) => {
+        {visible.map((order) => {
           const product = products.find((p) => p.id === order.lines[0]?.productId);
           const line = order.lines[0];
           const avail = product
@@ -163,23 +211,31 @@ export default function OutboundPage() {
               )
             : 0;
           const short = line && line.requested > avail && order.status !== "shipped";
+          const total = order.lines.reduce((s, l) => {
+            const cost = products.find((p) => p.id === l.productId)?.costPrice ?? 0;
+            return s + l.requested * cost;
+          }, 0);
           return (
-            <li key={order.id}>
+            <li key={order.id} className="group">
               <button
                 type="button"
-                className="flex w-full items-center justify-between rounded-[10px] border border-slate-200 px-3 py-3 text-left dark:border-slate-700"
+                className="flex w-full items-center justify-between gap-3 rounded-[10px] border border-slate-200 px-3 py-3 text-left shadow-sm hover:border-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-700"
                 onClick={() => setOpen(order.id === open ? null : order.id)}
               >
-                <span>
+                <span className="min-w-0">
                   <span className="font-semibold">
                     {order.code} · {order.requester}
                   </span>
-                  <span className="block text-xs text-slate-500">{order.purpose}</span>
+                  <span className="block text-xs text-slate-500">
+                    {formatDateTime(order.createdAt)} · {order.purpose} · {order.lines.length} dòng · {formatVnd(total)}
+                  </span>
                 </span>
-                <StatusPill
-                  label={OUTBOUND_LABEL[order.status]}
-                  warn={order.status === "pending" || order.status === "partial"}
-                />
+                <span className="flex items-center gap-2">
+                  <span className="hidden text-xs font-semibold text-emerald-700 group-hover:inline">
+                    Mở phiếu
+                  </span>
+                  <StatusPill label={OUTBOUND_LABEL[order.status]} tone={outboundTone(order.status)} />
+                </span>
               </button>
               {open === order.id && line ? (
                 <Card className="mt-2 space-y-3 p-4 text-sm">

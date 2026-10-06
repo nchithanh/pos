@@ -67,5 +67,28 @@
       "cai-dat": false
     },
     "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "u_warehouse",
+    "name": "Vũ Đức Long",
+    "email": "kho@dolphinkitchen.vn",
+    "phone": "0904 601 701",
+    "role": "manager",
+    "status": "active",
+    "pin": "3333",
+    "password": "kho123",
+    "avatarColor": "#EA580C",
+    "permissions": {
+      "ban-hang": false,
+      "san-pham": true,
+      "kho": true,
+      "khach-hang": false,
+      "nha-cung-cap": true,
+      "cong-no": false,
+      "doanh-thu": false,
+      "nhan-vien": false,
+      "cai-dat": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
   }
 ]

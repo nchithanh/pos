@@ -8,12 +8,15 @@ import { Card } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
+  DateRangeFilter,
   EmptyBlock,
   LoadingBlock,
   PackageBadge,
   Tabs,
+  useRangeState,
 } from "@/components/finance/widgets";
 import { useBooks } from "@/lib/finance/use-books";
+import { dateWindow, inWindow } from "@/lib/finance/range";
 import {
   EXPENSE_CATEGORIES,
   INCOME_TYPES,
@@ -33,6 +36,9 @@ export default function CashFlowPage() {
   const [tab, setTab] = useState<Tab>("all");
   const [modal, setModal] = useState<"in" | "out" | "transfer" | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const [pickedIds, setPickedIds] = useState<string[]>([]);
+  const range = useRangeState();
   const [kind, setKind] = useState<"all" | "in" | "out">("all");
   const [accountId, setAccountId] = useState("all");
   const [category, setCategory] = useState("all");
@@ -52,7 +58,9 @@ export default function CashFlowPage() {
   const accounts = books.finance.accounts.filter((a) => a.active);
 
   const rows = useMemo(() => {
+    const bounds = dateWindow(range.range, new Date(), { from: range.from, to: range.to });
     return books.finance.txns.filter((t) => {
+      if (!inWindow(t.at, bounds.start, bounds.end)) return false;
       if (tab === "in" && t.kind !== "in") return false;
       if (tab === "out" && t.kind !== "out") return false;
       if (tab === "transfer" && t.kind !== "transfer") return false;
@@ -65,9 +73,12 @@ export default function CashFlowPage() {
       }
       if (category !== "all" && t.category !== category) return false;
       if (staff !== "all" && t.createdBy !== staff) return false;
+      if (q && !`${t.description} ${t.category} ${t.party ?? ""}`.toLowerCase().includes(q.toLowerCase())) {
+        return false;
+      }
       return true;
     });
-  }, [books.finance.txns, tab, kind, accountId, category, staff]);
+  }, [books.finance.txns, tab, kind, accountId, category, staff, q, range.range, range.from, range.to]);
 
   const staffNames = [...new Set(books.finance.txns.map((t) => t.createdBy))];
 
@@ -238,34 +249,87 @@ export default function CashFlowPage() {
 
       {!books.loading && tab !== "recon" ? (
         <>
-          <div className="mb-3 lg:hidden">
-            <Button variant="outline" size="sm" onClick={() => setFiltersOpen(true)}>
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <DateRangeFilter
+              value={range.range}
+              onChange={range.setRange}
+              from={range.from}
+              to={range.to}
+              onFrom={range.setFrom}
+              onTo={range.setTo}
+            />
+            <div className="flex rounded-full bg-slate-100 p-1">
+              {(
+                [
+                  ["all", "Tất cả"],
+                  ["in", "Thu"],
+                  ["out", "Chi"],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`min-h-9 rounded-full px-3 text-sm font-semibold ${kind === id ? "bg-white shadow" : "text-slate-500"}`}
+                  onClick={() => setKind(id)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Tìm nội dung"
+              aria-label="Tìm giao dịch"
+              className="max-w-xs"
+            />
+            <div className="hidden flex-wrap gap-2 lg:flex">
+              <FilterFields
+                accountId={accountId}
+                setAccountId={setAccountId}
+                category={category}
+                setCategory={setCategory}
+                staff={staff}
+                setStaff={setStaff}
+                accounts={accounts.map((a) => ({ id: a.id, name: a.name }))}
+                staffNames={staffNames}
+              />
+            </div>
+            <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setFiltersOpen(true)}>
               Bộ lọc
             </Button>
-          </div>
-          <div className="mb-4 hidden flex-wrap gap-2 lg:flex">
-            <FilterFields
-              kind={kind}
-              setKind={setKind}
-              accountId={accountId}
-              setAccountId={setAccountId}
-              category={category}
-              setCategory={setCategory}
-              staff={staff}
-              setStaff={setStaff}
-              accounts={accounts.map((a) => ({ id: a.id, name: a.name }))}
-              staffNames={staffNames}
-            />
+            {pickedIds.length > 0 ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const chosen = rows.filter((t) => pickedIds.includes(t.id));
+                  downloadTxnCsv(chosen.length ? chosen : rows);
+                }}
+              >
+                Xuất đã chọn
+              </Button>
+            ) : null}
           </div>
           {rows.length === 0 ? (
             <EmptyBlock text="Không có giao dịch khớp bộ lọc." />
           ) : (
             <>
               <div className="hidden md:block">
-                <Card className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="text-left text-slate-500">
+                <Card className="max-h-[70vh] overflow-auto">
+                  <table className="w-full min-w-[880px] text-sm">
+                    <thead className="sticky top-0 z-10 bg-slate-50 text-left text-slate-500">
                       <tr>
+                        <th className="px-3 py-2">
+                          <input
+                            type="checkbox"
+                            aria-label="Chọn tất cả"
+                            checked={rows.length > 0 && rows.every((t) => pickedIds.includes(t.id))}
+                            onChange={(e) =>
+                              setPickedIds(e.target.checked ? rows.map((t) => t.id) : [])
+                            }
+                          />
+                        </th>
                         {["Thời gian", "Loại", "Danh mục", "Nội dung", "Tài khoản", "Số tiền", "Người tạo", "Trạng thái"].map(
                           (h) => (
                             <th key={h} className="px-3 py-2 font-medium">
@@ -279,9 +343,21 @@ export default function CashFlowPage() {
                       {rows.map((t) => (
                         <tr
                           key={t.id}
-                          className="cursor-pointer border-t border-slate-100 dark:border-slate-800"
+                          className="cursor-pointer border-t border-slate-100 hover:bg-slate-50 dark:border-slate-800"
                           onClick={() => setPicked(t)}
                         >
+                          <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              aria-label={`Chọn ${t.description}`}
+                              checked={pickedIds.includes(t.id)}
+                              onChange={(e) =>
+                                setPickedIds((cur) =>
+                                  e.target.checked ? [...cur, t.id] : cur.filter((id) => id !== t.id),
+                                )
+                              }
+                            />
+                          </td>
                           <td className="px-3 py-2">{formatDateTime(t.at)}</td>
                           <td className="px-3 py-2">{labelKind(t.kind)}</td>
                           <td className="px-3 py-2">{t.category}</td>
@@ -291,12 +367,20 @@ export default function CashFlowPage() {
                               ? `${nameOf(t.accountId)} → ${nameOf(t.counterAccountId ?? "")}`
                               : nameOf(t.accountId)}
                           </td>
-                          <td className="px-3 py-2 font-semibold">
+                          <td
+                            className={`px-3 py-2 text-right font-semibold tabular-nums ${
+                              t.kind === "in" ? "text-emerald-700" : t.kind === "out" ? "text-rose-600" : ""
+                            }`}
+                          >
                             {t.kind === "out" ? "−" : t.kind === "in" ? "+" : ""}
                             {formatVnd(t.amount)}
                           </td>
                           <td className="px-3 py-2">{t.createdBy}</td>
-                          <td className="px-3 py-2">Đã ghi</td>
+                          <td className="px-3 py-2">
+                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                              Đã ghi
+                            </span>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -383,8 +467,6 @@ export default function CashFlowPage() {
       <Dialog open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Bộ lọc">
         <div className="flex flex-col gap-2">
           <FilterFields
-            kind={kind}
-            setKind={setKind}
             accountId={accountId}
             setAccountId={setAccountId}
             category={category}
@@ -534,9 +616,25 @@ function Select({
   );
 }
 
+function downloadTxnCsv(rows: FinanceTxn[]) {
+  const header = ["Thời gian", "Loại", "Danh mục", "Nội dung", "Số tiền"];
+  const lines = rows.map((t) =>
+    [t.at, t.kind, t.category, t.description, t.amount]
+      .map((cell) => `"${String(cell).replaceAll('"', '""')}"`)
+      .join(","),
+  );
+  const blob = new Blob(["\uFEFF" + [header.join(","), ...lines].join("\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "dong-tien.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function FilterFields(props: {
-  kind: "all" | "in" | "out";
-  setKind: (v: "all" | "in" | "out") => void;
   accountId: string;
   setAccountId: (v: string) => void;
   category: string;
@@ -548,15 +646,6 @@ function FilterFields(props: {
 }) {
   return (
     <>
-      <Select
-        value={props.kind}
-        onChange={(v) => props.setKind(v as "all" | "in" | "out")}
-        options={[
-          ["all", "Thu / Chi"],
-          ["in", "Thu"],
-          ["out", "Chi"],
-        ]}
-      />
       <Select
         value={props.accountId}
         onChange={props.setAccountId}

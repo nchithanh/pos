@@ -3,17 +3,17 @@
 | Path | Auth | Ghi chú |
 | --- | --- | --- |
 | `/chon-linh-vuc` | public | Chọn lĩnh vực + seed + theme |
-| `/login` | public* | Cần đã chọn vertical |
+| `/login` | public* | Cần đã chọn vertical. Demo: chủ, quản lý, thu ngân, thủ kho (PIN 3333) |
 | `/` | yes | Dashboard |
 | `/ban-hang` | yes | POS |
 | `/san-pham` | yes | |
 | `/danh-muc` | yes | |
 | `/don-hang` | yes | |
-| `/kho` | yes | Tổng quan kho |
-| `/kho/ton` | yes | Tồn khả dụng / giữ chỗ / hỏng |
-| `/kho/don-nhap` | yes | Kiểm nhận → nhập theo số thực nhận |
-| `/kho/don-xuat` | yes | Duyệt → soạn → xuất |
-| `/kho/kiem-ke` | yes | Kiểm kê |
+| `/kho` | yes | Tổng quan kho. Sidebar chỉ highlight mục Kho cho mọi `/kho/*` |
+| `/kho/ton` | yes | Bảng tồn: lọc, sắp xếp, chọn nhiều dòng |
+| `/kho/don-nhap` | yes | Kiểm nhận → nhập theo số thực nhận. Lọc `?status=` |
+| `/kho/don-xuat` | yes | Duyệt → soạn → xuất. Lọc `?status=` |
+| `/kho/kiem-ke` | yes | Kiểm kê một sản phẩm hoặc theo lô |
 | `/kho/dieu-chinh` | yes | Điều chỉnh tồn |
 | `/kho/chuyen-kho` | yes | Chuyển kho |
 | `/kho/lich-su` | yes | Biến động trước/sau |

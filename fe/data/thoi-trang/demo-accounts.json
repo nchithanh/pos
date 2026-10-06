@@ -16,5 +16,11 @@
     "email": "cashier@dolphinfashion.vn",
     "pin": "0000",
     "password": "cashier123"
+  },
+  {
+    "label": "Thủ kho",
+    "email": "kho@dolphinfashion.vn",
+    "pin": "3333",
+    "password": "kho123"
   }
 ]

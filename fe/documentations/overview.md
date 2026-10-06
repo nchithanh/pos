@@ -10,11 +10,24 @@ Local-first POS (IndexedDB) cho pet shop & cafe.
 | State | Zustand (auth/cart) · TanStack Query · dexie-react-hooks |
 | Data | Dexie `dolphin_pos_v1` + seed Pet Shop |
 | Auth | PIN / email+password · shift open/close |
-| Print | `lib/print-receipt.ts` (thermal 58/80 mock) |
+| Print | `lib/print-receipt.ts` + `components/pos/ReceiptPreview` (thermal 58/80) |
+| Bill / HĐĐT | After checkout: In bill · Gửi bill (mock) · Xuất HĐĐT (mock, lưu `order.eInvoice`) |
 
 ## Routes
 
-`/login` · `/` · `/ban-hang` · `/san-pham` · `/kho` (+ nhập/xuất) · `/khach-hang` · `/nha-cung-cap` · `/cong-no` · `/doanh-thu` · `/nhan-vien` · `/cai-dat`
+`/login` · `/` · `/ban-hang` · `/don-hang` · `/san-pham` · `/danh-muc` · `/kho` (+ nhập/xuất) · `/khach-hang` · `/nha-cung-cap` · `/cong-no` · `/doanh-thu` · `/nhan-vien` · `/cai-dat`
+
+## Công nợ (`/cong-no`)
+
+- KPI clickable (Phải thu / Phải trả / Quá hạn) · tab · search · lọc hạn  
+- Desktop table + mobile card dày · Thu/Trả nợ từng phần · lịch sử `debtPayments`  
+- Ghi nợ thủ công · Xuất CSV · Nhắc nợ / VietQR / Zalo = **demo**
+
+## Receipt flow
+
+1. POS checkout → success → **In bill** / **Gửi bill** / **Xuất hóa đơn điện tử** / **Xong**
+2. `/don-hang` — cột Hóa đơn (Chưa xuất / Đã xuất), chi tiết tái dùng `ReceiptActions`
+3. HĐĐT là **demo** (không kết nối cơ quan thuế / provider thật)
 
 ## Shortcuts
 

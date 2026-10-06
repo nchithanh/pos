@@ -67,3 +67,32 @@ a {
 .dark ::-webkit-scrollbar-thumb {
   background: #334155;
 }
+
+/* Print: only the receipt body (opened print window or in-page preview). */
+@media print {
+  @page {
+    margin: 4mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  [data-receipt-print],
+  [data-receipt-print] * {
+    visibility: visible !important;
+  }
+
+  [data-receipt-print] {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    color: black !important;
+  }
+}

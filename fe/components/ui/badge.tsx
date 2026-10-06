@@ -17,6 +17,8 @@ const MAP: Record<string, string> = {
   qr: "bg-violet-50 text-violet-700",
   split: "bg-orange-50 text-orange-700",
   debt: "bg-amber-50 text-amber-800",
+  invoice_issued: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  invoice_pending: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
 };
 
 const LABEL: Record<string, string> = {
@@ -36,6 +38,8 @@ const LABEL: Record<string, string> = {
   qr: "QR",
   split: "Tách bill",
   debt: "Ghi nợ",
+  invoice_issued: "Đã xuất",
+  invoice_pending: "Chưa xuất",
   owner: "Chủ cửa hàng",
   manager: "Quản lý",
   cashier: "Thu ngân",

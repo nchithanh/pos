@@ -1,14 +1,152 @@
+import { format as dfFormat, subDays, setHours, setMinutes } from "date-fns";
 import { db } from "@/lib/db";
 import type {
   Category,
   Customer,
   Debt,
+  DebtPayment,
+  Order,
   PermissionKey,
   Product,
   StoreSettings,
   Supplier,
   User,
 } from "@/types";
+
+function atDaysAgo(days: number, hour: number, minute = 0): string {
+  const d = setMinutes(setHours(subDays(new Date(), days), hour), minute);
+  return d.toISOString();
+}
+
+function demoOrderCode(seq: number, daysAgo: number): string {
+  const d = subDays(new Date(), daysAgo);
+  return `DH-${dfFormat(d, "ddMMyy")}-${String(seq).padStart(3, "0")}`;
+}
+
+function line(
+  productId: string,
+  productName: string,
+  sku: string,
+  quantity: number,
+  unitPrice: number,
+  costPrice: number,
+) {
+  return {
+    productId,
+    productName,
+    sku,
+    quantity,
+    unitPrice,
+    costPrice,
+    discountPercent: 0,
+    lineTotal: unitPrice * quantity,
+  };
+}
+
+/** Đơn mẫu 7 ngày — luôn neo theo “hôm nay” để Dashboard có chart */
+function buildDemoOrders(): Order[] {
+  const mk = (
+    seq: number,
+    daysAgo: number,
+    hour: number,
+    items: Order["items"],
+    paymentMethod: Order["paymentMethod"],
+    opts?: {
+      customerId?: string;
+      customerName?: string;
+      customerPhone?: string;
+      customerEmail?: string;
+      discount?: number;
+      cashier?: "Lan Anh" | "Minh Quân";
+      eInvoice?: Order["eInvoice"];
+    },
+  ): Order => {
+    const subtotal = items.reduce((s, i) => s + i.lineTotal, 0);
+    const discount = opts?.discount ?? 0;
+    const total = subtotal - discount;
+    const cashierName = opts?.cashier ?? "Lê Lan Anh";
+    const cashierId = cashierName.includes("Quân") ? "u_manager" : "u_cashier";
+    return {
+      id: `o-seed-${seq}`,
+      code: demoOrderCode(seq, daysAgo),
+      createdAt: atDaysAgo(daysAgo, hour, seq % 50),
+      cashierId,
+      cashierName,
+      customerId: opts?.customerId,
+      customerName: opts?.customerName,
+      customerPhone: opts?.customerPhone,
+      customerEmail: opts?.customerEmail,
+      items,
+      subtotal,
+      discount,
+      tax: 0,
+      total,
+      paymentMethod,
+      payments: [{ method: paymentMethod === "split" ? "cash" : paymentMethod, amount: total }],
+      cashReceived: paymentMethod === "cash" ? total + 20000 : undefined,
+      changeDue: paymentMethod === "cash" ? 20000 : undefined,
+      status: "paid",
+      eInvoice: opts?.eInvoice,
+    };
+  };
+
+  return [
+    // Hôm nay — doanh thu ~8tr+
+    mk(42, 0, 9, [line("p-07", "Cát vệ sinh Catsan 10L", "CAT-CSN-10", 2, 185000, 125000), line("p-12", "Pate Whiskas vị cá ngừ 85g", "PT-WHK-TUNA", 6, 18000, 11000)], "qr", {
+      customerId: "cus-01",
+      customerName: "Nguyễn Văn A",
+      customerPhone: "0901234567",
+      eInvoice: {
+        number: "00001234",
+        issuedAt: atDaysAgo(0, 9, 15),
+        customerType: "business",
+        companyName: "Công ty TNHH Pet Care A",
+        taxCode: "0312345678",
+        address: "12 Nguyễn Văn A, Q.7, TP.HCM",
+        email: "accounting@petcare-a.vn",
+      },
+    }),
+    mk(41, 0, 10, [line("p-01", "Royal Canin Indoor 2kg", "RC-IND-2KG", 1, 385000, 295000)], "cash"),
+    mk(40, 0, 11, [line("p-25", "Sữa tắm SOS trị ve", "CS-SOS-500", 1, 145000, 95000), line("p-30", "Vòng cổ da có chuông", "AC-COL-01", 1, 75000, 38000), line("p-17", "Snack xương sữa Pedigree", "SN-PDG-MILK", 2, 55000, 36000)], "transfer", {
+      customerId: "cus-03",
+      customerName: "Lê Thị Cẩm",
+      customerPhone: "0903456789",
+      customerEmail: "cam.le@email.com",
+      discount: 10000,
+      cashier: "Minh Quân",
+      eInvoice: {
+        number: "00001233",
+        issuedAt: atDaysAgo(0, 11, 20),
+        customerType: "individual",
+        companyName: "Lê Thị Cẩm",
+        taxCode: "0311122233",
+        address: "TP.HCM",
+        email: "cam.le@email.com",
+      },
+    }),
+    mk(39, 0, 12, [line("p-03", "Pedigree Adult 1.5kg", "PDG-ADT-15", 2, 165000, 118000), line("p-23", "Đồ chơi gặm xương nylon", "TY-CHEW-01", 1, 85000, 48000)], "cash"),
+    mk(38, 0, 13, [line("p-09", "Cát đậu nành Tofu 6L", "CAT-TOF-6", 3, 135000, 88000), line("p-16", "Pate Ciao Churu mix 20 thanh", "PT-CIAO-20", 1, 165000, 118000)], "qr", { customerId: "cus-04", customerName: "Phạm Đức D", discount: 20000 }),
+    mk(37, 0, 14, [line("p-36", "Royal Canin Urinary 1.5kg", "RC-URI-15", 1, 520000, 395000), line("p-18", "Snack cá khô cho mèo 50g", "SN-FISH-50", 3, 42000, 26000)], "transfer"),
+    mk(36, 0, 15, [line("p-05", "Me-O Adult Seafood 1.2kg", "MEO-SEA-12", 2, 112000, 78000), line("p-11", "Cát bentonite hương lavender", "CAT-BNL-10", 4, 78000, 48000), line("p-38", "Pate Sheba vị tôm 70g", "PT-SHE-70", 10, 22000, 14000)], "cash", { cashier: "Minh Quân" }),
+    mk(35, 0, 16, [line("p-41", "Máy lọc nước thú cưng", "AC-FOUNT-01", 1, 590000, 380000), line("p-32", "Bát ăn inox đôi", "AC-BOWL-02", 1, 95000, 52000)], "qr", { customerId: "cus-03", customerName: "Lê Thị Cẩm", discount: 35000 }),
+    mk(34, 0, 16, [line("p-07", "Cát vệ sinh Catsan 10L", "CAT-CSN-10", 3, 185000, 125000)], "cash"),
+    mk(33, 0, 17, [line("p-14", "Pate Royal Canin Instinctive", "PT-RC-INS", 8, 32000, 22000), line("p-02", "Royal Canin Kitten 400g", "RC-KIT-400", 2, 125000, 92000)], "transfer"),
+    // 1–6 ngày trước
+    mk(32, 1, 10, [line("p-07", "Cát vệ sinh Catsan 10L", "CAT-CSN-10", 4, 185000, 125000), line("p-12", "Pate Whiskas vị cá ngừ 85g", "PT-WHK-TUNA", 12, 18000, 11000)], "qr"),
+    mk(31, 1, 14, [line("p-01", "Royal Canin Indoor 2kg", "RC-IND-2KG", 2, 385000, 295000), line("p-21", "Bóng cao su có chuông", "TY-BALL-01", 2, 35000, 18000)], "cash", { cashier: "Minh Quân" }),
+    mk(30, 1, 16, [line("p-03", "Pedigree Adult 1.5kg", "PDG-ADT-15", 3, 165000, 118000)], "transfer"),
+    mk(29, 2, 11, [line("p-09", "Cát đậu nành Tofu 6L", "CAT-TOF-6", 5, 135000, 88000)], "cash"),
+    mk(28, 2, 15, [line("p-36", "Royal Canin Urinary 1.5kg", "RC-URI-15", 1, 520000, 395000), line("p-28", "Thuốc nhỏ gáy Frontline", "CS-FTL-01", 2, 210000, 155000)], "qr", { customerId: "cus-02", customerName: "Trần Văn B" }),
+    mk(27, 3, 10, [line("p-06", "Zenith Holistic Dog 2kg", "ZEN-HOL-2", 2, 420000, 310000), line("p-17", "Snack xương sữa Pedigree", "SN-PDG-MILK", 4, 55000, 36000)], "transfer"),
+    mk(26, 3, 16, [line("p-07", "Cát vệ sinh Catsan 10L", "CAT-CSN-10", 6, 185000, 125000), line("p-15", "Pate Me-O Creamy 4 thanh", "PT-MEO-CRM", 3, 45000, 30000)], "cash"),
+    mk(25, 4, 12, [line("p-41", "Máy lọc nước thú cưng", "AC-FOUNT-01", 1, 590000, 380000)], "qr", { customerId: "cus-04", customerName: "Phạm Đức D" }),
+    mk(24, 4, 15, [line("p-05", "Me-O Adult Seafood 1.2kg", "MEO-SEA-12", 4, 112000, 78000), line("p-11", "Cát bentonite hương lavender", "CAT-BNL-10", 5, 78000, 48000)], "cash", { cashier: "Minh Quân" }),
+    mk(23, 5, 11, [line("p-01", "Royal Canin Indoor 2kg", "RC-IND-2KG", 3, 385000, 295000)], "transfer"),
+    mk(22, 5, 14, [line("p-03", "Pedigree Adult 1.5kg", "PDG-ADT-15", 2, 165000, 118000), line("p-25", "Sữa tắm SOS trị ve", "CS-SOS-500", 2, 145000, 95000)], "cash"),
+    mk(21, 6, 10, [line("p-07", "Cát vệ sinh Catsan 10L", "CAT-CSN-10", 3, 185000, 125000), line("p-12", "Pate Whiskas vị cá ngừ 85g", "PT-WHK-TUNA", 20, 18000, 11000)], "qr"),
+    mk(20, 6, 16, [line("p-09", "Cát đậu nành Tofu 6L", "CAT-TOF-6", 2, 135000, 88000), line("p-33", "Nhà vệ sinh kín size L", "AC-LITBOX-L", 1, 450000, 280000)], "transfer", { customerId: "cus-01", customerName: "Nguyễn Văn A", discount: 30000 }),
+  ];
+}
 
 const allPerms = (on = true): Record<PermissionKey, boolean> => ({
   "ban-hang": on,
@@ -183,18 +321,52 @@ const CUSTOMERS: Customer[] = [
 ];
 
 const DEBTS: Debt[] = [
-  { id: "d-01", type: "payable", partyName: "Royal Canin Việt Nam", partyId: "sup-01", amount: 12500000, paidAmount: 0, dueDate: "2026-10-12", status: "unpaid", note: "Đợt nhập tháng 9", createdAt: "2026-09-20T00:00:00.000Z" },
-  { id: "d-02", type: "payable", partyName: "Pet Mart Distribution", partyId: "sup-02", amount: 4800000, paidAmount: 2000000, dueDate: "2026-10-08", status: "partial", note: "Còn lại sau thanh toán một phần", createdAt: "2026-09-25T00:00:00.000Z" },
-  { id: "d-03", type: "payable", partyName: "Cat Litter Pro", partyId: "sup-04", amount: 3200000, paidAmount: 0, dueDate: "2026-10-02", status: "overdue", note: "Quá hạn", createdAt: "2026-09-15T00:00:00.000Z" },
-  { id: "d-04", type: "payable", partyName: "Paw Care Supplies", partyId: "sup-05", amount: 1500000, paidAmount: 0, dueDate: "2026-10-20", status: "unpaid", note: "Phụ kiện & chăm sóc", createdAt: "2026-10-01T00:00:00.000Z" },
-  { id: "d-05", type: "receivable", partyName: "Cửa hàng Pet House Q3", partyId: "cus-wholesale-01", amount: 8200000, paidAmount: 0, dueDate: "2026-10-10", status: "unpaid", note: "Bán sỉ cát + thức ăn", createdAt: "2026-09-28T00:00:00.000Z" },
-  { id: "d-06", type: "receivable", partyName: "Spa thú cưng Mimi", partyId: "cus-wholesale-02", amount: 3500000, paidAmount: 1000000, dueDate: "2026-10-05", status: "overdue", note: "Công nợ spa đối tác", createdAt: "2026-09-20T00:00:00.000Z" },
-  { id: "d-07", type: "receivable", partyName: "Hoàng Thị Mai", partyId: "cus-05", amount: 450000, paidAmount: 0, dueDate: "2026-10-15", status: "unpaid", note: "Lấy hàng trước", createdAt: "2026-10-01T00:00:00.000Z" },
+  { id: "d-01", type: "payable", partyName: "Royal Canin Việt Nam", partyId: "sup-01", partyPhone: "0901 234 567", amount: 12500000, paidAmount: 0, dueDate: "2026-10-12", status: "unpaid", note: "Đợt nhập tháng 9", createdAt: "2026-09-20T00:00:00.000Z" },
+  { id: "d-02", type: "payable", partyName: "Pet Mart Distribution", partyId: "sup-02", partyPhone: "0912 888 333", amount: 4800000, paidAmount: 2000000, dueDate: "2026-10-08", status: "partial", note: "Còn lại sau thanh toán một phần", createdAt: "2026-09-25T00:00:00.000Z" },
+  { id: "d-03", type: "payable", partyName: "Cat Litter Pro", partyId: "sup-04", partyPhone: "0987 654 321", amount: 3200000, paidAmount: 0, dueDate: "2026-10-02", status: "overdue", note: "Quá hạn nhập cát", createdAt: "2026-09-15T00:00:00.000Z" },
+  { id: "d-04", type: "payable", partyName: "Paw Care Supplies", partyId: "sup-05", partyPhone: "0908 112 233", amount: 1500000, paidAmount: 0, dueDate: "2026-10-20", status: "unpaid", note: "Phụ kiện & chăm sóc", createdAt: "2026-10-01T00:00:00.000Z" },
+  { id: "d-05", type: "receivable", partyName: "Cửa hàng Pet House Q3", partyId: "cus-wholesale-01", partyPhone: "0908 321 654", amount: 8200000, paidAmount: 0, dueDate: "2026-10-10", status: "unpaid", note: "Bán sỉ cát + thức ăn", createdAt: "2026-09-28T00:00:00.000Z" },
+  { id: "d-06", type: "receivable", partyName: "Spa thú cưng Mimi", partyId: "cus-wholesale-02", partyPhone: "0912 456 789", amount: 3500000, paidAmount: 1000000, dueDate: "2026-10-05", status: "overdue", note: "Công nợ spa đối tác", createdAt: "2026-09-20T00:00:00.000Z" },
+  { id: "d-07", type: "receivable", partyName: "Hoàng Thị Mai", partyId: "cus-05", partyPhone: "0910 999 000", amount: 450000, paidAmount: 0, dueDate: "2026-10-15", status: "unpaid", note: "Lấy hàng trước · Đơn DH-seed", createdAt: "2026-10-01T00:00:00.000Z", orderId: "o-seed-35" },
 ];
+
+const DEBT_PAYMENTS: DebtPayment[] = [
+  {
+    id: "dpay-01",
+    debtId: "d-02",
+    amount: 2000000,
+    method: "transfer",
+    createdAt: "2026-09-28T10:00:00.000Z",
+    userId: "u_owner",
+    note: "Thanh toán đợt 1",
+  },
+  {
+    id: "dpay-02",
+    debtId: "d-06",
+    amount: 1000000,
+    method: "cash",
+    createdAt: "2026-09-25T15:30:00.000Z",
+    userId: "u_manager",
+    note: "Thu một phần tại spa",
+  },
+];
+
+async function seedDemoOrdersIfEmpty(): Promise<void> {
+  const count = await db.orders.count();
+  if (count > 0) return;
+  const orders = buildDemoOrders();
+  await db.orders.bulkPut(orders);
+  await db.meta.put({ key: "orderSeq", value: "42" });
+  await db.meta.put({ key: "ordersSeeded", value: "1" });
+}
 
 export async function ensureSeeded(): Promise<void> {
   const seeded = await db.meta.get("seeded");
-  if (seeded?.value === "1") return;
+  if (seeded?.value === "1") {
+    // DB cũ thiếu đơn mẫu → bổ sung để Dashboard có data
+    await seedDemoOrdersIfEmpty();
+    return;
+  }
 
   const now = new Date().toISOString();
   const products: Product[] = PRODUCT_ROWS.map((p) => ({
@@ -203,6 +375,7 @@ export async function ensureSeeded(): Promise<void> {
     createdAt: now,
     updatedAt: now,
   }));
+  const orders = buildDemoOrders();
 
   await db.transaction(
     "rw",
@@ -214,6 +387,8 @@ export async function ensureSeeded(): Promise<void> {
       db.suppliers,
       db.customers,
       db.debts,
+      db.debtPayments,
+      db.orders,
       db.meta,
     ],
     async () => {
@@ -224,7 +399,10 @@ export async function ensureSeeded(): Promise<void> {
       await db.suppliers.bulkPut(SUPPLIERS);
       await db.customers.bulkPut(CUSTOMERS);
       await db.debts.bulkPut(DEBTS);
+      await db.debtPayments.bulkPut(DEBT_PAYMENTS);
+      await db.orders.bulkPut(orders);
       await db.meta.put({ key: "seeded", value: "1" });
+      await db.meta.put({ key: "ordersSeeded", value: "1" });
       await db.meta.put({ key: "orderSeq", value: "42" });
       await db.meta.put({ key: "movementSeq", value: "10" });
     },

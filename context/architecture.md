@@ -22,6 +22,18 @@ types/         # shared types
 public/        # manifest + icons
 ```
 
+## Routes (`fe/app`)
+
+| Path | Screen |
+| --- | --- |
+| `/` | Tổng quan |
+| `/ban-hang` | POS |
+| `/don-hang` | Đơn hàng (Order Line) |
+| `/san-pham` | Sản phẩm |
+| `/danh-muc` | Danh mục category |
+| `/kho` (+ `/nhap`, `/xuat`) | Kho |
+| `/khach-hang` · `/nha-cung-cap` · `/cong-no` · `/doanh-thu` · `/nhan-vien` · `/cai-dat` | Admin |
+
 ## Deploy
 
 - Dev: `npm run dev` → :3012  

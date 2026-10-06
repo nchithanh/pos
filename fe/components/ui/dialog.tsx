@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -17,9 +19,19 @@ export function Dialog({
   children: React.ReactNode;
   className?: string;
 }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-900/50 p-0 sm:items-center sm:p-4">
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  if (!open || typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-900/50 p-0 sm:items-center sm:p-4">
       <button
         type="button"
         className="absolute inset-0"
@@ -29,6 +41,7 @@ export function Dialog({
       <div
         role="dialog"
         aria-modal="true"
+        aria-label={title}
         className={cn(
           "relative z-10 max-h-[92vh] w-full max-w-lg overflow-auto rounded-t-[20px] bg-white p-4 shadow-xl sm:rounded-[16px] dark:bg-slate-900",
           className,
@@ -42,6 +55,7 @@ export function Dialog({
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

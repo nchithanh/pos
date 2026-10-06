@@ -12,12 +12,12 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 import { useLiveQuery } from "dexie-react-hooks";
 import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { NAV_ITEMS } from "@/lib/nav";
-import { cn, formatDateTime } from "@/lib/utils";
+import { cn, formatDateTime, todayKey } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -34,6 +34,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const openShift = useAuthStore((s) => s.openShift);
   const closeShift = useAuthStore((s) => s.closeShift);
   const settings = useLiveQuery(() => db.settings.get("store"));
+  const todayOrders = useLiveQuery(async () => {
+    const key = todayKey();
+    const all = await db.orders.toArray();
+    return all.filter((o) => o.createdAt.startsWith(key)).length;
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const [shiftOpen, setShiftOpen] = useState(false);
   const [cash, setCash] = useState("500000");
@@ -62,9 +67,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex min-h-dvh bg-[var(--background)]">
-      <aside className="hidden h-dvh w-[260px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--card)] lg:flex">
-        <div className="flex items-center gap-2.5 px-5 py-5">
+    <div className="flex h-dvh overflow-hidden bg-[var(--background)]">
+      <aside className="hidden h-full w-[260px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--card)] lg:flex">
+        <div className="flex shrink-0 items-center gap-2.5 px-5 py-5">
           <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-emerald-500 text-white">
             <Fish size={22} />
           </div>
@@ -77,7 +82,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </p>
           </div>
         </div>
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
+        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-4">
           {nav.map((item) => {
             const active =
               item.href === "/"
@@ -102,24 +107,42 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   size={18}
                   className={active ? "text-emerald-600" : undefined}
                 />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.badgeTodayOrders && (todayOrders ?? 0) > 0 ? (
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold text-white">
+                    {todayOrders}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
         </nav>
-        <div className="border-t border-[var(--border)] p-4">
-          <p className="truncate text-sm font-semibold">{user?.name}</p>
-          <p className="truncate text-xs text-slate-400">{user?.email}</p>
-          <p className="mt-1 text-xs text-slate-500">
-            {shift
-              ? `Ca mở · ${formatDateTime(shift.openedAt)}`
-              : "Chưa mở ca"}
-          </p>
+        <div className="shrink-0 border-t border-[var(--border)] p-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+              style={{ background: user?.avatarColor ?? "#10B981" }}
+              aria-hidden
+            >
+              {(user?.name ?? "N").trim().charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold leading-tight">
+                {user?.name}
+              </p>
+              <p className="truncate text-xs text-slate-400">{user?.email}</p>
+              <p className="truncate text-[11px] text-slate-500">
+                {shift
+                  ? `Ca mở · ${formatDateTime(shift.openedAt)}`
+                  : "Chưa mở ca"}
+              </p>
+            </div>
+          </div>
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-[var(--border)] bg-[var(--card)]/95 px-3 py-3 backdrop-blur sm:px-5">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <header className="z-30 flex shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card)]/95 px-3 py-3 backdrop-blur sm:px-5">
           <Button
             variant="outline"
             size="icon"
@@ -168,7 +191,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Button>
         </header>
 
-        <main className="min-h-0 flex-1 overflow-x-hidden px-3 py-4 pb-24 sm:px-5 lg:pb-6">
+        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-3 py-4 pb-24 sm:px-5 lg:pb-6">
           {children}
         </main>
       </div>
@@ -220,7 +243,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <X size={18} />
               </Button>
             </div>
-            <nav className="space-y-1 px-3">
+            <nav className="space-y-1 px-3 pb-6">
               {nav.map((item) => (
                 <Link
                   key={item.href}
@@ -229,7 +252,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-sm font-medium"
                 >
                   <item.icon size={18} />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {item.badgeTodayOrders && (todayOrders ?? 0) > 0 ? (
+                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold text-white">
+                      {todayOrders}
+                    </span>
+                  ) : null}
                 </Link>
               ))}
             </nav>

@@ -123,6 +123,8 @@ export async function checkoutOrder(input: {
     shiftId: input.shiftId,
     customerId: customer?.id,
     customerName: customer?.name,
+    customerPhone: customer?.phone,
+    customerEmail: customer?.email,
     items,
     subtotal,
     discount,

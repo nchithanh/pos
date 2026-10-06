@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -34,11 +34,15 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+const PAGE_SIZE = 10;
+
 export default function ProductsPage() {
   const products = useLiveQuery(() => db.products.toArray());
   const categories = useLiveQuery(() => db.categories.toArray());
   const suppliers = useLiveQuery(() => db.suppliers.toArray());
   const [q, setQ] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
 
@@ -58,14 +62,27 @@ export default function ProductsPage() {
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
-    return (products ?? []).filter(
-      (p) =>
-        !query ||
+    return (products ?? []).filter((p) => {
+      if (categoryFilter !== "all" && p.categoryId !== categoryFilter) return false;
+      if (!query) return true;
+      return (
         p.name.toLowerCase().includes(query) ||
         p.sku.toLowerCase().includes(query) ||
-        (p.barcode ?? "").includes(query),
-    );
-  }, [products, q]);
+        (p.barcode ?? "").includes(query)
+      );
+    });
+  }, [products, q, categoryFilter]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageItems = useMemo(() => {
+    const start = (safePage - 1) * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, safePage]);
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
 
   const openCreate = () => {
     setEditId(null);
@@ -163,14 +180,55 @@ export default function ProductsPage() {
           </>
         }
       />
-      <Input className="mb-4" placeholder="Tìm tên / SKU / barcode…" value={q} onChange={(e) => setQ(e.target.value)} />
+      <Input
+        className="mb-3"
+        placeholder="Tìm tên / SKU / barcode…"
+        value={q}
+        onChange={(e) => {
+          setQ(e.target.value);
+          setPage(1);
+        }}
+      />
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+        <button
+          type="button"
+          onClick={() => {
+            setCategoryFilter("all");
+            setPage(1);
+          }}
+          className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${
+            categoryFilter === "all"
+              ? "bg-emerald-500 text-white"
+              : "border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+          }`}
+        >
+          Tất cả
+        </button>
+        {(categories ?? []).map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => {
+              setCategoryFilter(c.id);
+              setPage(1);
+            }}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${
+              categoryFilter === c.id
+                ? "bg-emerald-500 text-white"
+                : "border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+            }`}
+          >
+            {c.emoji} {c.name}
+          </button>
+        ))}
+      </div>
 
       {!filtered.length ? (
         <Card><EmptyState title="Không có sản phẩm" action={<Button onClick={openCreate}>Thêm sản phẩm</Button>} /></Card>
       ) : (
         <>
           <div className="space-y-3 md:hidden">
-            {filtered.map((p) => (
+            {pageItems.map((p) => (
               <Card key={p.id} className="p-3">
                 <div className="flex gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full text-xl" style={{ background: p.imageColor }}>{p.emoji}</div>
@@ -198,7 +256,7 @@ export default function ProductsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((p) => (
+                {pageItems.map((p) => (
                   <tr key={p.id} className="border-b last:border-0">
                     <td className="px-4 py-3 font-medium">{p.name}</td>
                     <td className="px-4 py-3 text-slate-500">{p.sku}</td>
@@ -218,6 +276,33 @@ export default function ProductsPage() {
               </tbody>
             </table>
           </Card>
+
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-slate-500">
+              Trang {safePage}/{pageCount} · {filtered.length} sản phẩm
+              {filtered.length !== (products?.length ?? 0)
+                ? ` (lọc từ ${products?.length ?? 0})`
+                : ""}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={safePage <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Trước
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={safePage >= pageCount}
+                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+              >
+                Sau
+              </Button>
+            </div>
+          </div>
         </>
       )}
 

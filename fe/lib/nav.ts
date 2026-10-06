@@ -1,7 +1,9 @@
 import {
   LayoutDashboard,
   ShoppingCart,
+  ClipboardList,
   Package,
+  Tags,
   Warehouse,
   UsersRound,
   Truck,
@@ -19,12 +21,16 @@ export interface NavItem {
   icon: LucideIcon;
   permission?: PermissionKey;
   mobilePrimary?: boolean;
+  /** Hiện badge số đơn hôm nay */
+  badgeTodayOrders?: boolean;
 }
 
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Tổng quan", icon: LayoutDashboard, mobilePrimary: true },
   { href: "/ban-hang", label: "Bán hàng", icon: ShoppingCart, permission: "ban-hang", mobilePrimary: true },
+  { href: "/don-hang", label: "Đơn hàng", icon: ClipboardList, permission: "ban-hang", badgeTodayOrders: true },
   { href: "/san-pham", label: "Sản phẩm", icon: Package, permission: "san-pham", mobilePrimary: true },
+  { href: "/danh-muc", label: "Danh mục", icon: Tags, permission: "san-pham" },
   { href: "/kho", label: "Kho", icon: Warehouse, permission: "kho", mobilePrimary: true },
   { href: "/khach-hang", label: "Khách hàng", icon: UsersRound, permission: "khach-hang" },
   { href: "/nha-cung-cap", label: "Nhà cung cấp", icon: Truck, permission: "nha-cung-cap" },

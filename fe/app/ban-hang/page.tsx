@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  CheckCircle2,
   Minus,
   Pause,
   Plus,
@@ -13,6 +14,7 @@ import {
 import { useLiveQuery } from "dexie-react-hooks";
 import { toast } from "sonner";
 import { AppShell } from "@/components/layout/app-shell";
+import { ReceiptActions } from "@/components/pos/ReceiptActions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,8 +23,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { db, getStockStatus } from "@/lib/db";
 import { checkoutOrder, calcLineTotal } from "@/lib/services/orders";
-import { printReceipt } from "@/lib/print-receipt";
-import { cn, formatVnd, uid } from "@/lib/utils";
+import { cn, formatDateTime, formatVnd, uid } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCartStore } from "@/stores/cart-store";
 import type { Order, PaymentMethod, Product } from "@/types";
@@ -515,15 +516,37 @@ export default function PosPage() {
         <Button className="w-full" onClick={createCustomer}>Lưu khách</Button>
       </Dialog>
 
-      <Dialog open={!!success} onClose={() => setSuccess(null)} title="Thanh toán thành công">
+      <Dialog
+        open={!!success}
+        onClose={() => setSuccess(null)}
+        title="Thanh toán thành công"
+        className="max-w-md"
+      >
         {success ? (
-          <div className="text-center">
-            <p className="text-2xl font-bold">{formatVnd(success.total)}</p>
-            <p className="mt-1 text-sm text-slate-500">{success.code}</p>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={() => printReceipt(success, settings)}>In hóa đơn</Button>
-              <Button onClick={() => setSuccess(null)}>Đơn mới</Button>
+          <div>
+            <div className="text-center">
+              <CheckCircle2 className="mx-auto text-emerald-500" size={44} aria-hidden />
+              <p className="mt-3 text-lg font-bold tracking-wide">
+                ✓ THANH TOÁN THÀNH CÔNG
+              </p>
+              <p className="mt-2 text-sm font-semibold">Đơn hàng {success.code}</p>
+              <p className="text-xs text-slate-500">
+                {formatDateTime(success.createdAt)}
+              </p>
+              <p className="mt-4 text-sm text-slate-500">Tổng tiền</p>
+              <p className="text-3xl font-bold text-emerald-600">
+                {formatVnd(success.total)}
+              </p>
             </div>
+            <ReceiptActions
+              className="mt-5"
+              order={success}
+              store={settings}
+              onOrderChange={setSuccess}
+            />
+            <Button className="mt-3 w-full" onClick={() => setSuccess(null)}>
+              Xong
+            </Button>
           </div>
         ) : null}
       </Dialog>

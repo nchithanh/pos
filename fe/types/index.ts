@@ -139,6 +139,17 @@ export interface PaymentSplit {
   amount: number;
 }
 
+/** Mock electronic invoice issued in prototype (not a legal e-invoice). */
+export interface EInvoiceMock {
+  number: string;
+  issuedAt: string;
+  customerType: "individual" | "business";
+  companyName: string;
+  taxCode: string;
+  address: string;
+  email: string;
+}
+
 export interface Order {
   id: string;
   code: string;
@@ -148,6 +159,8 @@ export interface Order {
   shiftId?: string;
   customerId?: string;
   customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
   items: OrderItem[];
   subtotal: number;
   discount: number;
@@ -159,6 +172,7 @@ export interface Order {
   changeDue?: number;
   note?: string;
   status: "paid" | "debt" | "void";
+  eInvoice?: EInvoiceMock;
 }
 
 export interface HeldCart {
@@ -190,6 +204,8 @@ export interface Debt {
   type: DebtType;
   partyName: string;
   partyId: string;
+  /** SĐT đối tác — lưu sẵn hoặc lookup từ KH/NCC */
+  partyPhone?: string;
   amount: number;
   paidAmount: number;
   dueDate: string;

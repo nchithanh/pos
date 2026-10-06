@@ -9,8 +9,17 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 export const metadata: Metadata = {
   title: "Dolphin POS",
   description: "POS local-first cho pet shop & cafe — Dolphin Software",
-  /** Absolute-from-origin path must include Pages basePath (/pos). */
+  /** Absolute-from-origin paths must include Pages basePath (/pos). */
   manifest: `${basePath}/manifest.webmanifest`,
+  icons: {
+    icon: [
+      { url: `${basePath}/favicon.ico`, sizes: "192x192", type: "image/png" },
+      { url: `${basePath}/icon-192.png`, sizes: "192x192", type: "image/png" },
+      { url: `${basePath}/icon-512.png`, sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: `${basePath}/icon-192.png`, sizes: "192x192", type: "image/png" }],
+    shortcut: `${basePath}/favicon.ico`,
+  },
   appleWebApp: {
     capable: true,
     title: "Dolphin POS",

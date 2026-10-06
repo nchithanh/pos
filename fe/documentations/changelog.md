@@ -2,7 +2,8 @@
 
 ## 2026-10-06
 
-- **PWA Pages:** `metadata.manifest` dùng `NEXT_PUBLIC_BASE_PATH` + manifest relative `./` (fix 404 `github.io/manifest.webmanifest`).  
+- **PWA Pages:** `metadata.manifest` / `icons` dùng `NEXT_PUBLIC_BASE_PATH` + `public/favicon.ico` (fix 404 icon trên `/pos`).  
+- **PWA Pages:** manifest relative `./` (fix 404 `github.io/manifest.webmanifest`).  
 - **Cài đặt 3 tab:** Cửa hàng (pháp lý + bill) · HĐĐT mock SePay (ký hiệu dropdown, kiểm tra kết nối) · Nhân viên tóm tắt; xuất HĐĐT POS dùng `settings.eInvoice`.  
 - **Công nợ UX:** table desktop · search/filter · KPI lọc quá hạn · thu/trả từng phần + lịch sử · ghi nợ · xuất CSV · nhắc nợ/VietQR demo · sidebar user avatar.  
 - **Bill / Receipt / HĐĐT:** sau thanh toán → success actions (In bill · Gửi bill mock · Xuất HĐĐT mock) · `ReceiptPreview` + print cửa sổ riêng · `/don-hang` cột Hóa đơn + actions trên chi tiết.  

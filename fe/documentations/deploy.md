@@ -23,9 +23,12 @@ Workflow: `.github/workflows/deploy-pages.yml` (repo root)
 | Project Pages | https://nchithanh.github.io/pos/ |
 | Custom domain | `https://<domain>/` — để `GITHUB_PAGES_BASE_PATH` rỗng |
 
-## PWA manifest
+## PWA manifest / favicon
 
-`layout` metadata `manifest` = `${NEXT_PUBLIC_BASE_PATH}/manifest.webmanifest` (vd. `/pos/…`). File `public/manifest.webmanifest` dùng path tương đối (`./`) để icon/start_url khớp project Pages.
+`layout` metadata `manifest` + `icons` = `${NEXT_PUBLIC_BASE_PATH}/…` (vd. `/pos/manifest.webmanifest`, `/pos/favicon.ico`).  
+File `public/manifest.webmanifest` dùng path tương đối (`./`).
+
+Browser vẫn có thể tự gọi `https://nchithanh.github.io/favicon.ico` (root user site) — 404 đó **không** thuộc artifact `/pos/`.
 
 ## Local artifact (giống CI)
 

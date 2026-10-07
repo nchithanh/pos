@@ -1,0 +1,11 @@
+[
+  {
+    "id": "tppay-01",
+    "debtId": "tpd-02",
+    "amount": 600000,
+    "method": "transfer",
+    "createdAt": "2026-10-03T09:00:00.000Z",
+    "userId": "u_owner",
+    "note": "Đợt 1"
+  }
+]

@@ -310,6 +310,8 @@ export default function SettingsPage() {
                 <option value="tra-sua">Trà sữa</option>
                 <option value="thoi-trang">Thời trang</option>
                 <option value="nha-hang">Nhà hàng</option>
+                <option value="tap-hoa">Tạp hóa</option>
+                <option value="dien-thoai">Điện thoại & laptop</option>
                 <option value="clothing">Clothing (legacy)</option>
                 <option value="general">General (legacy)</option>
               </select>

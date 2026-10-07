@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sup-dt1",
+    "name": "Phân phối Mobile Việt",
+    "phone": "0901 551 661",
+    "email": "order@mobileviet.vn",
+    "address": "Q.1, TP.HCM",
+    "contactPerson": "Anh Phúc",
+    "productCount": 5,
+    "totalPurchased": 420000000,
+    "debt": 18000000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-dt2",
+    "name": "Laptop Center",
+    "phone": "0912 552 662",
+    "email": "sales@laptopcenter.vn",
+    "address": "Q.3, TP.HCM",
+    "contactPerson": "Chị Trang",
+    "productCount": 4,
+    "totalPurchased": 680000000,
+    "debt": 45000000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-dt3",
+    "name": "Phụ kiện Tech",
+    "phone": "0933 553 663",
+    "email": "hello@phukientech.vn",
+    "address": "Q.10, TP.HCM",
+    "contactPerson": "Anh Lộc",
+    "productCount": 6,
+    "totalPurchased": 36000000,
+    "debt": 0,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

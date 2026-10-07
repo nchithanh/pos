@@ -1,0 +1,97 @@
+[
+  {
+    "seq": 12,
+    "daysAgo": 0,
+    "hour": 10,
+    "items": [
+      { "productId": "dt-01", "quantity": 1 },
+      { "productId": "dt-09", "quantity": 1 }
+    ],
+    "paymentMethod": "transfer",
+    "customerId": "cus-dt1",
+    "customerName": "Minh Tuấn"
+  },
+  {
+    "seq": 11,
+    "daysAgo": 0,
+    "hour": 14,
+    "items": [
+      { "productId": "dt-10", "quantity": 1 },
+      { "productId": "dt-12", "quantity": 1 }
+    ],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 10,
+    "daysAgo": 0,
+    "hour": 16,
+    "items": [{ "productId": "dt-11", "quantity": 1 }],
+    "paymentMethod": "cash",
+    "customerId": "cus-dt2",
+    "customerName": "Hà My"
+  },
+  {
+    "seq": 9,
+    "daysAgo": 1,
+    "hour": 11,
+    "items": [{ "productId": "dt-07", "quantity": 1 }],
+    "paymentMethod": "transfer",
+    "cashierId": "u_manager",
+    "cashierName": "Đặng Mỹ Linh"
+  },
+  {
+    "seq": 8,
+    "daysAgo": 2,
+    "hour": 15,
+    "items": [
+      { "productId": "dt-03", "quantity": 1 },
+      { "productId": "dt-12", "quantity": 1 }
+    ],
+    "paymentMethod": "qr",
+    "discount": 50000
+  },
+  {
+    "seq": 7,
+    "daysAgo": 3,
+    "hour": 13,
+    "items": [{ "productId": "dt-15", "quantity": 1 }],
+    "paymentMethod": "transfer",
+    "customerId": "cus-dt1",
+    "customerName": "Minh Tuấn"
+  },
+  {
+    "seq": 6,
+    "daysAgo": 4,
+    "hour": 17,
+    "items": [
+      { "productId": "dt-13", "quantity": 1 },
+      { "productId": "dt-14", "quantity": 1 }
+    ],
+    "paymentMethod": "cash"
+  },
+  {
+    "seq": 5,
+    "daysAgo": 5,
+    "hour": 10,
+    "items": [{ "productId": "dt-05", "quantity": 1 }],
+    "paymentMethod": "transfer",
+    "customerId": "cus-dt4",
+    "customerName": "Công ty TNHH An Khang"
+  },
+  {
+    "seq": 4,
+    "daysAgo": 6,
+    "hour": 12,
+    "items": [{ "productId": "dt-02", "quantity": 1 }],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 3,
+    "daysAgo": 6,
+    "hour": 18,
+    "items": [{ "productId": "dt-04", "quantity": 1 }],
+    "paymentMethod": "transfer",
+    "customerId": "cus-dt2",
+    "customerName": "Hà My"
+  }
+]

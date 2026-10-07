@@ -11,6 +11,8 @@ JSON packs under `fe/data/{vertical}/`, loaded by `lib/seed.ts` → Dexie.
 | `tra-sua/` | Trà sữa |
 | `thoi-trang/` | Thời trang |
 | `nha-hang/` | Nhà hàng |
+| `tap-hoa/` | Tạp hóa |
+| `dien-thoai/` | Điện thoại & laptop |
 
 ## Files per pack
 
@@ -24,4 +26,4 @@ Mỗi pack có 4 tài khoản trong `demo-accounts.json` / `users.json`: chủ, 
 
 ## Kho demo
 
-Phiếu nhập/xuất/chuyển kho không nằm trong JSON. `stores/warehouse-store.ts` sinh theo id sản phẩm của vertical (pet cát Tofu, cafe croissant, trà sữa trân châu, thời trang áo thun, nhà hàng gỏi cuốn). Phiếu demo còn đúng trạng thái seed được làm mới; phiếu user đã đổi trạng thái được giữ.
+Phiếu nhập/xuất/chuyển kho không nằm trong JSON. `stores/warehouse-store.ts` sinh theo id sản phẩm của vertical (pet cát Tofu, cafe croissant, trà sữa trân châu, thời trang áo thun, nhà hàng gỏi cuốn, tạp hóa mì, điện thoại Galaxy A15). Phiếu demo còn đúng trạng thái seed được làm mới; phiếu user đã đổi trạng thái được giữ.

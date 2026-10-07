@@ -1,0 +1,9 @@
+{
+  "vertical": "tap-hoa",
+  "label": "Tạp hóa",
+  "emoji": "🛒",
+  "description": "Mì, nước, snack, gia vị, đồ dùng nhà",
+  "orderSeq": 12,
+  "movementSeq": 5,
+  "accent": "teal"
+}

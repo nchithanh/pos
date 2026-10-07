@@ -18,4 +18,4 @@
 - Dolphin Customer (CRUD, lịch sử, điểm, công nợ khách)  
 - Dolphin AI (rule-based gợi ý quay lại trên Dashboard / Khách hàng)  
 
-Vertical config: Pet / Cafe / Clothing / General (Cài đặt).
+Vertical config: Pet / Cafe / Trà sữa / Thời trang / Nhà hàng / Tạp hóa / Điện thoại & laptop (chọn trước login). Clothing / General là giá trị legacy trong Cài đặt.

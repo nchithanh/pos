@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Chủ shop",
+    "email": "owner@dolphintaphoa.vn",
+    "pin": "1234",
+    "password": "owner123"
+  },
+  {
+    "label": "Quản lý",
+    "email": "manager@dolphintaphoa.vn",
+    "pin": "2222",
+    "password": "manager123"
+  },
+  {
+    "label": "Thu ngân",
+    "email": "cashier@dolphintaphoa.vn",
+    "pin": "0000",
+    "password": "cashier123"
+  },
+  {
+    "label": "Thủ kho",
+    "email": "kho@dolphintaphoa.vn",
+    "pin": "3333",
+    "password": "kho123"
+  }
+]

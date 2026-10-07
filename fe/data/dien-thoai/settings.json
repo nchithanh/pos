@@ -1,0 +1,17 @@
+{
+  "id": "store",
+  "name": "Dolphin Mobile",
+  "slogan": "Điện thoại, laptop và phụ kiện",
+  "vertical": "dien-thoai",
+  "address": "88 Nguyễn Trãi, Q.5, TP.HCM",
+  "phone": "028 3955 6677",
+  "email": "hello@dolphinmobile.vn",
+  "legalName": "CÔNG TY TNHH DOLPHIN MOBILE",
+  "taxCode": "0314455667",
+  "billFooter": "Bảo hành theo phiếu · Cảm ơn quý khách",
+  "taxRate": 0,
+  "currency": "VND",
+  "receiptWidth": 80,
+  "logoEmoji": "📱",
+  "theme": "light"
+}

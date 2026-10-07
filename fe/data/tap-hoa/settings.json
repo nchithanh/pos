@@ -1,0 +1,17 @@
+{
+  "id": "store",
+  "name": "Dolphin Tạp hóa",
+  "slogan": "Tạp hóa gần nhà",
+  "vertical": "tap-hoa",
+  "address": "45 Nguyễn Thị Minh Khai, Q.1, TP.HCM",
+  "phone": "028 3911 2200",
+  "email": "hello@dolphintaphoa.vn",
+  "legalName": "HỘ KINH DOANH DOLPHIN TẠP HÓA",
+  "taxCode": "0311122334",
+  "billFooter": "Cảm ơn quý khách · Đổi trả trong ngày",
+  "taxRate": 0,
+  "currency": "VND",
+  "receiptWidth": 80,
+  "logoEmoji": "🛒",
+  "theme": "light"
+}

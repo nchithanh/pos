@@ -1,0 +1,41 @@
+[
+  {
+    "id": "tpd-01",
+    "type": "payable",
+    "partyName": "Sỉ thực phẩm Phương Nam",
+    "partyId": "sup-tp1",
+    "partyPhone": "0901 221 331",
+    "amount": 4200000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-18",
+    "status": "unpaid",
+    "note": "Nhập mì và gạo tuần này",
+    "createdAt": "2026-10-02T00:00:00.000Z"
+  },
+  {
+    "id": "tpd-02",
+    "type": "payable",
+    "partyName": "Nước giải khát Sài Gòn",
+    "partyId": "sup-tp2",
+    "partyPhone": "0912 222 332",
+    "amount": 1800000,
+    "paidAmount": 600000,
+    "dueDate": "2026-10-12",
+    "status": "partial",
+    "note": "Nước suối và lon",
+    "createdAt": "2026-09-28T00:00:00.000Z"
+  },
+  {
+    "id": "tpd-03",
+    "type": "receivable",
+    "partyName": "Quán cơm Út",
+    "partyId": "cus-tp4",
+    "partyPhone": "028 3911 1008",
+    "amount": 850000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-15",
+    "status": "unpaid",
+    "note": "Gạo và nước mắm ghi sổ",
+    "createdAt": "2026-09-28T00:00:00.000Z"
+  }
+]

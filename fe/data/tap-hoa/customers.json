@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cus-tp1",
+    "name": "Cô Lan",
+    "phone": "0906 331 101",
+    "group": "Khách quen",
+    "points": 180,
+    "totalSpent": 1800000,
+    "visitCount": 40,
+    "lastPurchaseAt": "2026-10-06T08:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-03-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-tp2",
+    "name": "Anh Dũng",
+    "phone": "0907 332 102",
+    "group": "Mua lẻ",
+    "points": 60,
+    "totalSpent": 620000,
+    "visitCount": 9,
+    "lastPurchaseAt": "2026-10-05T18:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-tp3",
+    "name": "Chị Vy",
+    "phone": "0908 333 103",
+    "group": "Cần nhắc quay lại",
+    "points": 20,
+    "totalSpent": 210000,
+    "visitCount": 2,
+    "lastPurchaseAt": "2026-08-02T09:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2026-04-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-tp4",
+    "name": "Quán cơm Út",
+    "phone": "028 3911 1008",
+    "group": "Mua sỉ",
+    "points": 0,
+    "totalSpent": 6400000,
+    "visitCount": 14,
+    "lastPurchaseAt": "2026-09-28T07:00:00.000Z",
+    "debt": 850000,
+    "createdAt": "2025-09-01T00:00:00.000Z"
+  }
+]

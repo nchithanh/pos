@@ -1,0 +1,41 @@
+[
+  {
+    "id": "dtd-01",
+    "type": "payable",
+    "partyName": "Laptop Center",
+    "partyId": "sup-dt2",
+    "partyPhone": "0912 552 662",
+    "amount": 45000000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-20",
+    "status": "unpaid",
+    "note": "Nhập laptop Dell và Asus",
+    "createdAt": "2026-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "dtd-02",
+    "type": "payable",
+    "partyName": "Phân phối Mobile Việt",
+    "partyId": "sup-dt1",
+    "partyPhone": "0901 551 661",
+    "amount": 18000000,
+    "paidAmount": 8000000,
+    "dueDate": "2026-10-14",
+    "status": "partial",
+    "note": "Lô Galaxy A15",
+    "createdAt": "2026-09-26T00:00:00.000Z"
+  },
+  {
+    "id": "dtd-03",
+    "type": "receivable",
+    "partyName": "Công ty TNHH An Khang",
+    "partyId": "cus-dt4",
+    "partyPhone": "028 3955 1000",
+    "amount": 12500000,
+    "paidAmount": 0,
+    "dueDate": "2026-10-22",
+    "status": "unpaid",
+    "note": "Laptop cho nhân viên mới",
+    "createdAt": "2026-09-22T00:00:00.000Z"
+  }
+]

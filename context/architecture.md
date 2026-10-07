@@ -16,7 +16,7 @@
 ```
 app/              # routes (incl. chon-linh-vuc, login)
 components/       # ui, layout, pos
-data/{pet,cafe}/  # seed JSON theo lĩnh vực
+data/{vertical}/   # seed JSON theo lĩnh vực (pet, cafe, tra-sua, thoi-trang, nha-hang, tap-hoa, dien-thoai)
 lib/              # db, seed, vertical, services
 stores/           # zustand
 documentations/   # FE docs SoT

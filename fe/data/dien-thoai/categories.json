@@ -1,0 +1,26 @@
+[
+  {
+    "id": "dien-thoai",
+    "name": "Điện thoại",
+    "emoji": "📱",
+    "sort": 1
+  },
+  {
+    "id": "laptop",
+    "name": "Laptop",
+    "emoji": "💻",
+    "sort": 2
+  },
+  {
+    "id": "may-tinh-bang",
+    "name": "Máy tính bảng",
+    "emoji": "📲",
+    "sort": 3
+  },
+  {
+    "id": "phu-kien",
+    "name": "Phụ kiện",
+    "emoji": "🎧",
+    "sort": 4
+  }
+]

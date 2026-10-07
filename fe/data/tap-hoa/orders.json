@@ -1,0 +1,107 @@
+[
+  {
+    "seq": 12,
+    "daysAgo": 0,
+    "hour": 8,
+    "items": [
+      { "productId": "tp-01", "quantity": 10 },
+      { "productId": "tp-15", "quantity": 1 }
+    ],
+    "paymentMethod": "cash",
+    "customerId": "cus-tp1",
+    "customerName": "Cô Lan"
+  },
+  {
+    "seq": 11,
+    "daysAgo": 0,
+    "hour": 11,
+    "items": [
+      { "productId": "tp-04", "quantity": 6 },
+      { "productId": "tp-05", "quantity": 2 }
+    ],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 10,
+    "daysAgo": 0,
+    "hour": 17,
+    "items": [
+      { "productId": "tp-03", "quantity": 1 },
+      { "productId": "tp-10", "quantity": 1 }
+    ],
+    "paymentMethod": "transfer",
+    "customerId": "cus-tp2",
+    "customerName": "Anh Dũng"
+  },
+  {
+    "seq": 9,
+    "daysAgo": 1,
+    "hour": 9,
+    "items": [
+      { "productId": "tp-07", "quantity": 3 },
+      { "productId": "tp-08", "quantity": 1 }
+    ],
+    "paymentMethod": "cash"
+  },
+  {
+    "seq": 8,
+    "daysAgo": 1,
+    "hour": 19,
+    "items": [
+      { "productId": "tp-12", "quantity": 2 },
+      { "productId": "tp-13", "quantity": 1 }
+    ],
+    "paymentMethod": "qr",
+    "customerId": "cus-tp1",
+    "customerName": "Cô Lan"
+  },
+  {
+    "seq": 7,
+    "daysAgo": 2,
+    "hour": 12,
+    "items": [{ "productId": "tp-06", "quantity": 4 }],
+    "paymentMethod": "cash"
+  },
+  {
+    "seq": 6,
+    "daysAgo": 3,
+    "hour": 16,
+    "items": [
+      { "productId": "tp-02", "quantity": 5 },
+      { "productId": "tp-11", "quantity": 1 }
+    ],
+    "paymentMethod": "transfer",
+    "discount": 5000
+  },
+  {
+    "seq": 5,
+    "daysAgo": 4,
+    "hour": 8,
+    "items": [
+      { "productId": "tp-03", "quantity": 2 },
+      { "productId": "tp-09", "quantity": 1 }
+    ],
+    "paymentMethod": "transfer",
+    "customerId": "cus-tp4",
+    "customerName": "Quán cơm Út"
+  },
+  {
+    "seq": 4,
+    "daysAgo": 5,
+    "hour": 18,
+    "items": [{ "productId": "tp-14", "quantity": 2 }],
+    "paymentMethod": "qr"
+  },
+  {
+    "seq": 3,
+    "daysAgo": 6,
+    "hour": 10,
+    "items": [
+      { "productId": "tp-01", "quantity": 20 },
+      { "productId": "tp-04", "quantity": 12 }
+    ],
+    "paymentMethod": "cash",
+    "customerId": "cus-tp2",
+    "customerName": "Anh Dũng"
+  }
+]

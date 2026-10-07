@@ -78,6 +78,30 @@ import restOrders from "@/data/nha-hang/orders.json";
 import restDemo from "@/data/nha-hang/demo-accounts.json";
 import restManifest from "@/data/nha-hang/manifest.json";
 
+import grocerySettings from "@/data/tap-hoa/settings.json";
+import groceryUsers from "@/data/tap-hoa/users.json";
+import groceryCategories from "@/data/tap-hoa/categories.json";
+import groceryProducts from "@/data/tap-hoa/products.json";
+import grocerySuppliers from "@/data/tap-hoa/suppliers.json";
+import groceryCustomers from "@/data/tap-hoa/customers.json";
+import groceryDebts from "@/data/tap-hoa/debts.json";
+import groceryDebtPayments from "@/data/tap-hoa/debt-payments.json";
+import groceryOrders from "@/data/tap-hoa/orders.json";
+import groceryDemo from "@/data/tap-hoa/demo-accounts.json";
+import groceryManifest from "@/data/tap-hoa/manifest.json";
+
+import phoneSettings from "@/data/dien-thoai/settings.json";
+import phoneUsers from "@/data/dien-thoai/users.json";
+import phoneCategories from "@/data/dien-thoai/categories.json";
+import phoneProducts from "@/data/dien-thoai/products.json";
+import phoneSuppliers from "@/data/dien-thoai/suppliers.json";
+import phoneCustomers from "@/data/dien-thoai/customers.json";
+import phoneDebts from "@/data/dien-thoai/debts.json";
+import phoneDebtPayments from "@/data/dien-thoai/debt-payments.json";
+import phoneOrders from "@/data/dien-thoai/orders.json";
+import phoneDemo from "@/data/dien-thoai/demo-accounts.json";
+import phoneManifest from "@/data/dien-thoai/manifest.json";
+
 type OrderTemplate = {
   seq: number;
   daysAgo: number;
@@ -199,6 +223,32 @@ const PACKS: Record<SeedVerticalId, VerticalPack> = {
     orders: restOrders as OrderTemplate[],
     demoAccounts: restDemo,
     manifest: restManifest,
+  },
+  "tap-hoa": {
+    settings: grocerySettings as VerticalPack["settings"],
+    users: groceryUsers as User[],
+    categories: groceryCategories as Category[],
+    products: groceryProducts as VerticalPack["products"],
+    suppliers: grocerySuppliers as Supplier[],
+    customers: groceryCustomers as Customer[],
+    debts: groceryDebts as Debt[],
+    debtPayments: groceryDebtPayments as DebtPayment[],
+    orders: groceryOrders as OrderTemplate[],
+    demoAccounts: groceryDemo,
+    manifest: groceryManifest,
+  },
+  "dien-thoai": {
+    settings: phoneSettings as VerticalPack["settings"],
+    users: phoneUsers as User[],
+    categories: phoneCategories as Category[],
+    products: phoneProducts as VerticalPack["products"],
+    suppliers: phoneSuppliers as Supplier[],
+    customers: phoneCustomers as Customer[],
+    debts: phoneDebts as Debt[],
+    debtPayments: phoneDebtPayments as DebtPayment[],
+    orders: phoneOrders as OrderTemplate[],
+    demoAccounts: phoneDemo,
+    manifest: phoneManifest,
   },
 };
 

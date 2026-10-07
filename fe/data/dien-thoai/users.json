@@ -1,0 +1,94 @@
+[
+  {
+    "id": "u_owner",
+    "name": "Bùi Quang Huy",
+    "email": "owner@dolphinmobile.vn",
+    "phone": "0901 701 801",
+    "role": "owner",
+    "status": "active",
+    "pin": "1234",
+    "password": "owner123",
+    "avatarColor": "#0284C7",
+    "permissions": {
+      "ban-hang": true,
+      "san-pham": true,
+      "kho": true,
+      "khach-hang": true,
+      "nha-cung-cap": true,
+      "cong-no": true,
+      "doanh-thu": true,
+      "nhan-vien": true,
+      "cai-dat": true
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "u_manager",
+    "name": "Đặng Mỹ Linh",
+    "email": "manager@dolphinmobile.vn",
+    "phone": "0902 702 802",
+    "role": "manager",
+    "status": "active",
+    "pin": "2222",
+    "password": "manager123",
+    "avatarColor": "#0369A1",
+    "permissions": {
+      "ban-hang": true,
+      "san-pham": true,
+      "kho": true,
+      "khach-hang": true,
+      "nha-cung-cap": true,
+      "cong-no": true,
+      "doanh-thu": true,
+      "nhan-vien": false,
+      "cai-dat": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "u_cashier",
+    "name": "Phan Gia Bảo",
+    "email": "cashier@dolphinmobile.vn",
+    "phone": "0903 703 803",
+    "role": "cashier",
+    "status": "active",
+    "pin": "0000",
+    "password": "cashier123",
+    "avatarColor": "#38BDF8",
+    "permissions": {
+      "ban-hang": true,
+      "san-pham": true,
+      "kho": false,
+      "khach-hang": true,
+      "nha-cung-cap": false,
+      "cong-no": false,
+      "doanh-thu": false,
+      "nhan-vien": false,
+      "cai-dat": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "u_warehouse",
+    "name": "Vũ Thanh Sơn",
+    "email": "kho@dolphinmobile.vn",
+    "phone": "0904 704 804",
+    "role": "manager",
+    "status": "active",
+    "pin": "3333",
+    "password": "kho123",
+    "avatarColor": "#0284C7",
+    "permissions": {
+      "ban-hang": false,
+      "san-pham": true,
+      "kho": true,
+      "khach-hang": false,
+      "nha-cung-cap": true,
+      "cong-no": false,
+      "doanh-thu": false,
+      "nhan-vien": false,
+      "cai-dat": false
+    },
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

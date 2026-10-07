@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sup-tp1",
+    "name": "Sỉ thực phẩm Phương Nam",
+    "phone": "0901 221 331",
+    "email": "order@phuongnam-si.vn",
+    "address": "Q. Bình Thạnh, TP.HCM",
+    "contactPerson": "Chị Hạnh",
+    "productCount": 7,
+    "totalPurchased": 86000000,
+    "debt": 4200000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-tp2",
+    "name": "Nước giải khát Sài Gòn",
+    "phone": "0912 222 332",
+    "email": "sales@nuocsg.vn",
+    "address": "Q.7, TP.HCM",
+    "contactPerson": "Anh Khoa",
+    "productCount": 3,
+    "totalPurchased": 54000000,
+    "debt": 1800000,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "sup-tp3",
+    "name": "Tạp hóa sỉ Bình Thạnh",
+    "phone": "0933 223 333",
+    "email": "hello@taphoasi.vn",
+    "address": "Q. Bình Thạnh, TP.HCM",
+    "contactPerson": "Chị My",
+    "productCount": 5,
+    "totalPurchased": 31000000,
+    "debt": 0,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

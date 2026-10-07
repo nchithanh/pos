@@ -16,7 +16,7 @@ Local-first POS (IndexedDB) — demo nhiều lĩnh vực (chọn trước login)
 
 ## Verticals & accents
 
-Pet (emerald) · Cafe (amber) · Trà sữa (pink) · Thời trang (violet) · Nhà hàng (orange) — chi tiết [verticals.md](./verticals.md).
+Pet (emerald) · Cafe (amber) · Trà sữa (pink) · Thời trang (violet) · Nhà hàng (orange) · Tạp hóa (teal) · Điện thoại & laptop (sky) — chi tiết [verticals.md](./verticals.md).
 
 ## Entry flow
 

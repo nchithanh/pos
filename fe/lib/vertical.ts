@@ -7,9 +7,18 @@ export type SeedVerticalId =
   | "cafe"
   | "tra-sua"
   | "thoi-trang"
-  | "nha-hang";
+  | "nha-hang"
+  | "tap-hoa"
+  | "dien-thoai";
 
-export type VerticalAccent = "emerald" | "amber" | "pink" | "violet" | "orange";
+export type VerticalAccent =
+  | "emerald"
+  | "amber"
+  | "pink"
+  | "violet"
+  | "orange"
+  | "teal"
+  | "sky";
 
 export type VerticalOption = {
   id: SeedVerticalId;
@@ -68,6 +77,24 @@ export const VERTICAL_OPTIONS: VerticalOption[] = [
     accent: "orange",
     color: "#EA580C",
     colorSoft: "#FFF7ED",
+  },
+  {
+    id: "tap-hoa",
+    label: "Tạp hóa",
+    emoji: "🛒",
+    description: "Mì, nước, snack, gia vị, đồ dùng nhà",
+    accent: "teal",
+    color: "#0D9488",
+    colorSoft: "#F0FDFA",
+  },
+  {
+    id: "dien-thoai",
+    label: "Điện thoại & laptop",
+    emoji: "📱",
+    description: "Điện thoại, laptop, máy tính bảng và phụ kiện",
+    accent: "sky",
+    color: "#0284C7",
+    colorSoft: "#F0F9FF",
   },
 ];
 

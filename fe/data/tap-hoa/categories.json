@@ -1,0 +1,32 @@
+[
+  {
+    "id": "thuc-pham",
+    "name": "Thực phẩm",
+    "emoji": "🍜",
+    "sort": 1
+  },
+  {
+    "id": "nuoc",
+    "name": "Nước uống",
+    "emoji": "🥤",
+    "sort": 2
+  },
+  {
+    "id": "snack",
+    "name": "Snack",
+    "emoji": "🍪",
+    "sort": 3
+  },
+  {
+    "id": "gia-vi",
+    "name": "Gia vị",
+    "emoji": "🧂",
+    "sort": 4
+  },
+  {
+    "id": "do-dung",
+    "name": "Đồ dùng",
+    "emoji": "🧻",
+    "sort": 5
+  }
+]

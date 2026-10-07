@@ -11,6 +11,8 @@ export type StoreVertical =
   | "tra-sua"
   | "thoi-trang"
   | "nha-hang"
+  | "tap-hoa"
+  | "dien-thoai"
   /** legacy — map → thoi-trang khi seed */
   | "clothing"
   | "general";

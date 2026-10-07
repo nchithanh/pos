@@ -72,6 +72,30 @@ html[data-vertical="thoi-trang"] {
   --brand-950: #2e1065;
 }
 
+/* Tạp hóa — teal */
+html[data-vertical="tap-hoa"] {
+  --brand-50: #f0fdfa;
+  --brand-100: #ccfbf1;
+  --brand-300: #5eead4;
+  --brand-400: #2dd4bf;
+  --brand-500: #0d9488;
+  --brand-600: #0f766e;
+  --brand-700: #115e59;
+  --brand-950: #042f2e;
+}
+
+/* Điện thoại & laptop — sky */
+html[data-vertical="dien-thoai"] {
+  --brand-50: #f0f9ff;
+  --brand-100: #e0f2fe;
+  --brand-300: #7dd3fc;
+  --brand-400: #38bdf8;
+  --brand-500: #0284c7;
+  --brand-600: #0369a1;
+  --brand-700: #075985;
+  --brand-950: #082f49;
+}
+
 /* Nhà hàng — orange */
 html[data-vertical="nha-hang"] {
   --brand-50: #fff7ed;

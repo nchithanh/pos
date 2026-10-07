@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cus-dt1",
+    "name": "Minh Tuấn",
+    "phone": "0906 661 201",
+    "group": "Khách quen",
+    "points": 2400,
+    "totalSpent": 24000000,
+    "visitCount": 5,
+    "lastPurchaseAt": "2026-10-06T14:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2025-06-01T00:00:00.000Z"
+  },
+  {
+    "id": "cus-dt2",
+    "name": "Hà My",
+    "phone": "0907 662 202",
+    "group": "Sinh viên",
+    "points": 890,
+    "totalSpent": 8900000,
+    "visitCount": 3,
+    "lastPurchaseAt": "2026-10-04T16:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2026-01-15T00:00:00.000Z"
+  },
+  {
+    "id": "cus-dt3",
+    "name": "Quốc Bảo",
+    "phone": "0908 663 203",
+    "group": "Cần nhắc quay lại",
+    "points": 90,
+    "totalSpent": 890000,
+    "visitCount": 1,
+    "lastPurchaseAt": "2026-07-20T11:00:00.000Z",
+    "debt": 0,
+    "createdAt": "2026-07-20T00:00:00.000Z"
+  },
+  {
+    "id": "cus-dt4",
+    "name": "Công ty TNHH An Khang",
+    "phone": "028 3955 1000",
+    "group": "Doanh nghiệp",
+    "points": 0,
+    "totalSpent": 86000000,
+    "visitCount": 4,
+    "lastPurchaseAt": "2026-09-22T10:00:00.000Z",
+    "debt": 12500000,
+    "createdAt": "2025-10-01T00:00:00.000Z"
+  }
+]

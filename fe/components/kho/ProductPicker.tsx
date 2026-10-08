@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -9,7 +11,7 @@ import type { Product } from "@/types";
 export function ProductPicker({
   products,
   onPick,
-  placeholder = "Quét mã vạch hoặc gõ tên / SKU…",
+  placeholder = tr("Quét mã vạch hoặc gõ tên / SKU…"),
   className,
 }: {
   products: Product[];

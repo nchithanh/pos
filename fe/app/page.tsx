@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
@@ -31,6 +33,8 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { db, getStockStatus } from "@/lib/db";
+import { inBranch, readWriteBranchId, viewStock } from "@/lib/branch";
+import { useBranchId } from "@/lib/use-branch";
 import { cn, formatDateTime, formatVnd, todayKey } from "@/lib/utils";
 
 type ChartRange = 7 | 30;
@@ -66,6 +70,8 @@ export default function DashboardPage() {
   const debts = useLiveQuery(() => db.debts.toArray());
   const customers = useLiveQuery(() => db.customers.toArray());
   const settings = useLiveQuery(() => db.settings.get("store"));
+  const branchStocks = useLiveQuery(() => db.branchStocks.toArray()) ?? [];
+  const branchId = useBranchId();
   const [range, setRange] = useState<ChartRange>(7);
   const [highlight, setHighlight] = useState<
     "revenue" | "orders" | "low" | "recv" | "pay" | null
@@ -75,25 +81,30 @@ export default function DashboardPage() {
 
   const stats = useMemo(() => {
     if (!ready) return null;
+    const writeId = readWriteBranchId();
+    const scopedOrders = orders.filter((o) => inBranch(o.branchId, branchId));
+    const scopedDebts = debts.filter((d) => inBranch(d.branchId, branchId));
+    const stockOf = (productId: string, own: number) =>
+      viewStock(productId, own, branchStocks, branchId, writeId);
     const today = todayKey();
-    const todayOrders = orders.filter((o) => o.createdAt.startsWith(today));
+    const todayOrders = scopedOrders.filter((o) => o.createdAt.startsWith(today));
     const todayRevenue = todayOrders
       .filter((o) => o.status !== "void")
       .reduce((s, o) => s + o.total, 0);
-    const low = products.filter(
-      (p) => getStockStatus(p.stock, p.minStock) !== "in_stock",
-    );
-    const receivable = debts
+    const low = products
+      .map((p) => ({ ...p, stock: stockOf(p.id, p.stock) }))
+      .filter((p) => getStockStatus(p.stock, p.minStock) !== "in_stock");
+    const receivable = scopedDebts
       .filter((d) => d.type === "receivable" && d.status !== "paid")
       .reduce((s, d) => s + (d.amount - d.paidAmount), 0);
-    const payable = debts
+    const payable = scopedDebts
       .filter((d) => d.type === "payable" && d.status !== "paid")
       .reduce((s, d) => s + (d.amount - d.paidAmount), 0);
 
     const days = Array.from({ length: range }, (_, i) => {
       const d = subDays(new Date(), range - 1 - i);
       const key = format(d, "yyyy-MM-dd");
-      const dayOrders = orders.filter(
+      const dayOrders = scopedOrders.filter(
         (o) => o.createdAt.startsWith(key) && o.status !== "void",
       );
       return {
@@ -107,7 +118,7 @@ export default function DashboardPage() {
       string,
       { name: string; sold: number; revenue: number }
     >();
-    for (const o of orders) {
+    for (const o of scopedOrders) {
       for (const item of o.items) {
         const cur = soldMap.get(item.productId) ?? {
           name: item.productName,
@@ -143,44 +154,44 @@ export default function DashboardPage() {
       payable,
       days,
       top,
-      recent: orders.slice(0, 5),
+      recent: scopedOrders.slice(0, 5),
       ai,
     };
-  }, [ready, products, orders, debts, customers, range]);
+  }, [ready, products, orders, debts, customers, range, branchId, branchStocks]);
 
   const kpi = stats
     ? [
         {
           id: "revenue" as const,
-          label: "Doanh thu hôm nay",
+          label: tr("Doanh thu hôm nay"),
           value: formatVnd(stats.todayRevenue),
           icon: Receipt,
           href: "/doanh-thu",
         },
         {
           id: "orders" as const,
-          label: "Đơn hôm nay",
+          label: tr("Đơn hôm nay"),
           value: String(stats.todayCount),
           icon: ShoppingBag,
           href: "/don-hang",
         },
         {
           id: "low" as const,
-          label: "Sắp hết / hết",
+          label: tr("Sắp hết / hết"),
           value: String(stats.lowCount),
           icon: AlertTriangle,
           href: "/kho",
         },
         {
           id: "recv" as const,
-          label: "Công nợ cần thu",
+          label: tr("Công nợ cần thu"),
           value: formatVnd(stats.receivable),
           icon: Wallet,
           href: "/cong-no",
         },
         {
           id: "pay" as const,
-          label: "Công nợ cần trả",
+          label: tr("Công nợ cần trả"),
           value: formatVnd(stats.payable),
           icon: Package,
           href: "/cong-no",
@@ -191,13 +202,15 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Tổng quan"
-        description={`${settings?.name ?? "Cửa hàng"} · dữ liệu real-time từ IndexedDB`}
+        title={tr("Tổng quan")}
+        description={tr("{name} · dữ liệu real-time từ IndexedDB", {
+          name: settings?.name ?? tr("Cửa hàng"),
+        })}
         actions={
           <Link href="/ban-hang">
             <Button>
               <ShoppingBag size={16} />
-              Mở bán hàng
+              {tr("Mở bán hàng")}
             </Button>
           </Link>
         }
@@ -236,8 +249,8 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-2">
-            <h2 className="font-bold">Biểu đồ</h2>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-bold">{tr("Biểu đồ")}</h2>
             <div className="flex gap-1 rounded-full border p-0.5">
               {([7, 30] as const).map((n) => (
                 <button
@@ -251,7 +264,7 @@ export default function DashboardPage() {
                       : "text-slate-500",
                   )}
                 >
-                  {n} ngày
+                  {tr("{count} ngày", { count: n })}
                 </button>
               ))}
             </div>
@@ -260,7 +273,7 @@ export default function DashboardPage() {
           <div className="mt-2 grid gap-4 xl:grid-cols-3">
             <Card className="p-4 xl:col-span-2">
               <h3 className="mb-3 text-sm font-bold text-slate-500">
-                Doanh thu {range} ngày
+                {tr("Doanh thu {count} ngày", { count: range })}
               </h3>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
@@ -291,7 +304,7 @@ export default function DashboardPage() {
             </Card>
             <Card className="p-4">
               <h3 className="mb-3 text-sm font-bold text-slate-500">
-                Đơn hàng {range} ngày
+                {tr("Đơn hàng {count} ngày", { count: range })}
               </h3>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
@@ -317,14 +330,14 @@ export default function DashboardPage() {
 
           <div className="mt-4 grid gap-4 lg:grid-cols-3">
             <Card className="p-4">
-              <h2 className="mb-3 font-bold">Top sản phẩm</h2>
+              <h2 className="mb-3 font-bold">{tr("Top sản phẩm")}</h2>
               {stats.top.length === 0 ? (
                 <EmptyState
-                  title="Chưa có doanh số"
-                  description="Bán đơn đầu để xem top SP."
+                  title={tr("Chưa có doanh số")}
+                  description={tr("Bán đơn đầu để xem top SP.")}
                   action={
                     <Link href="/ban-hang">
-                      <Button size="sm">Mở bán hàng</Button>
+                      <Button size="sm">{tr("Mở bán hàng")}</Button>
                     </Link>
                   }
                 />
@@ -352,16 +365,16 @@ export default function DashboardPage() {
 
             <Card className="p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-bold">Đơn gần đây</h2>
+                <h2 className="font-bold">{tr("Đơn gần đây")}</h2>
                 <Link
                   href="/don-hang"
                   className="text-xs font-semibold text-emerald-600"
                 >
-                  Xem tất cả
+                  {tr("Xem tất cả")}
                 </Link>
               </div>
               {stats.recent.length === 0 ? (
-                <EmptyState title="Chưa có đơn" />
+                <EmptyState title={tr("Chưa có đơn")} />
               ) : (
                 <ul className="space-y-2">
                   {stats.recent.map((o) => (
@@ -395,11 +408,11 @@ export default function DashboardPage() {
                 Dolphin AI
               </div>
               <p className="text-sm font-semibold">
-                Khách lâu chưa mua — nhắc quay lại.
+                {tr("Khách lâu chưa mua — nhắc quay lại.")}
               </p>
               {stats.ai.length === 0 ? (
                 <p className="mt-3 text-xs text-slate-500">
-                  Chưa có gợi ý — khi khách &gt; 20 ngày không mua sẽ hiện ở đây.
+                  {tr("Chưa có gợi ý — khi khách > 20 ngày không mua sẽ hiện ở đây.")}
                 </p>
               ) : (
                 <ul className="mt-3 space-y-2">
@@ -410,7 +423,10 @@ export default function DashboardPage() {
                     >
                       <p className="font-semibold">{a.name}</p>
                       <p className="text-xs text-slate-500">
-                        Cách {a.daysAgo} ngày · {a.points} điểm
+                        {tr("Cách {days} ngày · {points} điểm", {
+                          days: a.daysAgo,
+                          points: a.points,
+                        })}
                       </p>
                       <div className="mt-2 flex gap-2">
                         <Link
@@ -418,7 +434,7 @@ export default function DashboardPage() {
                           className="flex-1"
                         >
                           <Button size="sm" className="w-full">
-                            Tạo đơn
+                            {tr("Tạo đơn")}
                           </Button>
                         </Link>
                         <a href={`tel:${a.phone}`} className="flex-1">
@@ -427,7 +443,21 @@ export default function DashboardPage() {
                             variant="outline"
                             className="w-full"
                           >
-                            Gọi
+                            {tr("Gọi")}
+                          </Button>
+                        </a>
+                        <a
+                          href={`https://zalo.me/${a.phone.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1"
+                        >
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full"
+                          >
+                            Zalo
                           </Button>
                         </a>
                       </div>
@@ -437,7 +467,7 @@ export default function DashboardPage() {
               )}
               <Link href="/khach-hang" className="mt-3 block">
                 <Button className="w-full" size="sm" variant="secondary">
-                  Xem khách hàng
+                  {tr("Xem khách hàng")}
                 </Button>
               </Link>
             </Card>
@@ -448,11 +478,11 @@ export default function DashboardPage() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-200">
                   <AlertTriangle size={18} />
-                  {stats.lowCount} SKU sắp hết / hết hàng
+                  {tr("{count} SKU sắp hết / hết hàng", { count: stats.lowCount })}
                 </div>
                 <Link href="/kho">
                   <Button size="sm" variant="outline">
-                    Mở kho
+                    {tr("Mở kho")}
                   </Button>
                 </Link>
               </div>

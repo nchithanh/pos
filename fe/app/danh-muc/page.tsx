@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -66,7 +68,7 @@ export default function CategoriesPage() {
 
   const save = async () => {
     if (!name.trim()) {
-      notify.error("Nhập tên danh mục");
+      notify.error(tr("Nhập tên danh mục"));
       return;
     }
     if (editing) {
@@ -74,7 +76,7 @@ export default function CategoriesPage() {
         name: name.trim(),
         emoji,
       });
-      notify.success("Đã cập nhật danh mục");
+      notify.success(tr("Đã cập nhật danh mục"));
     } else {
       const id = uid("cat").replace(/_/g, "-");
       const maxSort = categories.reduce((m, c) => Math.max(m, c.sort), 0);
@@ -84,7 +86,7 @@ export default function CategoriesPage() {
         emoji,
         sort: maxSort + 1,
       });
-      notify.success("Đã thêm danh mục");
+      notify.success(tr("Đã thêm danh mục"));
       setSelectedId(id);
     }
     setFormOpen(false);
@@ -97,27 +99,27 @@ export default function CategoriesPage() {
       return;
     }
     const ok = await confirm({
-      title: "Xóa danh mục?",
+      title: tr("Xóa danh mục?"),
       description: `“${cat.name}” sẽ bị xóa. Thao tác không thể hoàn tác.`,
-      confirmLabel: "Xóa",
+      confirmLabel: tr("Xóa"),
       variant: "danger",
     });
     if (!ok) return;
     await db.categories.delete(cat.id);
     if (selectedId === cat.id) setSelectedId("all");
-    notify.deleted("Đã xóa danh mục");
+    notify.deleted(tr("Đã xóa danh mục"));
   };
 
   return (
     <AppShell>
       {confirmDialog}
       <PageHeader
-        title="Danh mục sản phẩm"
-        description="Quản lý category kiểu menu — lọc và thêm nhanh"
+        title={tr("Danh mục sản phẩm")}
+        description={tr("Quản lý category kiểu menu — lọc và thêm nhanh")}
         actions={
           <Button onClick={openCreate}>
             <FolderPlus size={16} />
-            Thêm danh mục
+            {tr("Thêm danh mục")}
           </Button>
         }
       />
@@ -129,11 +131,11 @@ export default function CategoriesPage() {
         {/* Category list — Like Food middle pane */}
         <aside className="flex w-full shrink-0 flex-col lg:w-[260px]">
           <Card className="flex min-h-0 flex-1 flex-col p-3">
-            <h2 className="mb-3 px-1 text-base font-bold">Danh mục</h2>
+            <h2 className="mb-3 px-1 text-base font-bold">{tr("Danh mục")}</h2>
             <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
               <CategoryRow
                 emoji="🐾"
-                name="Tất cả"
+                name={tr("Tất cả")}
                 count={counts.all ?? 0}
                 active={selectedId === "all"}
                 onClick={() => setSelectedId("all")}
@@ -151,12 +153,12 @@ export default function CategoriesPage() {
                 />
               ))}
               {!categories.length ? (
-                <EmptyState title="Chưa có danh mục" description="Bấm Thêm danh mục để bắt đầu." />
+                <EmptyState title={tr("Chưa có danh mục")} description={tr("Bấm Thêm danh mục để bắt đầu.")} />
               ) : null}
             </div>
             <Button className="mt-3 w-full !rounded-[10px]" onClick={openCreate}>
               <Plus size={16} />
-              Thêm danh mục
+              {tr("Thêm danh mục")}
             </Button>
           </Card>
         </aside>
@@ -166,8 +168,8 @@ export default function CategoriesPage() {
           <div className="mb-3 rounded-[12px] bg-[var(--banner)] px-4 py-4">
             <h2 className="text-lg font-bold">
               {selectedId === "all"
-                ? "Tất cả sản phẩm"
-                : `${selectedCategory?.emoji ?? ""} ${selectedCategory?.name ?? "Danh mục"}`}
+                ? tr("Tất cả sản phẩm")
+                : `${selectedCategory?.emoji ?? ""} ${selectedCategory?.name ?? tr("Danh mục")}`}
             </h2>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
               {selectedProducts.length} sản phẩm · chỉnh sửa chi tiết ở trang Sản phẩm
@@ -177,10 +179,10 @@ export default function CategoriesPage() {
           {selectedProducts.length === 0 ? (
             <Card>
               <EmptyState
-                title="Chưa có sản phẩm trong danh mục này"
+                title={tr("Chưa có sản phẩm trong danh mục này")}
                 action={
                   <Link href="/san-pham">
-                    <Button>Đi tới Sản phẩm</Button>
+                    <Button>{tr("Đi tới Sản phẩm")}</Button>
                   </Link>
                 }
               />
@@ -195,7 +197,7 @@ export default function CategoriesPage() {
                   <Plus size={28} />
                 </div>
                 <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
-                  Thêm sản phẩm
+                  {tr("Thêm sản phẩm")}
                   {selectedCategory ? ` vào ${selectedCategory.name}` : ""}
                 </p>
               </Link>
@@ -211,15 +213,15 @@ export default function CategoriesPage() {
       <Dialog
         open={formOpen}
         onClose={() => setFormOpen(false)}
-        title={editing ? "Sửa danh mục" : "Thêm danh mục"}
+        title={editing ? tr("Sửa danh mục") : tr("Thêm danh mục")}
       >
         <div className="space-y-3">
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Tên danh mục</span>
+            <span className="mb-1 block text-slate-500">{tr("Tên danh mục")}</span>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="VD: Thức ăn ướt"
+              placeholder={tr("VD: Thức ăn ướt")}
               autoFocus
             />
           </label>
@@ -303,7 +305,7 @@ function CategoryRow({
               type="button"
               className="rounded-full p-1.5 text-slate-400 hover:bg-white hover:text-slate-700"
               onClick={onEdit}
-              aria-label="Sửa"
+              aria-label={tr("Sửa")}
             >
               <Pencil size={14} />
             </button>
@@ -313,7 +315,7 @@ function CategoryRow({
               type="button"
               className="rounded-full p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
               onClick={onDelete}
-              aria-label="Xóa"
+              aria-label={tr("Xóa")}
             >
               <Trash2 size={14} />
             </button>
@@ -339,8 +341,8 @@ function ProductMiniCard({ product }: { product: Product }) {
         <p className="text-xs text-slate-400">{product.sku}</p>
         <p className="mt-1 font-bold">{formatVnd(product.sellPrice)}</p>
         <p className="mt-1 text-xs text-slate-500">
-          Tồn {product.stock} ·{" "}
-          {status === "out" ? "Hết hàng" : status === "low" ? "Sắp hết" : "Còn hàng"}
+          {tr("Tồn")} {product.stock} ·{" "}
+          {status === "out" ? tr("Hết hàng") : status === "low" ? tr("Sắp hết") : tr("Còn hàng")}
         </p>
       </div>
     </article>

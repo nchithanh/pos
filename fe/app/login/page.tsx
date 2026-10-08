@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -29,8 +31,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const afterLogin = async () => {
-    await openShift(500_000, "Tự mở ca khi đăng nhập demo");
-    notify.success("Đăng nhập thành công");
+    await openShift(500_000, tr("Tự mở ca khi đăng nhập demo"));
+    notify.success(tr("Đăng nhập thành công"));
     router.replace("/");
   };
 
@@ -42,7 +44,7 @@ export default function LoginPage() {
       else await loginWithPassword(email, password);
       await afterLogin();
     } catch (err) {
-      notify.fromError(err, "Đăng nhập thất bại");
+      notify.fromError(err, tr("Đăng nhập thất bại"));
     } finally {
       setLoading(false);
     }
@@ -56,9 +58,9 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold">Dolphin POS</h1>
           <p className="mt-1 text-sm text-slate-500">
             {verticalMeta
-              ? `${verticalMeta.emoji} ${verticalMeta.label}`
+              ? `${verticalMeta.emoji} ${tr(verticalMeta.label)}`
               : "Local-first"}{" "}
-            · Đăng nhập
+            · {tr("Đăng nhập")}
           </p>
         </div>
 
@@ -68,7 +70,7 @@ export default function LoginPage() {
             className={`rounded-[8px] py-2 text-sm font-semibold ${mode === "pin" ? "bg-white shadow dark:bg-slate-900" : ""}`}
             onClick={() => setMode("pin")}
           >
-            Mã PIN
+            {tr("Mã PIN")}
           </button>
           <button
             type="button"
@@ -83,7 +85,7 @@ export default function LoginPage() {
           {mode === "pin" ? (
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-slate-500">
-                PIN (4 số)
+                {tr("PIN (4 số)")}
               </span>
               <Input
                 inputMode="numeric"
@@ -107,7 +109,7 @@ export default function LoginPage() {
               </label>
               <label className="block">
                 <span className="mb-1 block text-sm font-medium text-slate-500">
-                  Mật khẩu
+                  {tr("Mật khẩu")}
                 </span>
                 <Input
                   type="password"
@@ -118,13 +120,13 @@ export default function LoginPage() {
             </>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Đang đăng nhập…" : "Đăng nhập & mở ca"}
+            {loading ? tr("Đang đăng nhập…") : tr("Đăng nhập & mở ca")}
           </Button>
         </form>
 
         <div className="mt-5 space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Tài khoản demo
+            {tr("Tài khoản demo")}
           </p>
           {accounts.map((acc) => (
             <button
@@ -138,7 +140,7 @@ export default function LoginPage() {
                 setPassword(acc.password);
               }}
             >
-              <span className="font-medium">{acc.label}</span>
+              <span className="font-medium">{tr(acc.label)}</span>
               <span className="text-xs text-slate-400">PIN {acc.pin}</span>
             </button>
           ))}
@@ -148,7 +150,7 @@ export default function LoginPage() {
           href="/chon-linh-vuc"
           className="mt-5 block text-center text-sm font-semibold text-emerald-600 hover:underline"
         >
-          Đổi lĩnh vực cửa hàng
+          {tr("Đổi lĩnh vực cửa hàng")}
         </Link>
       </Card>
     </div>

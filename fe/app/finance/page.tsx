@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
@@ -21,6 +23,7 @@ import {
   cashflowSeries,
   debtRemain,
   debtUiStatus,
+  debtUiStatusLabel,
   expenseBreakdown,
   periodSnapshot,
 } from "@/lib/finance/metrics";
@@ -49,7 +52,7 @@ export default function FinanceOverviewPage() {
       const watch = recv
         .filter((d) => {
           const st = debtUiStatus(d);
-          return st === "Quá hạn" || st === "Sắp đến hạn";
+          return st === "overdue" || st === "due_soon";
         })
         .slice(0, 5);
       const money = balancesOf(books.finance.accounts, books.finance.txns);
@@ -70,7 +73,7 @@ export default function FinanceOverviewPage() {
     } catch (e) {
       return {
         ok: false as const,
-        error: e instanceof Error ? e.message : "Không tải được số liệu",
+        error: e instanceof Error ? e.message : tr("Không tải được số liệu"),
       };
     }
   }, [books, range.range, range.from, range.to, days]);
@@ -78,8 +81,8 @@ export default function FinanceOverviewPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Tài chính"
-        description="Doanh thu, chi phí, lợi nhuận và công nợ của kỳ đang chọn."
+        title={tr("Tài chính")}
+        description={tr("Doanh thu, chi phí, lợi nhuận và công nợ của kỳ đang chọn.")}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <DateRangeFilter
@@ -97,7 +100,7 @@ export default function FinanceOverviewPage() {
               + Phiếu chi
             </Link>
             <Link href="/finance/debts" className="inline-flex min-h-11 items-center rounded-full border border-slate-200 px-4 text-sm font-semibold">
-              Thanh toán công nợ
+              {tr("Thanh toán công nợ")}
             </Link>
             <Link href="/finance/reports" className="inline-flex min-h-11 items-center rounded-full border border-slate-200 px-4 text-sm font-semibold">
               Xuất báo cáo
@@ -113,21 +116,21 @@ export default function FinanceOverviewPage() {
         <div className="space-y-6">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <KpiCard label="Doanh thu" value={formatVnd(view.snap.revenue)} delta={view.snap.delta.revenue} spark={view.sparkIn} />
-            <KpiCard label="Chi phí vận hành" value={formatVnd(view.snap.opex)} delta={view.snap.delta.opex} spark={view.sparkOut} />
-            <KpiCard label="Lợi nhuận gộp" value={formatVnd(view.snap.gross)} delta={view.snap.delta.gross} spark={view.sparkNet} />
+            <KpiCard label={tr("Chi phí vận hành")} value={formatVnd(view.snap.opex)} delta={view.snap.delta.opex} spark={view.sparkOut} />
+            <KpiCard label={tr("Lợi nhuận gộp")} value={formatVnd(view.snap.gross)} delta={view.snap.delta.gross} spark={view.sparkNet} />
             <KpiCard
-              label="Biên lợi nhuận"
+              label={tr("Biên lợi nhuận")}
               value={`${view.snap.margin.toLocaleString("vi-VN", { maximumFractionDigits: 1 })}%`}
               delta={view.snap.delta.margin}
             />
             <KpiCard
-              label="Dòng tiền ròng"
+              label={tr("Dòng tiền ròng")}
               value={formatVnd(view.snap.net)}
               delta={view.snap.delta.net}
               valueClass={view.snap.net >= 0 ? "text-emerald-700" : "text-rose-600"}
             />
             <KpiCard
-              label="Công nợ ròng"
+              label={tr("Công nợ ròng")}
               value={formatVnd(view.recvSum - view.paySum)}
               valueClass="text-slate-900"
             />
@@ -136,7 +139,7 @@ export default function FinanceOverviewPage() {
           <section className="grid gap-4 lg:grid-cols-2">
             <Card className="p-4 shadow-sm">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <h2 className="text-base font-medium">Dòng tiền</h2>
+                <h2 className="text-base font-medium">{tr("Dòng tiền")}</h2>
                 <div className="flex gap-1">
                   {([7, 30, 90] as const).map((n) => (
                     <button
@@ -153,13 +156,13 @@ export default function FinanceOverviewPage() {
               <CashflowChart data={view.chart} />
             </Card>
             <Card className="p-4 shadow-sm">
-              <h2 className="mb-3 text-base font-medium">Lãi lỗ kỳ này</h2>
+              <h2 className="mb-3 text-base font-medium">{tr("Lãi lỗ kỳ này")}</h2>
               <SimpleBar
                 data={[
                   { name: "Doanh thu", value: view.snap.revenue, color: "#10B981" },
-                  { name: "Giá vốn", value: view.snap.cogs, color: "#64748B" },
-                  { name: "Chi phí", value: view.snap.opex, color: "#F43F5E" },
-                  { name: "Lợi nhuận", value: Math.max(0, view.snap.profit), color: "#047857" },
+                  { name: tr("Giá vốn"), value: view.snap.cogs, color: "#64748B" },
+                  { name: tr("Chi phí"), value: view.snap.opex, color: "#F43F5E" },
+                  { name: tr("Lợi nhuận"), value: Math.max(0, view.snap.profit), color: "#047857" },
                 ]}
                 xKey="name"
                 yKey="value"
@@ -173,9 +176,9 @@ export default function FinanceOverviewPage() {
 
           <section className="grid gap-4 lg:grid-cols-2">
             <Card className="p-4 shadow-sm">
-              <h2 className="mb-3 text-base font-medium">Khoản chi lớn nhất</h2>
+              <h2 className="mb-3 text-base font-medium">{tr("Khoản chi lớn nhất")}</h2>
               {view.topSpend.length === 0 ? (
-                <p className="text-sm text-slate-500">Chưa có chi phí vận hành trong kỳ.</p>
+                <p className="text-sm text-slate-500">{tr("Chưa có chi phí vận hành trong kỳ.")}</p>
               ) : (
                 <ul className="space-y-3">
                   {view.topSpend.map((row) => {
@@ -196,9 +199,9 @@ export default function FinanceOverviewPage() {
               )}
             </Card>
             <Card className="p-4 shadow-sm">
-              <h2 className="mb-3 text-base font-medium">Công nợ cần chú ý</h2>
+              <h2 className="mb-3 text-base font-medium">{tr("Công nợ cần chú ý")}</h2>
               {view.watch.length === 0 ? (
-                <p className="text-sm text-slate-500">Không có khoản sắp đến hạn hoặc quá hạn.</p>
+                <p className="text-sm text-slate-500">{tr("Không có khoản sắp đến hạn hoặc quá hạn.")}</p>
               ) : (
                 <ul className="space-y-2">
                   {view.watch.map((d) => {
@@ -207,13 +210,13 @@ export default function FinanceOverviewPage() {
                       <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 rounded-[10px] border border-slate-100 px-3 py-2 text-sm">
                         <span>
                           <span className="block font-semibold">{d.partyName}</span>
-                          <span className={st === "Quá hạn" ? "text-rose-600" : "text-amber-700"}>
-                            {st} · hạn {formatDate(d.dueDate)}
+                          <span className={st === "overdue" ? "text-rose-600" : "text-amber-700"}>
+                            {debtUiStatusLabel(st)} · {tr("Hạn")} {formatDate(d.dueDate)}
                           </span>
                         </span>
                         <span className="font-bold tabular-nums">{formatVnd(debtRemain(d))}</span>
                         <Link href="/finance/debts" className="text-sm font-semibold text-emerald-700">
-                          {st === "Quá hạn" ? "Nhắc nợ" : "Thanh toán"}
+                          {st === "overdue" ? tr("Nhắc nợ") : tr("Thanh toán")}
                         </Link>
                       </li>
                     );

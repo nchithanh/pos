@@ -1,4 +1,6 @@
+import { tr } from "@/lib/i18n/translate";
 import { db } from "@/lib/db";
+import { readWriteBranchId } from "@/lib/branch";
 import { useFinanceStore } from "@/stores/finance-store";
 import { orderCode, todayKey, uid } from "@/lib/utils";
 import type {
@@ -50,7 +52,7 @@ export async function checkoutOrder(input: {
   user: User;
   shiftId?: string;
 }): Promise<Order> {
-  if (input.lines.length === 0) throw new Error("Giỏ hàng trống");
+  if (input.lines.length === 0) throw new Error(tr("Giỏ hàng trống"));
 
   const products = await db.products.bulkGet(input.lines.map((l) => l.productId));
   const productMap = new Map(
@@ -59,7 +61,7 @@ export async function checkoutOrder(input: {
 
   const items = input.lines.map((line) => {
     const p = productMap.get(line.productId);
-    if (!p) throw new Error("Sản phẩm không tồn tại");
+    if (!p) throw new Error(tr("Sản phẩm không tồn tại"));
     if (line.quantity > p.stock) throw new Error(`${p.name} không đủ tồn`);
     const lineTotal = calcLineTotal(
       p.sellPrice,
@@ -89,7 +91,7 @@ export async function checkoutOrder(input: {
 
   let pointsToRedeem = Math.max(0, Math.floor(input.pointsToRedeem ?? 0));
   if (pointsToRedeem > 0) {
-    if (!customer) throw new Error("Chọn khách để dùng điểm");
+    if (!customer) throw new Error(tr("Chọn khách để dùng điểm"));
     if (pointsToRedeem > customer.points) {
       throw new Error(`Khách chỉ còn ${customer.points} điểm`);
     }
@@ -117,7 +119,7 @@ export async function checkoutOrder(input: {
     }
     const paySum = payments.reduce((s, p) => s + p.amount, 0);
     if (Math.abs(paySum - total) > 1) {
-      throw new Error("Tổng thanh toán tách không khớp");
+      throw new Error(tr("Tổng thanh toán tách không khớp"));
     }
   } else {
     payments = [
@@ -129,10 +131,10 @@ export async function checkoutOrder(input: {
   }
   if (input.paymentMethod === "cash") {
     const cash = input.cashReceived ?? 0;
-    if (cash < total) throw new Error("Tiền khách đưa chưa đủ");
+    if (cash < total) throw new Error(tr("Tiền khách đưa chưa đủ"));
   }
   if (input.paymentMethod === "debt" && !input.customerId) {
-    throw new Error("Chọn khách hàng để ghi nợ");
+    throw new Error(tr("Chọn khách hàng để ghi nợ"));
   }
 
   const seq = await nextOrderSeq();
@@ -163,6 +165,7 @@ export async function checkoutOrder(input: {
     pointsRedeemed: pointsToRedeem || undefined,
     note: input.note,
     status: input.paymentMethod === "debt" ? "debt" : "paid",
+    branchId: readWriteBranchId(),
   };
 
   await db.transaction(
@@ -204,10 +207,11 @@ export async function checkoutOrder(input: {
         createdAt: order.createdAt,
         userId: input.user.id,
         userName: input.user.name,
-        reason: "Xuất bán hàng",
+        reason: tr("Xuất bán hàng"),
         note: order.code,
         items: movementItems,
         totalCost: items.reduce((s, i) => s + i.costPrice * i.quantity, 0),
+        branchId: readWriteBranchId(),
       });
 
       if (customer) {
@@ -239,6 +243,7 @@ export async function checkoutOrder(input: {
           note: `Đơn ${order.code}`,
           createdAt: order.createdAt,
           orderId: order.id,
+          branchId: readWriteBranchId(),
         });
       }
     },

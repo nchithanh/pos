@@ -1,5 +1,7 @@
+import { tr } from "@/lib/i18n/translate";
 import { format as dfFormat, subDays, setHours, setMinutes } from "date-fns";
 import { db, reopenDb } from "@/lib/db";
+import { ensureBranches } from "@/lib/branch";
 import { DEFAULT_EINVOICE_CONFIG } from "@/lib/einvoice-config";
 import {
   getStoredVertical,
@@ -292,7 +294,7 @@ function buildOrders(
       code: demoOrderCode(t.seq, t.daysAgo),
       createdAt,
       cashierId: t.cashierId ?? "u_cashier",
-      cashierName: t.cashierName ?? "Thu ngân",
+      cashierName: t.cashierName ?? tr("Thu ngân"),
       customerId: t.customerId,
       customerName: t.customerName,
       customerPhone: t.customerPhone,
@@ -325,7 +327,7 @@ function buildOrders(
 function getPack(vertical?: SeedVerticalId | null): VerticalPack {
   const v = vertical ?? getStoredVertical();
   if (!isSeedVertical(v)) {
-    throw new Error("Chưa chọn lĩnh vực — mở /chon-linh-vuc");
+    throw new Error(tr("Chưa chọn lĩnh vực — mở /chon-linh-vuc"));
   }
   return PACKS[v];
 }
@@ -394,6 +396,7 @@ export async function ensureSeeded(
     }
     await migrateStoreSettingsIfNeeded(pack);
     await migrateMissingUsers(pack);
+    await ensureBranches();
     return;
   }
 
@@ -455,11 +458,12 @@ export async function ensureSeeded(
       });
     },
   );
+  await ensureBranches();
 }
 
 export async function resetDatabase(): Promise<void> {
   const v = getStoredVertical();
-  if (!isSeedVertical(v)) throw new Error("Chưa chọn lĩnh vực");
+  if (!isSeedVertical(v)) throw new Error(tr("Chưa chọn lĩnh vực"));
   await db.delete();
   reopenDb(v);
   await ensureSeeded(v);

@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/translate";
 import { db } from "@/lib/db";
 import { normalizeEInvoiceConfig } from "@/lib/einvoice-config";
 import { sepaySimGetToken, sepaySimIssueFlow } from "@/lib/services/sepay-simulator";
@@ -15,13 +16,13 @@ export async function checkEInvoiceConnection(): Promise<{
 }> {
   const cfg = await getEInvoiceConfig();
   if (cfg.provider === "none") {
-    return { ok: false, message: "Chưa chọn nhà cung cấp", mode: cfg.mode };
+    return { ok: false, message: tr("Chưa chọn nhà cung cấp"), mode: cfg.mode };
   }
   if (cfg.mode === "sandbox") {
     return {
       ok: false,
       message:
-        "Sandbox thật cần client_id/secret + API server — đang dùng Simulator",
+        tr("Sandbox thật cần client_id/secret + API server — đang dùng Simulator"),
       mode: "sandbox",
     };
   }
@@ -50,19 +51,19 @@ export async function issueMockEInvoice(
   >,
 ): Promise<Order> {
   const order = await db.orders.get(orderId);
-  if (!order) throw new Error("Không tìm thấy đơn hàng");
-  if (order.eInvoice) throw new Error("Đơn này đã có hóa đơn demo");
+  if (!order) throw new Error(tr("Không tìm thấy đơn hàng"));
+  if (order.eInvoice) throw new Error(tr("Đơn này đã có hóa đơn demo"));
 
   const cfg = await getEInvoiceConfig();
   if (cfg.provider === "none" || !cfg.connected) {
     throw new Error(
-      "Chưa kết nối hóa đơn điện tử — mở Cài đặt → Hóa đơn điện tử",
+      tr("Chưa kết nối hóa đơn điện tử — mở Cài đặt → Hóa đơn điện tử"),
     );
   }
 
   if (cfg.mode === "sandbox") {
     throw new Error(
-      "Sandbox SePay thật chưa cấu hình credential — chuyển mode Simulator trong Cài đặt",
+      tr("Sandbox SePay thật chưa cấu hình credential — chuyển mode Simulator trong Cài đặt"),
     );
   }
 
@@ -108,6 +109,6 @@ export async function issueMockEInvoice(
 
   await db.orders.update(orderId, { eInvoice });
   const updated = await db.orders.get(orderId);
-  if (!updated) throw new Error("Cập nhật hóa đơn thất bại");
+  if (!updated) throw new Error(tr("Cập nhật hóa đơn thất bại"));
   return updated;
 }

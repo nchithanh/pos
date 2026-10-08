@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useRouter } from "next/navigation";
 import { notify } from "@/lib/notify";
 import { BrandMark } from "@/components/brand-mark";
@@ -12,8 +14,6 @@ import {
 } from "@/lib/vertical";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCartStore } from "@/stores/cart-store";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 export default function ChooseVerticalPage() {
   const router = useRouter();
@@ -27,10 +27,14 @@ export default function ChooseVerticalPage() {
       clearCart();
       reopenDb(opt.id);
       await ensureSeeded(opt.id);
-      notify.success(`Đã chọn ${opt.label} — đăng nhập để bán hàng`);
+      notify.success(
+        tr("Đã chọn {name} — đăng nhập để bán hàng", {
+          name: tr(opt.label),
+        }),
+      );
       router.replace("/login");
     } catch (e) {
-      notify.fromError(e, "Không khởi tạo được dữ liệu lĩnh vực");
+      notify.fromError(e, tr("Không khởi tạo được dữ liệu lĩnh vực"));
     }
   };
 
@@ -40,49 +44,41 @@ export default function ChooseVerticalPage() {
         <BrandMark className="mb-3 h-14 w-14" />
         <h1 className="text-2xl font-bold tracking-tight">Dolphin POS</h1>
         <p className="mt-2 max-w-md text-sm text-slate-500">
-          Chọn lĩnh vực cửa hàng để tải dữ liệu demo phù hợp. Mỗi lĩnh vực có
-          tông màu riêng và lưu IndexedDB riêng trên máy.
+          {tr(
+            "Chọn lĩnh vực cửa hàng để tải dữ liệu demo phù hợp. Mỗi lĩnh vực có tông màu riêng và lưu IndexedDB riêng trên máy.",
+          )}
         </p>
       </div>
 
-      <div className="grid w-full max-w-3xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex w-full max-w-lg flex-col gap-3">
         {VERTICAL_OPTIONS.map((opt) => (
-          <Card
+          <button
             key={opt.id}
-            className="flex flex-col border-2 p-5 transition hover:shadow-md"
-            style={{
-              borderColor: opt.colorSoft,
-              background: `linear-gradient(180deg, ${opt.colorSoft} 0%, var(--card) 48%)`,
-            }}
+            type="button"
+            onClick={() => void pick(opt)}
+            className="flex w-full items-center gap-3 rounded-[10px] border border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900"
           >
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-4xl" aria-hidden>
-                {opt.emoji}
-              </span>
-              <span
-                className="h-3 w-3 rounded-full ring-2 ring-white"
-                style={{ backgroundColor: opt.color }}
-                title={`Accent ${opt.accent}`}
-                aria-hidden
-              />
-            </div>
-            <h2 className="text-lg font-bold">{opt.label}</h2>
-            <p className="mt-1 flex-1 text-sm text-slate-500">
-              {opt.description}
-            </p>
-            <Button
-              className="mt-5 w-full border-0 text-white hover:opacity-90"
-              style={{ backgroundColor: opt.color }}
-              onClick={() => void pick(opt)}
+            <span
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] text-2xl"
+              style={{ backgroundColor: opt.colorSoft }}
+              aria-hidden
             >
-              Chọn {opt.label}
-            </Button>
-          </Card>
+              {opt.emoji}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-base font-bold text-slate-900 dark:text-white">
+                {tr(opt.label)}
+              </span>
+              <span className="mt-0.5 block text-sm text-slate-500">
+                {tr(opt.description)}
+              </span>
+            </span>
+          </button>
         ))}
       </div>
 
       <p className="mt-8 text-center text-xs text-slate-400">
-        Có thể đổi lĩnh vực lại từ Cài đặt hoặc quay lại trang này khi đăng xuất.
+        {tr("Có thể đổi lĩnh vực lại từ Cài đặt hoặc quay lại trang này khi đăng xuất.")}
       </p>
     </div>
   );

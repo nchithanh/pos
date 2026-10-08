@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
@@ -83,8 +85,8 @@ export default function ReportsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Báo cáo"
-        description="Tóm tắt số liệu cửa hàng theo kỳ. Xuất file để xem ngoài ứng dụng."
+        title={tr("Báo cáo")}
+        description={tr("Tóm tắt số liệu cửa hàng theo kỳ. Xuất file để xem ngoài ứng dụng.")}
         actions={
           <div className="flex flex-wrap gap-2">
             <DateRangeFilter
@@ -96,13 +98,13 @@ export default function ReportsPage() {
               onTo={range.setTo}
             />
             <Button size="sm" variant="outline" onClick={exportCsv}>
-              Xuất Excel
+              {tr("Xuất Excel")}
             </Button>
             <Button
               size="sm"
               variant="outline"
               onClick={() => {
-                notify.success("Đã mở hộp thoại in — chọn Lưu PDF");
+                notify.success(tr("Đã mở hộp thoại in — chọn Lưu PDF"));
                 window.print();
               }}
             >
@@ -117,8 +119,8 @@ export default function ReportsPage() {
         <div className="space-y-4">
           <div className="flex gap-3 overflow-x-auto">
             <KpiCard label="Doanh thu" value={formatVnd(snap.revenue)} />
-            <KpiCard label="Lợi nhuận" value={formatVnd(snap.profit)} />
-            <KpiCard label="Chi phí vận hành" value={formatVnd(snap.opex)} />
+            <KpiCard label={tr("Lợi nhuận")} value={formatVnd(snap.profit)} />
+            <KpiCard label={tr("Chi phí vận hành")} value={formatVnd(snap.opex)} />
           </div>
           <Card className="p-4">
             <SimpleBar

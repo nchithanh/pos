@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -17,11 +19,11 @@ export function stockLevel(stock: number, minStock: number, active: boolean): St
 }
 
 export function stockLevelLabel(level: StockLevel) {
-  if (level === "out") return "Hết hàng";
-  if (level === "low") return "Sắp hết";
-  if (level === "high") return "Tồn cao";
-  if (level === "inactive") return "Ngừng kinh doanh";
-  return "Còn hàng";
+  if (level === "out") return tr("Hết hàng");
+  if (level === "low") return tr("Sắp hết");
+  if (level === "high") return tr("Tồn cao");
+  if (level === "inactive") return tr("Ngừng kinh doanh");
+  return tr("Còn hàng");
 }
 
 export function ProductThumb({

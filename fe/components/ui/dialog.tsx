@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -35,7 +37,7 @@ export function Dialog({
       <button
         type="button"
         className="absolute inset-0"
-        aria-label="Đóng"
+        aria-label={tr("Đóng")}
         onClick={onClose}
       />
       <div
@@ -49,7 +51,7 @@ export function Dialog({
       >
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold">{title}</h2>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Đóng">
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label={tr("Đóng")}>
             <X size={18} />
           </Button>
         </div>

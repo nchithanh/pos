@@ -1,4 +1,6 @@
+import { tr } from "@/lib/i18n/translate";
 import { db } from "@/lib/db";
+import { readWriteBranchId } from "@/lib/branch";
 import { useFinanceStore } from "@/stores/finance-store";
 import { nextMovementSeq } from "@/lib/services/orders";
 import { todayKey, uid } from "@/lib/utils";
@@ -21,9 +23,9 @@ export async function stockIn(input: {
   payMethod?: PaymentMethod;
   debtDueDate?: string;
 }): Promise<InventoryMovement> {
-  if (!input.items.length) throw new Error("Chưa chọn sản phẩm");
+  if (!input.items.length) throw new Error(tr("Chưa chọn sản phẩm"));
   const items = input.items.filter((i) => i.quantity > 0);
-  if (!items.length) throw new Error("Số lượng không hợp lệ");
+  if (!items.length) throw new Error(tr("Số lượng không hợp lệ"));
 
   const seq = await nextMovementSeq();
   const totalCost = items.reduce((s, i) => s + i.quantity * i.unitCost, 0);
@@ -39,7 +41,7 @@ export async function stockIn(input: {
     note: input.note,
     reason: payNow
       ? `Thanh toán ngay (${input.payMethod ?? "cash"})`
-      : "Ghi nợ NCC",
+      : tr("Ghi nợ NCC"),
     items: items.map((i) => ({
       productId: i.productId,
       quantity: i.quantity,
@@ -47,6 +49,7 @@ export async function stockIn(input: {
       expiryDate: i.expiryDate,
     })),
     totalCost,
+    branchId: readWriteBranchId(),
   };
 
   await db.transaction(
@@ -84,6 +87,7 @@ export async function stockIn(input: {
             status: "unpaid",
             note: `Nhập ${movement.code}`,
             createdAt: movement.createdAt,
+            branchId: readWriteBranchId(),
           });
         }
       }
@@ -96,7 +100,7 @@ export async function stockIn(input: {
       amount: totalCost,
       method: input.payMethod ?? "cash",
       code: movement.code,
-      supplierName: sup?.name ?? "Nhà cung cấp",
+      supplierName: sup?.name ?? tr("Nhà cung cấp"),
       userName: input.user.name,
     });
   }
@@ -110,14 +114,14 @@ export async function stockOut(input: {
   note?: string;
   user: User;
 }): Promise<InventoryMovement> {
-  if (!input.items.length) throw new Error("Chưa chọn sản phẩm");
+  if (!input.items.length) throw new Error(tr("Chưa chọn sản phẩm"));
   const items = input.items.filter((i) => i.quantity > 0);
-  if (!items.length) throw new Error("Số lượng không hợp lệ");
+  if (!items.length) throw new Error(tr("Số lượng không hợp lệ"));
 
   for (const item of items) {
     const p = await db.products.get(item.productId);
     if (!p || item.quantity > p.stock) {
-      throw new Error(`${p?.name ?? "Sản phẩm"} không đủ tồn`);
+      throw new Error(`${p?.name ?? tr("Sản phẩm")} không đủ tồn`);
     }
   }
   const seq = await nextMovementSeq();
@@ -141,6 +145,7 @@ export async function stockOut(input: {
     note: input.note,
     items,
     totalCost,
+    branchId: readWriteBranchId(),
   };
 
   await db.transaction("rw", [db.movements, db.products, db.meta], async () => {
@@ -166,8 +171,8 @@ export async function stockAdjust(input: {
   user: User;
 }): Promise<void> {
   const p = await db.products.get(input.productId);
-  if (!p) throw new Error("Không tìm thấy sản phẩm");
-  if (!input.reason.trim()) throw new Error("Chọn lý do điều chỉnh");
+  if (!p) throw new Error(tr("Không tìm thấy sản phẩm"));
+  if (!input.reason.trim()) throw new Error(tr("Chọn lý do điều chỉnh"));
   const delta = input.newStock - p.stock;
   const seq = await nextMovementSeq();
   await db.transaction("rw", [db.movements, db.products, db.meta], async () => {
@@ -186,6 +191,7 @@ export async function stockAdjust(input: {
       note: input.note,
       items: [{ productId: p.id, quantity: Math.abs(delta) }],
       totalCost: 0,
+      branchId: readWriteBranchId(),
     });
   });
 }
@@ -205,13 +211,13 @@ export function buildInventoryCsv(
   const header = [
     "SKU",
     "Barcode",
-    "Tên",
-    "Đơn vị",
-    "Tồn",
-    "Tối thiểu",
-    "Giá vốn",
-    "Giá bán",
-    "Giá trị tồn",
+    tr("Tên"),
+    tr("Đơn vị"),
+    tr("Tồn"),
+    tr("Tối thiểu"),
+    tr("Giá vốn"),
+    tr("Giá bán"),
+    tr("Giá trị tồn"),
   ];
   const rows = products.map((p) =>
     [

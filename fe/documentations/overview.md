@@ -13,6 +13,7 @@ Local-first POS (IndexedDB) — demo nhiều lĩnh vực (chọn trước login)
 | Auth | Chọn lĩnh vực → PIN / email · thủ kho PIN 3333 · shift open/close |
 | Print | `lib/print-receipt.ts` + PDF `lib/pdf-receipt.ts` |
 | HĐĐT | SePay **simulator** (docs contract) |
+| Ngôn ngữ | VI / EN — `lib/i18n` · mặc định theo máy · Cài đặt ghi `dolphin-pos-lang` |
 
 ## Verticals & accents
 
@@ -29,7 +30,7 @@ Chi tiết routes: [pages.md](./pages.md) · seed: [data.md](./data.md).
 - POS `/ban-hang` — giỏ, giảm đ/%, điểm, split, shortcuts F2/F4/Esc  
 - Kho — kiểm nhận theo số thực nhận, xuất có duyệt/soạn, tồn khả dụng, lịch sử trước/sau  
 - Tài chính `/finance` — doanh thu, dòng tiền, quỹ, công nợ, lợi nhuận, ca, báo cáo, dự báo mock  
-- Cài đặt — 3 tab (cửa hàng / HĐĐT / NV) + đổi lĩnh vực  
+- Header — **VI | EN** · chọn chi nhánh (kể cả **Tất cả**). **Support** (Zalo founder): desktop góc dưới phải, mobile ô thanh dưới. Cài đặt — ngôn ngữ · chi nhánh · 3 tab (cửa hàng / HĐĐT / NV) + đổi lĩnh vực  
 
 ## Loyalty
 

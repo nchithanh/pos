@@ -1,5 +1,14 @@
 # Changelog — Dolphin POS FE
 
+## 2026-10-08
+
+- **UI VI/EN:** nhãn chrome (menu, nút, trạng thái, toast) dịch theo `fe/lib/i18n`. JSON `fe/data/**` giữ nguyên. Mặc định theo ngôn ngữ máy; header **VI | EN** và Cài đặt lưu `dolphin-pos-lang`. Ẩn chọn Light/Dark. Ngày/số theo locale, hậu tố tiền vẫn `đ`.
+- **Dolphin AI:** thẻ khách lâu chưa mua thêm nút **Zalo** (`https://zalo.me/{sđt}`), cạnh Gọi.
+- **In bill:** cửa sổ in đơn mở nội dung bill, không còn trang `about:blank`.
+- **Support:** desktop — icon headset/chat (`public/brand/support.png`) góc dưới phải; mobile — ô trên thanh dưới thay **Thêm**. Mở Zalo founder (`https://zalo.me/0779937633`). Menu đầy đủ trên mobile vẫn qua hamburger.
+- **Chọn lĩnh vực:** danh sách thẻ ngang (icon pastel, tên, mô tả). Bấm cả thẻ để chọn.
+- **Đa chi nhánh (demo):** chọn chi nhánh trên sidebar và header, có option **Tất cả**. Ca, đơn, tồn, quỹ và công nợ theo lựa chọn (Tất cả = gộp). Sản phẩm, khách, nhân viên dùng chung. Đổi sang chi nhánh cụ thể khi đang mở ca thì phải đóng ca trước; chọn Tất cả được khi đang mở ca. Ghi đơn/ca khi đang Tất cả dùng chi nhánh đang giữ tồn. Biểu đồ tổng quan theo branch switcher (không chip riêng). Cài đặt → Cửa hàng thêm chi nhánh. Seed có chi nhánh gốc và một chi nhánh demo thứ hai.
+
 ## 2026-10-07
 
 - **+2 lĩnh vực:** Tạp hóa (`tap-hoa`, teal) · Điện thoại & laptop (`dien-thoai`, sky). Seed `fe/data/tap-hoa/` và `fe/data/dien-thoai/`. IndexedDB `dolphin_pos_{id}`.

@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/layout/app-shell";
@@ -61,12 +63,12 @@ export default function OutboundPage() {
   const create = () => {
     const product = products.find((p) => p.id === productId);
     if (!product || !user) {
-      notify.error("Chọn sản phẩm");
+      notify.error(tr("Chọn sản phẩm"));
       return;
     }
     const n = Number(qty) || 0;
     if (n <= 0) {
-      notify.error("Số lượng không hợp lệ");
+      notify.error(tr("Số lượng không hợp lệ"));
       return;
     }
     const order: OutboundOrder = {
@@ -74,7 +76,7 @@ export default function OutboundPage() {
       code: `XK${String(128 + outbounds.length).padStart(5, "0")}`,
       requester: user.name,
       purpose,
-      destination: "Kho cửa hàng",
+      destination: tr("Kho cửa hàng"),
       note: "",
       status: "pending",
       createdAt: new Date().toISOString(),
@@ -91,14 +93,14 @@ export default function OutboundPage() {
     saveOutbound(order);
     setCreating(false);
     setOpen(order.id);
-    notify.success("Đã tạo yêu cầu xuất — trạng thái Chờ duyệt");
+    notify.success(tr("Đã tạo yêu cầu xuất — trạng thái Chờ duyệt"));
   };
 
   const ship = async (order: OutboundOrder) => {
     if (!user) return;
     const lines = order.lines.filter((l) => l.picked > 0);
     if (!lines.length) {
-      notify.error("Chưa soạn hàng");
+      notify.error(tr("Chưa soạn hàng"));
       return;
     }
     try {
@@ -113,17 +115,17 @@ export default function OutboundPage() {
         shippedBy: user.name,
         shippedAt: new Date().toISOString(),
       });
-      notify.success("Đã xuất kho. Tồn đã giảm đúng số đã soạn.");
+      notify.success(tr("Đã xuất kho. Tồn đã giảm đúng số đã soạn."));
     } catch (e) {
-      notify.error(e instanceof Error ? e.message : "Không xuất được");
+      notify.error(e instanceof Error ? e.message : tr("Không xuất được"));
     }
   };
 
   return (
     <AppShell>
       <PageHeader
-        title="Đơn xuất hàng"
-        description="Yêu cầu → duyệt → soạn → xác nhận. Không xuất âm tồn."
+        title={tr("Đơn xuất hàng")}
+        description={tr("Yêu cầu → duyệt → soạn → xác nhận. Không xuất âm tồn.")}
         actions={
           <Button size="sm" onClick={() => setCreating((v) => !v)}>
             + Yêu cầu xuất
@@ -134,7 +136,7 @@ export default function OutboundPage() {
       {creating ? (
         <Card className="mb-4 space-y-3 p-4">
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Mục đích</span>
+            <span className="mb-1 block text-slate-500">{tr("Mục đích")}</span>
             <select
               className="min-h-11 w-full rounded-[10px] border border-slate-200 px-3 dark:border-slate-700 dark:bg-slate-900"
               value={purpose}
@@ -146,13 +148,13 @@ export default function OutboundPage() {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Sản phẩm</span>
+            <span className="mb-1 block text-slate-500">{tr("Sản phẩm")}</span>
             <select
               className="min-h-11 w-full rounded-[10px] border border-slate-200 px-3 dark:border-slate-700 dark:bg-slate-900"
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
             >
-              <option value="">Chọn</option>
+              <option value="">{tr("Chọn")}</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} · tồn {p.stock}
@@ -161,41 +163,41 @@ export default function OutboundPage() {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Số lượng</span>
+            <span className="mb-1 block text-slate-500">{tr("Số lượng")}</span>
             <Input type="number" value={qty} onChange={(e) => setQty(e.target.value)} />
           </label>
-          <Button onClick={create}>Tạo yêu cầu</Button>
+          <Button onClick={create}>{tr("Tạo yêu cầu")}</Button>
         </Card>
       ) : null}
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <FilterChip active={statusFilter === "all"} onClick={() => setStatusFilter("all")}>
-          Tất cả
+          {tr("Tất cả")}
         </FilterChip>
         <FilterChip active={statusFilter === "pending"} onClick={() => setStatusFilter("pending")}>
-          Chờ duyệt
+          {tr("Chờ duyệt")}
         </FilterChip>
         <FilterChip active={statusFilter === "picking"} onClick={() => setStatusFilter("picking")}>
-          Đang soạn
+          {tr("Đang soạn")}
         </FilterChip>
         <FilterChip active={statusFilter === "ready"} onClick={() => setStatusFilter("ready")}>
-          Chờ bàn giao
+          {tr("Chờ bàn giao")}
         </FilterChip>
         <FilterChip active={statusFilter === "shipped"} onClick={() => setStatusFilter("shipped")}>
-          Đã xuất
+          {tr("Đã xuất")}
         </FilterChip>
         <FilterChip active={range === "7"} onClick={() => setRange(range === "7" ? "all" : "7")}>
-          7 ngày
+          {tr("7 ngày")}
         </FilterChip>
         <FilterChip active={range === "30"} onClick={() => setRange(range === "30" ? "all" : "30")}>
-          30 ngày
+          {tr("30 ngày")}
         </FilterChip>
       </div>
 
       {visible.length === 0 ? (
         <EmptyBlock
-          title="Chưa có phiếu xuất"
-          body="Sau khi nhập kho, tạo yêu cầu xuất để chạy quy trình duyệt và soạn hàng."
+          title={tr("Chưa có phiếu xuất")}
+          body={tr("Sau khi nhập kho, tạo yêu cầu xuất để chạy quy trình duyệt và soạn hàng.")}
         />
       ) : null}
 
@@ -276,16 +278,16 @@ export default function OutboundPage() {
                         disabled={!canApprove}
                         onClick={() => saveOutbound({ ...order, status: "rejected" })}
                       >
-                        Từ chối
+                        {tr("Từ chối")}
                       </Button>
                       {!canApprove ? (
-                        <p className="text-xs text-slate-500">Chỉ quản lý hoặc chủ cửa hàng được duyệt.</p>
+                        <p className="text-xs text-slate-500">{tr("Chỉ quản lý hoặc chủ cửa hàng được duyệt.")}</p>
                       ) : null}
                     </div>
                   ) : null}
                   {order.status === "approved" || order.status === "picking" || order.status === "partial" || order.status === "ready" ? (
                     <div className="space-y-2">
-                      <p className="font-semibold">Soạn hàng</p>
+                      <p className="font-semibold">{tr("Soạn hàng")}</p>
                       <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
@@ -341,10 +343,10 @@ export default function OutboundPage() {
                       {line.picked < line.requested ? (
                         <p className="text-amber-700">Thiếu {line.requested - line.picked}</p>
                       ) : (
-                        <p className="text-emerald-700">Đã soạn đủ</p>
+                        <p className="text-emerald-700">{tr("Đã soạn đủ")}</p>
                       )}
                       <Button className="w-full" onClick={() => void ship(order)}>
-                        Xác nhận xuất kho
+                        {tr("Xác nhận xuất kho")}
                       </Button>
                       <p className="text-xs text-slate-500">
                         Sau khi xác nhận, tồn kho sẽ giảm đúng số đã soạn. Người thực hiện: {user?.name}.

@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
@@ -83,7 +85,7 @@ export default function RevenuePage() {
     <AppShell>
       <PageHeader
         title="Doanh thu"
-        description="Doanh thu theo đơn đã bán — chưa gồm tiền chuyển quỹ."
+        description={tr("Doanh thu theo đơn đã bán — chưa gồm tiền chuyển quỹ.")}
         actions={
           <DateRangeFilter
             value={range.range}
@@ -99,12 +101,12 @@ export default function RevenuePage() {
         value={tab}
         onChange={setTab}
         options={[
-          { id: "overview", label: "Tổng quan" },
-          { id: "product", label: "Theo sản phẩm" },
-          { id: "category", label: "Theo danh mục" },
-          { id: "staff", label: "Theo nhân viên" },
-          { id: "store", label: "Theo cửa hàng" },
-          { id: "method", label: "Theo phương thức" },
+          { id: "overview", label: tr("Tổng quan") },
+          { id: "product", label: tr("Theo sản phẩm") },
+          { id: "category", label: tr("Theo danh mục") },
+          { id: "staff", label: tr("Theo nhân viên") },
+          { id: "store", label: tr("Theo cửa hàng") },
+          { id: "method", label: tr("Theo phương thức") },
         ]}
       />
       {books.loading ? <LoadingBlock /> : null}
@@ -117,23 +119,23 @@ export default function RevenuePage() {
               onClick={() =>
                 downloadCsv(
                   "doanh-thu.csv",
-                  ["Tên", "Giá trị"],
+                  [tr("Tên"), tr("Giá trị")],
                   (tab === "product" ? byProduct.map((r) => [r.name, r.revenue]) : tab === "staff" ? byStaff.map((r) => [r.name, r.revenue]) : daily.map((r) => [r.name, r.revenue])),
                 )
               }
             >
-              Xuất Excel
+              {tr("Xuất Excel")}
             </Button>
           </div>
           <div className="flex gap-3 overflow-x-auto lg:grid lg:grid-cols-4">
             <KpiCard label="Doanh thu" value={formatVnd(snap.revenue)} delta={snap.delta.revenue} />
-            <KpiCard label="Đơn hàng" value={String(snap.orders)} />
-            <KpiCard label="Giá trị đơn TB" value={formatVnd(snap.aov)} />
-            <KpiCard label="Giảm giá" value={formatVnd(snap.discounts)} />
+            <KpiCard label={tr("Đơn hàng")} value={String(snap.orders)} />
+            <KpiCard label={tr("Giá trị đơn TB")} value={formatVnd(snap.aov)} />
+            <KpiCard label={tr("Giảm giá")} value={formatVnd(snap.discounts)} />
           </div>
           {tab === "overview" ? (
             <Card className="p-4">
-              <h2 className="mb-2 text-sm font-bold">Doanh thu theo ngày</h2>
+              <h2 className="mb-2 text-sm font-bold">{tr("Doanh thu theo ngày")}</h2>
               <SimpleBar data={daily} xKey="name" yKey="revenue" />
             </Card>
           ) : null}
@@ -144,7 +146,7 @@ export default function RevenuePage() {
                 meta: `${r.qty} sp`,
                 value: formatVnd(r.revenue),
               }))}
-              empty="Chưa có sản phẩm bán trong kỳ."
+              empty={tr("Chưa có sản phẩm bán trong kỳ.")}
             />
           ) : null}
           {tab === "category" ? (
@@ -159,14 +161,14 @@ export default function RevenuePage() {
                 meta: `${r.orders} đơn`,
                 value: formatVnd(r.revenue),
               }))}
-              empty="Chưa có doanh thu theo nhân viên."
+              empty={tr("Chưa có doanh thu theo nhân viên.")}
             />
           ) : null}
           {tab === "store" ? (
             <DataList
               rows={[
                 {
-                  title: "Cửa hàng chính",
+                  title: tr("Cửa hàng chính"),
                   meta: `${snap.orders} đơn`,
                   value: formatVnd(snap.revenue),
                 },

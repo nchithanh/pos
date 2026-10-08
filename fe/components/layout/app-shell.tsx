@@ -1,18 +1,18 @@
 "use client";
 
+import { setLang, useLang } from "@/lib/i18n";
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LogOut,
   Menu,
-  Moon,
-  MoreHorizontal,
-  Sun,
   X,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
-import { useTheme } from "@/components/theme-provider";
+import { SupportIcon } from "@/components/support-icon";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { isNavActive, NAV_GROUPS, type NavItem } from "@/lib/nav";
@@ -22,6 +22,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { CommandPalette } from "@/components/layout/command-palette";
+import { BranchSwitcher } from "@/components/layout/branch-switcher";
+import { inBranch } from "@/lib/branch";
+import { useBranchId } from "@/lib/use-branch";
 import { OfflineBanner } from "@/components/layout/offline-banner";
 import { PageTransition } from "@/components/layout/page-transition";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -31,7 +34,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { confirm, dialog: confirmDialog } = useConfirm();
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const lang = useLang();
+  const branchId = useBranchId();
   const user = useAuthStore((s) => s.user);
   const shift = useAuthStore((s) => s.shift);
   const logout = useAuthStore((s) => s.logout);
@@ -41,8 +45,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const todayOrders = useLiveQuery(async () => {
     const key = todayKey();
     const all = await db.orders.toArray();
-    return all.filter((o) => o.createdAt.startsWith(key)).length;
-  });
+    return all.filter(
+      (o) => o.createdAt.startsWith(key) && inBranch(o.branchId, branchId),
+    ).length;
+  }, [branchId]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [shiftOpen, setShiftOpen] = useState(false);
   const [cash, setCash] = useState("500000");
@@ -79,7 +85,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span className="absolute top-1/2 left-0 h-6 w-1 -translate-y-1/2 rounded-r-full bg-emerald-500" />
         ) : null}
         <Icon size={18} className={active ? "text-emerald-600" : undefined} />
-        <span className="flex-1">{item.label}</span>
+        <span className="flex-1">{tr(item.label)}</span>
         {item.badgeTodayOrders && (todayOrders ?? 0) > 0 ? (
           <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold text-white">
             {todayOrders}
@@ -94,21 +100,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     try {
       if (shift) {
         const ok = await confirm({
-          title: "Đóng ca làm việc?",
-          description: `Tiền mặt cuối ca: ${formatVnd(amount)}. Sau khi đóng ca, thu ngân cần mở ca mới để bán tiếp.`,
-          confirmLabel: "Đóng ca",
+          title: tr("Đóng ca làm việc?"),
+          description: tr(
+            "Tiền mặt cuối ca: {amount}. Sau khi đóng ca, thu ngân cần mở ca mới để bán tiếp.",
+            { amount: formatVnd(amount) },
+          ),
+          confirmLabel: tr("Đóng ca"),
           variant: "danger",
         });
         if (!ok) return;
         await closeShift(amount);
-        notify.success("Đã đóng ca");
+        notify.success(tr("Đã đóng ca"));
       } else {
         await openShift(amount);
-        notify.success("Đã mở ca");
+        notify.success(tr("Đã mở ca"));
       }
       setShiftOpen(false);
     } catch (e) {
-      notify.fromError(e, "Lỗi ca làm");
+      notify.fromError(e, tr("Lỗi ca làm"));
     }
   };
 
@@ -132,11 +141,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </p>
           </div>
         </div>
+        <div className="px-3 pb-3">
+          <p className="mb-1 px-3 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
+            {tr("Chi nhánh")}
+          </p>
+          <BranchSwitcher variant="sidebar" />
+        </div>
         <nav className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pb-4">
           {groups.map((group) => (
             <div key={group.id}>
               <p className="mb-1 px-3 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
-                {group.label}
+                {tr(group.label)}
               </p>
               {group.items.map((item) => renderLink(item))}
             </div>
@@ -158,8 +173,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <p className="truncate text-xs text-slate-400">{user?.email}</p>
               <p className="truncate text-[11px] text-slate-500">
                 {shift
-                  ? `Ca mở · ${formatDateTime(shift.openedAt)}`
-                  : "Chưa mở ca"}
+                  ? tr("Ca mở · {time}", { time: formatDateTime(shift.openedAt) })
+                  : tr("Chưa mở ca")}
               </p>
             </div>
           </div>
@@ -176,17 +191,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               isPosKiosk ? "xl:hidden max-xl:landscape:inline-flex" : "lg:hidden",
             )}
             onClick={() => setMenuOpen(true)}
-            aria-label="Menu"
+            aria-label={tr("Menu")}
           >
             <Menu size={18} />
           </Button>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">
-              {settings?.name ?? "Pet Dolphin Store"}
-            </p>
-            <p className="truncate text-xs text-slate-400">
-              {user?.name} · {shift ? "Đang mở ca" : "Chưa mở ca"}
-            </p>
+            <BranchSwitcher variant="header" />
           </div>
           <Button
             variant="outline"
@@ -196,16 +206,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               setShiftOpen(true);
             }}
           >
-            {shift ? "Đóng ca" : "Mở ca"}
+            {shift ? tr("Đóng ca") : tr("Mở ca")}
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            aria-label="Theme"
+          <div
+            role="group"
+            aria-label={tr("Ngôn ngữ")}
+            className="inline-flex h-9 items-center rounded-full border border-slate-200 p-0.5 text-xs font-bold dark:border-slate-700"
           >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </Button>
+            {(["vi", "en"] as const).map((code) => (
+              <button
+                key={code}
+                type="button"
+                aria-pressed={lang === code}
+                onClick={() => setLang(code)}
+                className={cn(
+                  "min-h-8 rounded-full px-2.5",
+                  lang === code
+                    ? "bg-emerald-500 text-white"
+                    : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800",
+                )}
+              >
+                {code.toUpperCase()}
+              </button>
+            ))}
+          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -213,7 +237,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               logout();
               router.replace("/login");
             }}
-            aria-label="Đăng xuất"
+            aria-label={tr("Đăng xuất")}
           >
             <LogOut size={18} />
           </Button>
@@ -239,18 +263,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 )}
               >
                 <Icon size={20} />
-                {item.mobileLabel ?? item.label}
+                {tr(item.mobileLabel ?? item.label)}
               </Link>
             );
           })}
-          <button
-            type="button"
+          <a
+            href="https://zalo.me/0779937633"
+            target="_blank"
+            rel="noreferrer"
             className="flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] font-medium text-slate-400"
-            onClick={() => setMenuOpen(true)}
           >
-            <MoreHorizontal size={20} />
-            Thêm
-          </button>
+            <SupportIcon className="h-5 w-5" />
+            Support
+          </a>
         </div>
       </nav>
 
@@ -272,10 +297,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Button>
             </div>
             <nav className="space-y-3 overflow-y-auto px-3 pb-6">
+              <div className="px-3 pb-2">
+                <p className="mb-1 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
+                  {tr("Chi nhánh")}
+                </p>
+                <BranchSwitcher variant="sidebar" />
+              </div>
               {groups.map((group) => (
                 <div key={group.id}>
                   <p className="mb-1 px-3 text-[11px] font-bold tracking-wide text-slate-400 uppercase">
-                    {group.label}
+                    {tr(group.label)}
                   </p>
                   {group.items.map((item) => renderLink(item, () => setMenuOpen(false)))}
                 </div>
@@ -288,11 +319,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Dialog
         open={shiftOpen}
         onClose={() => setShiftOpen(false)}
-        title={shift ? "Đóng ca làm việc" : "Mở ca làm việc"}
+        title={shift ? tr("Đóng ca làm việc") : tr("Mở ca làm việc")}
       >
         <label className="block text-sm">
           <span className="mb-1 block font-medium text-slate-500">
-            {shift ? "Tiền mặt cuối ca" : "Tiền mặt đầu ca"}
+            {shift ? tr("Tiền mặt cuối ca") : tr("Tiền mặt đầu ca")}
           </span>
           <Input
             type="number"
@@ -301,9 +332,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           />
         </label>
         <Button className="mt-4 w-full" onClick={onShiftAction}>
-          Xác nhận
+          {tr("Xác nhận")}
         </Button>
       </Dialog>
+
+      <a
+        href="https://zalo.me/0779937633"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Support"
+        className="fixed right-5 bottom-5 z-40 hidden h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white shadow-lg hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 lg:inline-flex"
+      >
+        <SupportIcon className="h-6 w-6" />
+      </a>
 
       <CommandPalette />
       {confirmDialog}

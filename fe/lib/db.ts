@@ -1,5 +1,7 @@
 import Dexie, { type EntityTable } from "dexie";
 import type {
+  Branch,
+  BranchStock,
   Category,
   Customer,
   Debt,
@@ -22,6 +24,8 @@ import {
 
 export class DolphinPosDB extends Dexie {
   settings!: EntityTable<StoreSettings, "id">;
+  branches!: EntityTable<Branch, "id">;
+  branchStocks!: EntityTable<BranchStock, "id">;
   users!: EntityTable<User, "id">;
   shifts!: EntityTable<Shift, "id">;
   categories!: EntityTable<Category, "id">;
@@ -51,6 +55,14 @@ export class DolphinPosDB extends Dexie {
       debts: "id, type, partyId, status, dueDate",
       debtPayments: "id, debtId, createdAt",
       meta: "key",
+    });
+    this.version(2).stores({
+      branches: "id",
+      branchStocks: "id, branchId, productId",
+      orders: "id, code, createdAt, cashierId, customerId, status, branchId",
+      shifts: "id, userId, status, openedAt, branchId",
+      debts: "id, type, partyId, status, dueDate, branchId",
+      movements: "id, code, type, createdAt, supplierId, branchId",
     });
   }
 }

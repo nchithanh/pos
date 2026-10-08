@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
@@ -56,8 +58,8 @@ export default function ExpensesPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Chi phí"
-        description="Chi phí vận hành tách khỏi giá vốn. Giá vốn tính khi bán hàng, không phải mỗi lần tiền ra."
+        title={tr("Chi phí")}
+        description={tr("Chi phí vận hành tách khỏi giá vốn. Giá vốn tính khi bán hàng, không phải mỗi lần tiền ra.")}
         actions={
           <DateRangeFilter
             value={range.range}
@@ -73,10 +75,10 @@ export default function ExpensesPage() {
         value={tab}
         onChange={setTab}
         options={[
-          { id: "overview", label: "Tổng quan" },
-          { id: "items", label: "Khoản chi" },
-          { id: "recurring", label: "Chi phí định kỳ", badge: "advanced" },
-          { id: "cats", label: "Danh mục chi phí" },
+          { id: "overview", label: tr("Tổng quan") },
+          { id: "items", label: tr("Khoản chi") },
+          { id: "recurring", label: tr("Chi phí định kỳ"), badge: "advanced" },
+          { id: "cats", label: tr("Danh mục chi phí") },
         ]}
       />
       {books.loading ? <LoadingBlock /> : null}
@@ -84,16 +86,16 @@ export default function ExpensesPage() {
         <div className="space-y-4">
           <div className="flex gap-3 overflow-x-auto">
             <KpiCard
-              label="Chi phí vận hành"
+              label={tr("Chi phí vận hành")}
               value={formatVnd(snap.opex)}
               delta={snap.delta.opex}
               valueClass="text-rose-600"
             />
-            <KpiCard label="Giá vốn hàng bán" value={formatVnd(snap.cogs)} />
+            <KpiCard label={tr("Giá vốn hàng bán")} value={formatVnd(snap.cogs)} />
           </div>
           <p className="text-sm text-slate-500">{formatPct(snap.delta.spent)} so với kỳ trước (tiền chi)</p>
           <Card className="p-4">
-            <h2 className="mb-2 text-sm font-bold">Cơ cấu chi phí vận hành</h2>
+            <h2 className="mb-2 text-sm font-bold">{tr("Cơ cấu chi phí vận hành")}</h2>
             <SimpleBar data={breakdown} xKey="name" yKey="amount" fill="#F43F5E" />
             <ul className="mt-4 space-y-2">
               {breakdown.map((row) => {
@@ -113,7 +115,7 @@ export default function ExpensesPage() {
             </ul>
           </Card>
           <Card className="p-4 text-sm">
-            <p className="font-semibold">Giá vốn (không gộp vào chi phí mặt bằng)</p>
+            <p className="font-semibold">{tr("Giá vốn (không gộp vào chi phí mặt bằng)")}</p>
             <p className="mt-1 text-slate-500">
               {formatVnd(snap.cogs)} — lấy từ giá vốn trên từng dòng đơn hàng.
             </p>
@@ -122,7 +124,7 @@ export default function ExpensesPage() {
       ) : null}
       {!books.loading && tab === "items" ? (
         books.finance.txns.filter((t) => t.kind === "out" && t.profitClass === "opex").length === 0 ? (
-          <EmptyBlock text="Chưa có khoản chi vận hành." />
+          <EmptyBlock text={tr("Chưa có khoản chi vận hành.")} />
         ) : (
           <ul className="space-y-2">
             {books.finance.txns
@@ -178,22 +180,22 @@ export default function ExpensesPage() {
         </ul>
       ) : null}
 
-      <Dialog open={open} onClose={() => setOpen(false)} title="Khoản chi định kỳ">
+      <Dialog open={open} onClose={() => setOpen(false)} title={tr("Khoản chi định kỳ")}>
         <div className="space-y-3">
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Tên</span>
+            <span className="mb-1 block text-slate-500">{tr("Tên")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Số tiền mỗi tháng</span>
+            <span className="mb-1 block text-slate-500">{tr("Số tiền mỗi tháng")}</span>
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Ngày trong tháng</span>
+            <span className="mb-1 block text-slate-500">{tr("Ngày trong tháng")}</span>
             <Input type="number" min={1} max={28} value={day} onChange={(e) => setDay(e.target.value)} />
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Danh mục</span>
+            <span className="mb-1 block text-slate-500">{tr("Danh mục")}</span>
             <select
               className="min-h-11 w-full rounded-[10px] border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
               value={category}
@@ -208,7 +210,7 @@ export default function ExpensesPage() {
             className="w-full"
             onClick={() => {
               if (!name.trim() || !(Number(amount) > 0)) {
-                notify.error("Nhập tên và số tiền");
+                notify.error(tr("Nhập tên và số tiền"));
                 return;
               }
               books.finance.addRecurring({
@@ -217,13 +219,13 @@ export default function ExpensesPage() {
                 dayOfMonth: Math.min(28, Math.max(1, Number(day) || 1)),
                 category,
               });
-              notify.success("Đã thêm khoản chi định kỳ");
+              notify.success(tr("Đã thêm khoản chi định kỳ"));
               setOpen(false);
               setName("");
               setAmount("");
             }}
           >
-            Lưu
+            {tr("Lưu")}
           </Button>
         </div>
       </Dialog>

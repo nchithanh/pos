@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import type { Order, StoreSettings } from "@/types";
 import { paymentLabel } from "@/lib/payment-labels";
 import { cn, formatDateTime, formatVnd } from "@/lib/utils";
@@ -44,14 +46,14 @@ export function ReceiptPreview({
 
       <div className="space-y-0.5">
         <p>Đơn hàng: {order.code}</p>
-        <p>Ngày: {formatDateTime(order.createdAt)}</p>
-        <p>Thu ngân: {order.cashierName}</p>
-        <p>Khách: {order.customerName ?? "Khách lẻ"}</p>
+        <p>{tr("Ngày:")} {formatDateTime(order.createdAt)}</p>
+        <p>{tr("Thu ngân:")} {order.cashierName}</p>
+        <p>{tr("Khách:")} {order.customerName ?? tr("Khách lẻ")}</p>
       </div>
 
       <div className="my-3 border-t border-dashed border-slate-300 dark:border-slate-600" />
 
-      <p className="mb-2 font-bold">SẢN PHẨM</p>
+      <p className="mb-2 font-bold">{tr("SẢN PHẨM")}</p>
       <ul className="space-y-2">
         {order.items.map((item) => (
           <li key={`${item.productId}-${item.sku}`}>
@@ -72,35 +74,35 @@ export function ReceiptPreview({
 
       <div className="space-y-1">
         <div className="flex justify-between gap-2">
-          <span>Tạm tính</span>
+          <span>{tr("Tạm tính")}</span>
           <span>{formatVnd(order.subtotal)}</span>
         </div>
         <div className="flex justify-between gap-2">
-          <span>Giảm giá</span>
+          <span>{tr("Giảm giá")}</span>
           <span>{formatVnd(order.discount)}</span>
         </div>
         {order.tax > 0 ? (
           <div className="flex justify-between gap-2">
-            <span>Thuế</span>
+            <span>{tr("Thuế")}</span>
             <span>{formatVnd(order.tax)}</span>
           </div>
         ) : null}
         <div className="flex justify-between gap-2 text-[14px] font-bold">
-          <span>TỔNG CỘNG</span>
+          <span>{tr("TỔNG CỘNG")}</span>
           <span>{formatVnd(order.total)}</span>
         </div>
       </div>
 
       <div className="mt-3 space-y-0.5">
-        <p>Thanh toán: {paymentLabel(order.paymentMethod)}</p>
+        <p>{tr("Thanh toán:")} {paymentLabel(order.paymentMethod)}</p>
         {order.paymentMethod === "cash" && order.cashReceived != null ? (
           <>
             <div className="flex justify-between gap-2">
-              <span>Khách đưa</span>
+              <span>{tr("Khách đưa")}</span>
               <span>{formatVnd(order.cashReceived)}</span>
             </div>
             <div className="flex justify-between gap-2">
-              <span>Tiền thừa</span>
+              <span>{tr("Tiền thừa")}</span>
               <span>{formatVnd(order.changeDue ?? 0)}</span>
             </div>
           </>

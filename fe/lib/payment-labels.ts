@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/translate";
 import type { PaymentMethod } from "@/types";
 
 export const PAYMENT_LABELS: Record<PaymentMethod, string> = {
@@ -9,5 +10,5 @@ export const PAYMENT_LABELS: Record<PaymentMethod, string> = {
 };
 
 export function paymentLabel(method: PaymentMethod): string {
-  return PAYMENT_LABELS[method] ?? method;
+  return tr(PAYMENT_LABELS[method] ?? method);
 }

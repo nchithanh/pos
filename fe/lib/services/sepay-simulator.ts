@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/translate";
 /**
  * SePay e-invoice sandbox contract simulator (docs-shaped responses).
  * No real network / credentials — for POS demo on static Pages.
@@ -120,8 +121,8 @@ export async function sepaySimCreateInvoice(
     tracking_url: `https://einvoice-api-sandbox.sepay.vn/demo/tracking/${tracking_code}`,
     status: isDraft ? "draft" : "processing",
     message: isDraft
-      ? "Simulator: hóa đơn nháp đã tạo"
-      : "Simulator: đang xử lý phát hành",
+      ? tr("Simulator: hóa đơn nháp đã tạo")
+      : tr("Simulator: đang xử lý phát hành"),
   };
 }
 
@@ -140,7 +141,7 @@ export async function sepaySimGetTracking(
       tracking_code: trackingCode,
       status: "draft",
       tracking_url: `https://einvoice-api-sandbox.sepay.vn/demo/tracking/${trackingCode}`,
-      message: "Simulator: đang ở trạng thái nháp (is_draft)",
+      message: tr("Simulator: đang ở trạng thái nháp (is_draft)"),
     };
   }
 
@@ -159,8 +160,8 @@ export async function sepaySimGetTracking(
     tracking_url: `https://einvoice-api-sandbox.sepay.vn/demo/tracking/${trackingCode}`,
     message:
       row.status === "issued"
-        ? "Simulator: đã phát hành (không nộp CQT thật)"
-        : "Simulator: đang xử lý…",
+        ? tr("Simulator: đã phát hành (không nộp CQT thật)")
+        : tr("Simulator: đang xử lý…"),
   };
 }
 

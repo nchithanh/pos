@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
@@ -34,16 +36,16 @@ export function CommandPalette() {
         type="button"
         className="absolute inset-0"
         onClick={() => setOpen(false)}
-        aria-label="Đóng"
+        aria-label={tr("Đóng")}
       />
       <Command className="relative z-10 mx-auto mt-[12vh] max-w-lg overflow-hidden rounded-[12px] border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
         <Command.Input
-          placeholder="Tìm trang… (Ctrl/Cmd + K)"
+          placeholder={tr("Tìm trang… (Ctrl/Cmd + K)")}
           className="w-full border-b border-slate-200 px-4 py-3 text-sm outline-none dark:border-slate-700"
         />
         <Command.List className="max-h-72 overflow-auto p-2">
           <Command.Empty className="px-3 py-6 text-center text-sm text-slate-500">
-            Không có kết quả
+            {tr("Không có kết quả")}
           </Command.Empty>
           {items.map((item) => (
             <Command.Item
@@ -56,7 +58,7 @@ export function CommandPalette() {
               className="flex cursor-pointer items-center gap-2 rounded-[10px] px-3 py-2.5 text-sm aria-selected:bg-emerald-50 dark:aria-selected:bg-emerald-950"
             >
               <item.icon size={16} />
-              {item.label}
+              {tr(item.label)}
             </Command.Item>
           ))}
         </Command.List>

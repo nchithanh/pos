@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useState } from "react";
 import {
   Area,
@@ -110,7 +112,7 @@ export function DateRangeFilter({
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
       <label className="text-sm">
-        <span className="sr-only">Khoảng thời gian</span>
+        <span className="sr-only">{tr("Khoảng thời gian")}</span>
         <select
           className="min-h-11 rounded-[10px] border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
           value={value}
@@ -127,14 +129,14 @@ export function DateRangeFilter({
         <div className="flex gap-2">
           <input
             type="date"
-            aria-label="Từ ngày"
+            aria-label={tr("Từ ngày")}
             className="min-h-11 rounded-[10px] border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-900"
             value={from}
             onChange={(e) => onFrom(e.target.value)}
           />
           <input
             type="date"
-            aria-label="Đến ngày"
+            aria-label={tr("Đến ngày")}
             className="min-h-11 rounded-[10px] border border-slate-200 px-2 text-sm dark:border-slate-700 dark:bg-slate-900"
             value={to}
             onChange={(e) => onTo(e.target.value)}
@@ -202,7 +204,7 @@ function VndTooltip({
 
 export function CashflowChart({ data }: { data: Point[] }) {
   if (!data.some((d) => d.inflow || d.outflow)) {
-    return <EmptyBlock text="Chưa có dòng tiền trong khoảng này." />;
+    return <EmptyBlock text={tr("Chưa có dòng tiền trong khoảng này.")} />;
   }
   return (
     <div className="h-64 w-full min-w-0">
@@ -218,21 +220,21 @@ export function CashflowChart({ data }: { data: Point[] }) {
           <Area
             type="monotone"
             dataKey="inflow"
-            name="Tiền vào"
+            name={tr("Tiền vào")}
             stroke={COLOR_IN}
             fill="#10B98133"
           />
           <Area
             type="monotone"
             dataKey="outflow"
-            name="Tiền ra"
+            name={tr("Tiền ra")}
             stroke={COLOR_OUT}
             fill="#F43F5E22"
           />
           <Area
             type="monotone"
             dataKey="net"
-            name="Ròng"
+            name={tr("Ròng")}
             stroke={COLOR_NET}
             fill="#64748B22"
           />
@@ -254,7 +256,7 @@ export function SimpleBar({
   /** Màu cột. Xanh = tiền vào, đỏ = tiền ra. Từng dòng có thể ghi đè bằng `color`. */
   fill?: string;
 }) {
-  if (!data.length) return <EmptyBlock text="Chưa có số liệu cho biểu đồ." />;
+  if (!data.length) return <EmptyBlock text={tr("Chưa có số liệu cho biểu đồ.")} />;
   const mixed = data.some((row) => typeof row.color === "string");
   return (
     <div className="h-56 w-full min-w-0">

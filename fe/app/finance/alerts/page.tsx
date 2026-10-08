@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
@@ -23,8 +25,8 @@ export default function AlertsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Cảnh báo tài chính"
-        description="Bật hoặc tắt từng loại cảnh báo. Ngưỡng lưu trên trình duyệt này."
+        title={tr("Cảnh báo tài chính")}
+        description={tr("Bật hoặc tắt từng loại cảnh báo. Ngưỡng lưu trên trình duyệt này.")}
       />
       {books.loading ? <LoadingBlock /> : null}
       {!books.loading ? (
@@ -61,7 +63,7 @@ export default function AlertsPage() {
                         books.finance.updateAlert(rule.id, { enabled: e.target.checked })
                       }
                     />
-                    {rule.enabled ? "Đang bật" : "Đang tắt"}
+                    {rule.enabled ? tr("Đang bật") : tr("Đang tắt")}
                   </label>
                 </div>
               </Card>

@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/layout/app-shell";
@@ -54,7 +56,7 @@ export default function StocktakePage() {
       (p) => p.barcode?.toLowerCase() === key || p.sku.toLowerCase() === key,
     );
     if (!found) {
-      notify.error("Không thấy sản phẩm với mã này");
+      notify.error(tr("Không thấy sản phẩm với mã này"));
       return;
     }
     addProduct(found.id);
@@ -74,7 +76,7 @@ export default function StocktakePage() {
       else next.push({ productId: found.id, actual: qty ?? "" });
     }
     setLines(next);
-    notify.success("Đã đọc file");
+    notify.success(tr("Đã đọc file"));
   };
 
   const batchRows = lines.map((line) => {
@@ -89,7 +91,7 @@ export default function StocktakePage() {
     if (!user) return;
     const changed = rows.filter((r) => r.delta !== 0);
     if (!changed.length) {
-      notify.success("Khớp sổ, không cần điều chỉnh");
+      notify.success(tr("Khớp sổ, không cần điều chỉnh"));
       setReview(false);
       return;
     }
@@ -97,23 +99,23 @@ export default function StocktakePage() {
       await postStockDelta({
         lines: changed.map((r) => ({ productId: r.item.id, delta: r.delta })),
         type: "adjust",
-        reason: "Kiểm kê",
+        reason: tr("Kiểm kê"),
         note: `${reason}${note ? ` · ${note}` : ""}`,
         user,
       });
-      notify.success("Đã điều chỉnh tồn theo kiểm kê");
+      notify.success(tr("Đã điều chỉnh tồn theo kiểm kê"));
       setActual("");
       setLines([]);
       setReview(false);
       setNote("");
     } catch (e) {
-      notify.error(e instanceof Error ? e.message : "Không điều chỉnh được");
+      notify.error(e instanceof Error ? e.message : tr("Không điều chỉnh được"));
     }
   };
 
   const confirmSingle = async () => {
     if (!product || diff == null) {
-      notify.error("Chọn sản phẩm và số đếm");
+      notify.error(tr("Chọn sản phẩm và số đếm"));
       return;
     }
     await submitLines([{ item: product, delta: diff }]);
@@ -125,7 +127,7 @@ export default function StocktakePage() {
       delta: number;
     }[];
     if (!ready.length) {
-      notify.error("Nhập số đếm cho ít nhất một sản phẩm");
+      notify.error(tr("Nhập số đếm cho ít nhất một sản phẩm"));
       return;
     }
     await submitLines(ready);
@@ -134,8 +136,8 @@ export default function StocktakePage() {
   return (
     <AppShell>
       <PageHeader
-        title="Kiểm kê"
-        description="Đếm thực tế, so với sổ, rồi mới điều chỉnh tồn."
+        title={tr("Kiểm kê")}
+        description={tr("Đếm thực tế, so với sổ, rồi mới điều chỉnh tồn.")}
       />
       <WarehouseNav />
       <div className="mb-4 flex gap-2">
@@ -150,13 +152,13 @@ export default function StocktakePage() {
       {mode === "single" ? (
         <Card className="max-w-lg space-y-3 p-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-medium">Phiếu kiểm kê</h2>
+            <h2 className="text-base font-medium">{tr("Phiếu kiểm kê")}</h2>
             <PackageBadge tier="advanced" />
           </div>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Sản phẩm</span>
+            <span className="mb-1 block text-slate-500">{tr("Sản phẩm")}</span>
             <select className={`${fieldClass} w-full`} value={productId} onChange={(e) => setProductId(e.target.value)}>
-              <option value="">Chọn</option>
+              <option value="">{tr("Chọn")}</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} · sổ {p.stock}
@@ -165,7 +167,7 @@ export default function StocktakePage() {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Số đếm thực tế</span>
+            <span className="mb-1 block text-slate-500">{tr("Số đếm thực tế")}</span>
             <Input type="number" value={actual} onChange={(e) => setActual(e.target.value)} />
           </label>
           {product && diff != null ? (
@@ -179,17 +181,17 @@ export default function StocktakePage() {
       ) : (
         <Card className="space-y-3 p-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-medium">Kiểm kê nhiều sản phẩm</h2>
+            <h2 className="text-base font-medium">{tr("Kiểm kê nhiều sản phẩm")}</h2>
             <PackageBadge tier="advanced" />
           </div>
           <div className="flex flex-wrap gap-2">
             <select
               className={fieldClass}
-              aria-label="Thêm sản phẩm"
+              aria-label={tr("Thêm sản phẩm")}
               value=""
               onChange={(e) => addProduct(e.target.value)}
             >
-              <option value="">Thêm sản phẩm</option>
+              <option value="">{tr("Thêm sản phẩm")}</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
@@ -199,8 +201,8 @@ export default function StocktakePage() {
             <Input
               value={scan}
               onChange={(e) => setScan(e.target.value)}
-              placeholder="Quét barcode hoặc SKU"
-              aria-label="Quét barcode"
+              placeholder={tr("Quét barcode hoặc SKU")}
+              aria-label={tr("Quét barcode")}
               className="max-w-xs"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -227,10 +229,10 @@ export default function StocktakePage() {
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-900">
                 <tr>
-                  <th className="px-3 py-3 font-medium">Sản phẩm</th>
-                  <th className="px-3 py-3 font-medium">Tồn sổ</th>
-                  <th className="px-3 py-3 font-medium">Số đếm</th>
-                  <th className="px-3 py-3 font-medium">Lệch</th>
+                  <th className="px-3 py-3 font-medium">{tr("Sản phẩm")}</th>
+                  <th className="px-3 py-3 font-medium">{tr("Tồn sổ")}</th>
+                  <th className="px-3 py-3 font-medium">{tr("Số đếm")}</th>
+                  <th className="px-3 py-3 font-medium">{tr("Lệch")}</th>
                   <th className="px-3 py-3 font-medium" />
                 </tr>
               </thead>
@@ -271,7 +273,7 @@ export default function StocktakePage() {
                             setLines((cur) => cur.filter((l) => l.productId !== row.line.productId))
                           }
                         >
-                          Xóa
+                          {tr("Xóa")}
                         </button>
                       </td>
                     </tr>
@@ -289,7 +291,7 @@ export default function StocktakePage() {
 
       {review ? (
         <Card className="mt-4 max-w-lg space-y-3 p-4 shadow-sm">
-          <h2 className="text-base font-medium">Xác nhận kiểm kê</h2>
+          <h2 className="text-base font-medium">{tr("Xác nhận kiểm kê")}</h2>
           <p className="text-sm text-slate-500">
             Lý do: {reason}
             {note ? ` · ${note}` : ""}
@@ -299,7 +301,7 @@ export default function StocktakePage() {
               <li className="flex justify-between gap-3">
                 <span>{product.name}</span>
                 <span className={diffClass(diff)}>
-                  Sổ {product.stock} → {counted} ({diff > 0 ? `+${diff}` : diff})
+                  {tr("Sổ")} {product.stock} → {counted} ({diff > 0 ? `+${diff}` : diff})
                 </span>
               </li>
             ) : (
@@ -309,7 +311,7 @@ export default function StocktakePage() {
                   <li key={r.line.productId} className="flex justify-between gap-3">
                     <span>{r.item?.name}</span>
                     <span className={diffClass(r.delta)}>
-                      Sổ {r.item?.stock} → {r.actualQty} ({(r.delta ?? 0) > 0 ? `+${r.delta}` : r.delta})
+                      {tr("Sổ")} {r.item?.stock} → {r.actualQty} ({(r.delta ?? 0) > 0 ? `+${r.delta}` : r.delta})
                     </span>
                   </li>
                 ))
@@ -317,10 +319,10 @@ export default function StocktakePage() {
           </ul>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setReview(false)}>
-              Quay lại
+              {tr("Quay lại")}
             </Button>
             <Button onClick={() => void (mode === "single" ? confirmSingle() : confirmBatch())}>
-              Ghi sổ
+              {tr("Ghi sổ")}
             </Button>
           </div>
         </Card>
@@ -332,10 +334,10 @@ export default function StocktakePage() {
 function Compare({ stock, actual, diff }: { stock: number; actual: number; diff: number }) {
   return (
     <div className="grid grid-cols-3 gap-2 text-sm">
-      <p className="rounded-[10px] bg-slate-50 px-3 py-2 dark:bg-slate-800">Sổ <b>{stock}</b></p>
-      <p className="rounded-[10px] bg-slate-50 px-3 py-2 dark:bg-slate-800">Đếm <b>{actual}</b></p>
+      <p className="rounded-[10px] bg-slate-50 px-3 py-2 dark:bg-slate-800">{tr("Sổ")} <b>{stock}</b></p>
+      <p className="rounded-[10px] bg-slate-50 px-3 py-2 dark:bg-slate-800">{tr("Đếm")} <b>{actual}</b></p>
       <p className={`rounded-[10px] px-3 py-2 ${diff === 0 ? "bg-emerald-50" : "bg-rose-50"}`}>
-        Lệch <b className={diffClass(diff)}>{diff > 0 ? `+${diff}` : diff}</b>
+        {tr("Lệch")} <b className={diffClass(diff)}>{diff > 0 ? `+${diff}` : diff}</b>
       </p>
     </div>
   );
@@ -355,7 +357,7 @@ function ReasonFields({
   return (
     <>
       <label className="block text-sm">
-        <span className="mb-1 block text-slate-500">Lý do</span>
+        <span className="mb-1 block text-slate-500">{tr("Lý do")}</span>
         <select className={`${fieldClass} w-full`} value={reason} onChange={(e) => setReason(e.target.value)}>
           {REASONS.map((r) => (
             <option key={r}>{r}</option>
@@ -363,7 +365,7 @@ function ReasonFields({
         </select>
       </label>
       <label className="block text-sm">
-        <span className="mb-1 block text-slate-500">Ghi chú</span>
+        <span className="mb-1 block text-slate-500">{tr("Ghi chú")}</span>
         <Input value={note} onChange={(e) => setNote(e.target.value)} />
       </label>
     </>

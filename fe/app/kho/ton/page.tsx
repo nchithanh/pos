@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -23,6 +25,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { db } from "@/lib/db";
+import { inBranch } from "@/lib/branch";
+import { useBranchId } from "@/lib/use-branch";
 import { notify } from "@/lib/notify";
 import { postStockDelta } from "@/lib/warehouse/ops";
 import { availableQty, reservedQty, useWarehouseStore } from "@/stores/warehouse-store";
@@ -37,7 +41,12 @@ export default function StockPage() {
   const products = useLiveQuery(() => db.products.toArray());
   const categories = useLiveQuery(() => db.categories.toArray()) ?? [];
   const suppliers = useLiveQuery(() => db.suppliers.toArray()) ?? [];
-  const movements = useLiveQuery(() => db.movements.toArray()) ?? [];
+  const branchId = useBranchId();
+  const movements =
+    useLiveQuery(
+      () => db.movements.filter((m) => inBranch(m.branchId, branchId)).toArray(),
+      [branchId],
+    ) ?? [];
   const outbounds = useWarehouseStore((s) => s.outbounds);
   const purchases = useWarehouseStore((s) => s.purchases);
   const damaged = useWarehouseStore((s) => s.damaged);
@@ -122,7 +131,7 @@ export default function StockPage() {
   const exportCsv = () => {
     const source = rows.filter((r) => selected.includes(r.p.id));
     const data = source.length ? source : rows;
-    const header = ["SKU", "Tên", "Danh mục", "Tồn", "Giữ chỗ", "Khả dụng", "Giá trị"];
+    const header = ["SKU", tr("Tên"), tr("Danh mục"), tr("Tồn"), tr("Giữ chỗ"), tr("Khả dụng"), tr("Giá trị")];
     const lines = data.map((r) => {
       const category = categories.find((c) => c.id === r.p.categoryId)?.name ?? "";
       return [r.p.sku, r.p.name, category, r.p.stock, r.reserved, r.available, r.value]
@@ -180,7 +189,7 @@ export default function StockPage() {
   const applyBulk = async () => {
     if (!user) return;
     if (user.role !== "owner" && user.role !== "manager") {
-      notify.error("Cần quyền quản lý để điều chỉnh tồn");
+      notify.error(tr("Cần quyền quản lý để điều chỉnh tồn"));
       return;
     }
     const delta = Number(bulkDelta);
@@ -192,7 +201,7 @@ export default function StockPage() {
       await postStockDelta({
         lines: selected.map((productId) => ({ productId, delta })),
         type: "adjust",
-        reason: delta < 0 ? "Điều chỉnh giảm" : "Điều chỉnh tăng",
+        reason: delta < 0 ? tr("Điều chỉnh giảm") : tr("Điều chỉnh tăng"),
         note: "Điều chỉnh hàng loạt từ tồn kho",
         user,
       });
@@ -200,14 +209,14 @@ export default function StockPage() {
       setBulkOpen(false);
       setSelected([]);
     } catch (e) {
-      notify.error(e instanceof Error ? e.message : "Không điều chỉnh được");
+      notify.error(e instanceof Error ? e.message : tr("Không điều chỉnh được"));
     }
   };
 
   return (
     <AppShell>
       <PageHeader
-        title="Tồn kho"
+        title={tr("Tồn kho")}
         description="Tồn khả dụng = tồn hiện tại − hàng giữ chỗ − hàng hỏng."
       />
       <WarehouseNav />
@@ -224,7 +233,7 @@ export default function StockPage() {
           />
         </label>
         <Button variant="outline" className="lg:hidden" onClick={() => setFilters(true)}>
-          Bộ lọc
+          {tr("Bộ lọc")}
         </Button>
         <div className="hidden gap-2 lg:flex">
           <Filters
@@ -247,19 +256,19 @@ export default function StockPage() {
           </FilterChip>
         </div>
       </div>
-      <p className="mb-3 text-xs text-slate-400">Nhấn / để nhảy vào ô tìm.</p>
+      <p className="mb-3 text-xs text-slate-400">{tr("Nhấn / để nhảy vào ô tìm.")}</p>
 
       {selected.length > 0 ? (
         <div className="mb-3 flex flex-wrap items-center gap-2 rounded-[10px] border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm dark:border-emerald-900 dark:bg-emerald-950">
           <span className="font-semibold">{selected.length} đã chọn</span>
           <Button size="sm" variant="outline" onClick={() => setBulkOpen(true)}>
-            Điều chỉnh hàng loạt
+            {tr("Điều chỉnh hàng loạt")}
           </Button>
           <Button size="sm" variant="outline" onClick={exportCsv}>
-            Xuất Excel
+            {tr("Xuất Excel")}
           </Button>
           <Button size="sm" onClick={createPurchase}>
-            Tạo phiếu nhập
+            {tr("Tạo phiếu nhập")}
           </Button>
         </div>
       ) : null}
@@ -268,7 +277,7 @@ export default function StockPage() {
         <TableSkeleton />
       ) : rows.length === 0 ? (
         <EmptyBlock
-          title="Không có sản phẩm"
+          title={tr("Không có sản phẩm")}
           body="Đổi bộ lọc hoặc từ khóa tìm kiếm."
           action={
             <Button
@@ -280,7 +289,7 @@ export default function StockPage() {
                 setSupplierId("all");
               }}
             >
-              Xóa bộ lọc
+              {tr("Xóa bộ lọc")}
             </Button>
           }
         />
@@ -292,21 +301,21 @@ export default function StockPage() {
                 <th className="px-3 py-3">
                   <input
                     type="checkbox"
-                    aria-label="Chọn tất cả"
+                    aria-label={tr("Chọn tất cả")}
                     checked={allChecked}
                     onChange={(e) =>
                       setSelected(e.target.checked ? rows.map((r) => r.p.id) : [])
                     }
                   />
                 </th>
-                <SortTh label="Sản phẩm" active={sort === "name"} onClick={() => toggleSort("name")} />
-                <th className="px-3 py-3 font-medium">Danh mục</th>
-                <SortTh label="Tồn hiện tại" active={sort === "stock"} onClick={() => toggleSort("stock")} />
-                <th className="px-3 py-3 font-medium">Giữ chỗ</th>
-                <SortTh label="Khả dụng" active={sort === "available"} onClick={() => toggleSort("available")} />
-                <th className="px-3 py-3 font-medium">Mức tồn</th>
-                <SortTh label="Giá trị tồn" active={sort === "value"} onClick={() => toggleSort("value")} />
-                <th className="px-3 py-3 font-medium">Thao tác</th>
+                <SortTh label={tr("Sản phẩm")} active={sort === "name"} onClick={() => toggleSort("name")} />
+                <th className="px-3 py-3 font-medium">{tr("Danh mục")}</th>
+                <SortTh label={tr("Tồn hiện tại")} active={sort === "stock"} onClick={() => toggleSort("stock")} />
+                <th className="px-3 py-3 font-medium">{tr("Giữ chỗ")}</th>
+                <SortTh label={tr("Khả dụng")} active={sort === "available"} onClick={() => toggleSort("available")} />
+                <th className="px-3 py-3 font-medium">{tr("Mức tồn")}</th>
+                <SortTh label={tr("Giá trị tồn")} active={sort === "value"} onClick={() => toggleSort("value")} />
+                <th className="px-3 py-3 font-medium">{tr("Thao tác")}</th>
               </tr>
             </thead>
             <tbody>
@@ -373,7 +382,7 @@ export default function StockPage() {
         </div>
       )}
 
-      <Dialog open={filters} onClose={() => setFilters(false)} title="Bộ lọc">
+      <Dialog open={filters} onClose={() => setFilters(false)} title={tr("Bộ lọc")}>
         <div className="space-y-3">
           <Filters
             cat={cat}
@@ -386,17 +395,17 @@ export default function StockPage() {
             suppliers={suppliers}
           />
           <Button className="w-full" onClick={() => setFilters(false)}>
-            Áp dụng
+            {tr("Áp dụng")}
           </Button>
         </div>
       </Dialog>
 
-      <Dialog open={bulkOpen} onClose={() => setBulkOpen(false)} title="Điều chỉnh hàng loạt">
+      <Dialog open={bulkOpen} onClose={() => setBulkOpen(false)} title={tr("Điều chỉnh hàng loạt")}>
         <div className="space-y-3 text-sm">
-          <p>Áp dụng cùng một số lượng cho {selected.length} sản phẩm. Số âm là giảm tồn.</p>
+          <p>{tr("Áp dụng cùng một số lượng cho")} {selected.length} sản phẩm. Số âm là giảm tồn.</p>
           <Input value={bulkDelta} onChange={(e) => setBulkDelta(e.target.value)} type="number" aria-label="Số điều chỉnh" />
           <Button className="w-full" onClick={() => void applyBulk()}>
-            Ghi sổ
+            {tr("Ghi sổ")}
           </Button>
         </div>
       </Dialog>
@@ -442,21 +451,21 @@ function RowMenu({ onHistory, productId }: { onHistory: () => void; productId: s
   return (
     <details className="relative">
       <summary className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:hover:bg-slate-800 [&::-webkit-details-marker]:hidden">
-        <span className="sr-only">Thao tác</span>
+        <span className="sr-only">{tr("Thao tác")}</span>
         ···
       </summary>
       <div className="absolute right-0 z-20 mt-1 w-44 rounded-[10px] border border-slate-200 bg-white py-1 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <button type="button" className="block w-full px-3 py-2 text-left hover:bg-slate-50" onClick={onHistory}>
-          Xem lịch sử
+          {tr("Xem lịch sử")}
         </button>
         <Link className="block px-3 py-2 hover:bg-slate-50" href={`/kho/dieu-chinh?product=${productId}`}>
-          Điều chỉnh
+          {tr("Điều chỉnh")}
         </Link>
         <Link className="block px-3 py-2 hover:bg-slate-50" href={`/kho/don-nhap?create=1&product=${productId}`}>
-          Tạo yêu cầu nhập
+          {tr("Tạo yêu cầu nhập")}
         </Link>
         <Link className="block px-3 py-2 hover:bg-slate-50" href={`/kho/kiem-ke?product=${productId}`}>
-          Kiểm kê
+          {tr("Kiểm kê")}
         </Link>
       </div>
     </details>
@@ -489,14 +498,14 @@ function StockDetail({
       <p className="text-lg font-bold">{product.name}</p>
       <p className="text-slate-500">SKU {product.sku}</p>
       <StatusPill label={stockLevelLabel(level)} tone={level === "out" ? "danger" : level === "low" ? "warn" : "ok"} />
-      <p>Tồn hiện tại: <b>{product.stock}</b> {product.unit}</p>
-      <p>Giữ chỗ: <b>{reserved}</b></p>
-      <p>Hàng hỏng: <b>{damagedQty}</b></p>
-      <p>Khả dụng: <b>{available}</b></p>
+      <p>{tr("Tồn hiện tại:")} <b>{product.stock}</b> {product.unit}</p>
+      <p>{tr("Giữ chỗ:")} <b>{reserved}</b></p>
+      <p>{tr("Hàng hỏng:")} <b>{damagedQty}</b></p>
+      <p>{tr("Khả dụng:")} <b>{available}</b></p>
       <p>Giá trị tồn: {formatVnd(product.stock * product.costPrice)}</p>
-      <h3 className="pt-2 font-medium">Biến động tồn kho</h3>
+      <h3 className="pt-2 font-medium">{tr("Biến động tồn kho")}</h3>
       {history.length === 0 ? (
-        <p className="text-slate-500">Chưa có phiếu cho sản phẩm này.</p>
+        <p className="text-slate-500">{tr("Chưa có phiếu cho sản phẩm này.")}</p>
       ) : (
         <ul className="max-h-64 space-y-2 overflow-auto">
           {history.slice(0, 12).map((m) => {
@@ -542,22 +551,22 @@ function Filters({
 }) {
   return (
     <>
-      <select className={fieldClass} value={cat} aria-label="Danh mục" onChange={(e) => setCat(e.target.value)}>
-        <option value="all">Mọi danh mục</option>
+      <select className={fieldClass} value={cat} aria-label={tr("Danh mục")} onChange={(e) => setCat(e.target.value)}>
+        <option value="all">{tr("Mọi danh mục")}</option>
         {categories.map((c) => (
           <option key={c.id} value={c.id}>
             {c.name}
           </option>
         ))}
       </select>
-      <select className={fieldClass} value={level} aria-label="Mức tồn" onChange={(e) => setLevel(e.target.value)}>
-        <option value="all">Tất cả</option>
-        <option value="low">Sắp hết</option>
-        <option value="out">Hết hàng</option>
-        <option value="high">Tồn cao</option>
+      <select className={fieldClass} value={level} aria-label={tr("Mức tồn")} onChange={(e) => setLevel(e.target.value)}>
+        <option value="all">{tr("Tất cả")}</option>
+        <option value="low">{tr("Sắp hết")}</option>
+        <option value="out">{tr("Hết hàng")}</option>
+        <option value="high">{tr("Tồn cao")}</option>
       </select>
-      <select className={fieldClass} value={supplierId} aria-label="Nhà cung cấp" onChange={(e) => setSupplierId(e.target.value)}>
-        <option value="all">Mọi nhà cung cấp</option>
+      <select className={fieldClass} value={supplierId} aria-label={tr("Nhà cung cấp")} onChange={(e) => setSupplierId(e.target.value)}>
+        <option value="all">{tr("Mọi nhà cung cấp")}</option>
         {suppliers.map((s) => (
           <option key={s.id} value={s.id}>
             {s.name}

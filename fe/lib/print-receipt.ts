@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/translate";
 import type { Order, StoreSettings } from "@/types";
 import { paymentLabel } from "@/lib/payment-labels";
 import { formatDateTime, formatVnd } from "@/lib/utils";
@@ -69,25 +70,31 @@ export function buildReceiptHtml(order: Order, store?: StoreSettings): string {
   <div style="margin-top:6px">Thanh toán: ${escapeHtml(paymentLabel(order.paymentMethod))}</div>
   ${cashBlock}
   <hr class="hr"/>
-  <div class="center foot muted">${escapeHtml(store?.billFooter ?? "Cảm ơn quý khách!\\nHẹn gặp lại lần sau").replaceAll("\\n", "<br/>").replaceAll("\n", "<br/>")}</div>
-  <script>window.onload=function(){window.focus();window.print();}</script>
+  <div class="center foot muted">${escapeHtml(store?.billFooter ?? tr("Cảm ơn quý khách!\\nHẹn gặp lại lần sau")).replaceAll("\\n", "<br/>").replaceAll("\n", "<br/>")}</div>
+  <script>window.addEventListener("load",function(){window.focus();window.print();});</script>
   </body></html>`;
 }
 
-function escapeHtml(value: string): string {
-  return value
+function escapeHtml(value: string | number | null | undefined): string {
+  return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 }
 
+/** Popup với HTML sẵn — không mở about:blank rồi document.write. */
+function openPrintHtml(html: string, features: string) {
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const w = window.open(url, "_blank", features);
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  return w;
+}
+
 /** Open a print-only window with the receipt (thermal-friendly width). */
 export function printReceipt(order: Order, store?: StoreSettings) {
-  const w = window.open("", "_blank", "width=420,height=720");
-  if (!w) return;
-  w.document.write(buildReceiptHtml(order, store));
-  w.document.close();
+  openPrintHtml(buildReceiptHtml(order, store), "width=420,height=720");
 }
 
 /** Print the in-page receipt node marked with data-receipt-print. */

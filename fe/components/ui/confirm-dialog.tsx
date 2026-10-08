@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { AlertTriangle } from "lucide-react";
 import { Dialog } from "./dialog";
 import { Button } from "./button";
@@ -19,8 +21,8 @@ export function ConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = "Xác nhận",
-  cancelLabel = "Hủy",
+  confirmLabel = tr("Xác nhận"),
+  cancelLabel = tr("Hủy"),
   variant = "default",
   onConfirm,
   onCancel,

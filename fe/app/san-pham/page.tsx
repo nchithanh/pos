@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import Link from "next/link";
@@ -72,7 +74,7 @@ export default function ProductsPage() {
       costPrice: 0,
       stock: 0,
       minStock: 5,
-      unit: "cái",
+      unit: tr("cái"),
     },
   });
 
@@ -110,7 +112,7 @@ export default function ProductsPage() {
       costPrice: 0,
       stock: 0,
       minStock: 5,
-      unit: "cái",
+      unit: tr("cái"),
       supplierId: suppliers?.[0]?.id,
       imageUrl: "",
     });
@@ -144,7 +146,7 @@ export default function ProductsPage() {
     const payload = { ...values, imageUrl };
     if (editId) {
       await db.products.update(editId, { ...payload, updatedAt: now });
-      notify.success("Đã cập nhật sản phẩm");
+      notify.success(tr("Đã cập nhật sản phẩm"));
     } else {
       await db.products.add({
         id: uid("p"),
@@ -155,7 +157,7 @@ export default function ProductsPage() {
         createdAt: now,
         updatedAt: now,
       });
-      notify.success("Đã thêm sản phẩm");
+      notify.success(tr("Đã thêm sản phẩm"));
     }
     setOpen(false);
   });
@@ -163,16 +165,16 @@ export default function ProductsPage() {
   const remove = async (id: string) => {
     const p = products?.find((x) => x.id === id);
     const ok = await confirm({
-      title: "Xóa sản phẩm?",
+      title: tr("Xóa sản phẩm?"),
       description: p
         ? `“${p.name}” sẽ bị xóa khỏi danh mục. Tồn kho và lịch sử liên quan vẫn giữ trong sổ kho cũ.`
-        : "Sản phẩm sẽ bị xóa khỏi danh mục.",
-      confirmLabel: "Xóa",
+        : tr("Sản phẩm sẽ bị xóa khỏi danh mục."),
+      confirmLabel: tr("Xóa"),
       variant: "danger",
     });
     if (!ok) return;
     await db.products.delete(id);
-    notify.deleted("Đã xóa sản phẩm");
+    notify.deleted(tr("Đã xóa sản phẩm"));
   };
 
   const bulkDemo = async () => {
@@ -187,26 +189,26 @@ export default function ProductsPage() {
       costPrice: 55000,
       stock: 10,
       minStock: 3,
-      unit: "cái",
+      unit: tr("cái"),
       imageColor: "#E0F7FA",
       emoji: "📦",
       active: true,
       createdAt: now,
       updatedAt: now,
     });
-    notify.success("Đã import 1 dòng mẫu");
+    notify.success(tr("Đã import 1 dòng mẫu"));
   };
 
   return (
     <AppShell>
       {confirmDialog}
       <PageHeader
-        title="Sản phẩm"
+        title={tr("Sản phẩm")}
         description={`${products?.length ?? 0} SKU · lưu IndexedDB`}
         actions={
           <>
-            <Button variant="outline" onClick={bulkDemo}>Import mẫu</Button>
-            <Button onClick={openCreate}><Plus size={16} /> Thêm</Button>
+            <Button variant="outline" onClick={bulkDemo}>{tr("Import mẫu")}</Button>
+            <Button onClick={openCreate}><Plus size={16} /> {tr("Thêm")}</Button>
           </>
         }
       />
@@ -225,7 +227,7 @@ export default function ProductsPage() {
       ) : null}
       <Input
         className="mb-3"
-        placeholder="Tìm tên / SKU / barcode…"
+        placeholder={tr("Tìm tên / SKU / barcode…")}
         value={q}
         onChange={(e) => {
           setQ(e.target.value);
@@ -245,7 +247,7 @@ export default function ProductsPage() {
               : "border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
           }`}
         >
-          Tất cả
+          {tr("Tất cả")}
         </button>
         {(categories ?? []).map((c) => (
           <button
@@ -276,7 +278,7 @@ export default function ProductsPage() {
           </div>
         </>
       ) : !filtered.length ? (
-        <Card><EmptyState title="Không có sản phẩm" action={<Button onClick={openCreate}>Thêm sản phẩm</Button>} /></Card>
+        <Card><EmptyState title={tr("Không có sản phẩm")} action={<Button onClick={openCreate}>{tr("Thêm sản phẩm")}</Button>} /></Card>
       ) : (
         <>
           <div className="space-y-3 md:hidden">
@@ -292,8 +294,8 @@ export default function ProductsPage() {
                   </div>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <Button variant="outline" size="sm" onClick={() => openEdit(p.id)}><Pencil size={14} /> Sửa</Button>
-                  <Button variant="danger" size="sm" onClick={() => remove(p.id)}><Trash2 size={14} /> Xóa</Button>
+                  <Button variant="outline" size="sm" onClick={() => openEdit(p.id)}><Pencil size={14} /> {tr("Sửa")}</Button>
+                  <Button variant="danger" size="sm" onClick={() => remove(p.id)}><Trash2 size={14} /> {tr("Xóa")}</Button>
                 </div>
               </Card>
             ))}
@@ -302,7 +304,7 @@ export default function ProductsPage() {
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead className="border-b bg-slate-50 text-slate-500 dark:bg-slate-800">
                 <tr>
-                  {["Sản phẩm", "SKU", "Danh mục", "Giá bán", "Giá nhập", "Tồn", "TT", ""].map((h) => (
+                  {[tr("Sản phẩm"), "SKU", tr("Danh mục"), tr("Giá bán"), tr("Giá nhập"), tr("Tồn"), "TT", ""].map((h) => (
                     <th key={h} className="px-4 py-3 font-semibold">{h}</th>
                   ))}
                 </tr>
@@ -358,15 +360,15 @@ export default function ProductsPage() {
         </>
       )}
 
-      <Dialog open={open} onClose={() => setOpen(false)} title={editId ? "Sửa sản phẩm" : "Thêm sản phẩm"} className="max-w-2xl">
+      <Dialog open={open} onClose={() => setOpen(false)} title={editId ? tr("Sửa sản phẩm") : tr("Thêm sản phẩm")} className="max-w-2xl">
         <form onSubmit={onSubmit} className="grid gap-3 sm:grid-cols-2">
           {(
             [
-              ["name", "Tên"],
+              ["name", tr("Tên")],
               ["sku", "SKU"],
               ["barcode", "Barcode"],
-              ["brand", "Thương hiệu"],
-              ["unit", "Đơn vị"],
+              ["brand", tr("Thương hiệu")],
+              ["unit", tr("Đơn vị")],
             ] as const
           ).map(([key, label]) => (
             <label key={key} className="block text-sm">
@@ -375,7 +377,7 @@ export default function ProductsPage() {
             </label>
           ))}
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Danh mục</span>
+            <span className="mb-1 block text-slate-500">{tr("Danh mục")}</span>
             <select className="h-11 w-full rounded-[10px] border px-3 dark:bg-slate-900" {...form.register("categoryId")}>
               {(categories ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
@@ -390,12 +392,12 @@ export default function ProductsPage() {
             <label key={key} className="block text-sm">
               <span className="mb-1 block text-slate-500">
                 {key === "sellPrice"
-                  ? "Giá bán"
+                  ? tr("Giá bán")
                   : key === "costPrice"
-                    ? "Giá nhập"
+                    ? tr("Giá nhập")
                     : key === "stock"
-                      ? "Tồn kho"
-                      : "Tồn tối thiểu"}
+                      ? tr("Tồn kho")
+                      : tr("Tồn tối thiểu")}
               </span>
               <Input type="number" {...form.register(key, { valueAsNumber: true })} />
               {form.formState.errors[key] ? (
@@ -406,7 +408,7 @@ export default function ProductsPage() {
             </label>
           ))}
           <label className="block text-sm sm:col-span-2">
-            <span className="mb-1 block text-slate-500">URL ảnh (tuỳ chọn)</span>
+            <span className="mb-1 block text-slate-500">{tr("URL ảnh (tuỳ chọn)")}</span>
             <Input
               placeholder="https://…"
               {...form.register("imageUrl")}
@@ -418,7 +420,7 @@ export default function ProductsPage() {
             ) : null}
           </label>
           <div className="sm:col-span-2">
-            <Button type="submit" className="w-full">Lưu</Button>
+            <Button type="submit" className="w-full">{tr("Lưu")}</Button>
           </div>
         </form>
       </Dialog>

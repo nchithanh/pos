@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -85,11 +87,11 @@ export default function StockInPage() {
   const submit = async () => {
     if (!user) return;
     if (!supplierId) {
-      toast.error("Chọn nhà cung cấp");
+      toast.error(tr("Chọn nhà cung cấp"));
       return;
     }
     if (!lines.length) {
-      toast.error("Thêm ít nhất một sản phẩm");
+      toast.error(tr("Thêm ít nhất một sản phẩm"));
       return;
     }
     setBusy(true);
@@ -111,7 +113,7 @@ export default function StockInPage() {
       toast.success(`Đã nhập kho ${mov.code}`);
       router.push("/kho");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Lỗi nhập kho");
+      toast.error(e instanceof Error ? e.message : tr("Lỗi nhập kho"));
     } finally {
       setBusy(false);
     }
@@ -120,11 +122,11 @@ export default function StockInPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Phiếu nhập kho"
-        description="Nhập hàng từ nhà cung cấp · có thể ghi nợ"
+        title={tr("Phiếu nhập kho")}
+        description={tr("Nhập hàng từ nhà cung cấp · có thể ghi nợ")}
         actions={
           <Link href="/kho">
-            <Button variant="outline">Quay lại</Button>
+            <Button variant="outline">{tr("Quay lại")}</Button>
           </Link>
         }
       />
@@ -133,7 +135,7 @@ export default function StockInPage() {
         <Card className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block text-sm sm:col-span-2">
             <span className="mb-1 block font-medium text-slate-500">
-              Nhà cung cấp
+              {tr("Nhà cung cấp")}
             </span>
             <select
               className="h-11 w-full rounded-[10px] border border-slate-200 px-3 dark:border-slate-700 dark:bg-slate-900"
@@ -148,13 +150,13 @@ export default function StockInPage() {
             </select>
           </label>
           <div className="text-sm">
-            <p className="mb-1 font-medium text-slate-500">Ngày tạo</p>
+            <p className="mb-1 font-medium text-slate-500">{tr("Ngày tạo")}</p>
             <p className="flex h-11 items-center font-semibold">
               {formatDateTime(new Date().toISOString())}
             </p>
           </div>
           <div className="text-sm">
-            <p className="mb-1 font-medium text-slate-500">Nhân viên</p>
+            <p className="mb-1 font-medium text-slate-500">{tr("Nhân viên")}</p>
             <p className="flex h-11 items-center font-semibold">
               {user?.name ?? "—"}
             </p>
@@ -176,13 +178,13 @@ export default function StockInPage() {
                     <tr>
                       {[
                         "SKU",
-                        "Tên hàng",
-                        "ĐVT",
-                        "Tồn",
-                        "Số lượng",
-                        "Đơn giá nhập",
+                        tr("Tên hàng"),
+                        tr("ĐVT"),
+                        tr("Tồn"),
+                        tr("Số lượng"),
+                        tr("Đơn giá nhập"),
                         "HSD",
-                        "Thành tiền",
+                        tr("Thành tiền"),
                         "",
                       ].map((h) => (
                         <th key={h || "x"} className="px-2 py-2 font-semibold">
@@ -268,7 +270,7 @@ export default function StockInPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label="Xóa dòng"
+                              aria-label={tr("Xóa dòng")}
                               onClick={() =>
                                 setLines((prev) =>
                                   prev.filter((l) => l.key !== line.key),
@@ -302,7 +304,7 @@ export default function StockInPage() {
                         </div>
                         <button
                           type="button"
-                          aria-label="Xóa"
+                          aria-label={tr("Xóa")}
                           onClick={() =>
                             setLines((prev) =>
                               prev.filter((l) => l.key !== line.key),
@@ -314,7 +316,7 @@ export default function StockInPage() {
                       </div>
                       <div className="mt-2 grid grid-cols-2 gap-2">
                         <label className="text-xs">
-                          <span className="text-slate-500">Số lượng</span>
+                          <span className="text-slate-500">{tr("Số lượng")}</span>
                           <Input
                             type="number"
                             value={line.quantity}
@@ -330,7 +332,7 @@ export default function StockInPage() {
                           />
                         </label>
                         <label className="text-xs">
-                          <span className="text-slate-500">Đơn giá</span>
+                          <span className="text-slate-500">{tr("Đơn giá")}</span>
                           <Input
                             value={line.unitCostRaw}
                             onChange={(e) =>
@@ -350,7 +352,7 @@ export default function StockInPage() {
                           />
                         </label>
                         <label className="col-span-2 text-xs">
-                          <span className="text-slate-500">HSD (tuỳ chọn)</span>
+                          <span className="text-slate-500">{tr("HSD (tuỳ chọn)")}</span>
                           <Input
                             type="date"
                             value={line.expiryDate}
@@ -374,7 +376,7 @@ export default function StockInPage() {
           )}
 
           <Input
-            placeholder="Ghi chú phiếu"
+            placeholder={tr("Ghi chú phiếu")}
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
@@ -417,15 +419,15 @@ export default function StockInPage() {
                 )}
                 onClick={() => setPayNow(false)}
               >
-                Ghi nợ NCC
+                {tr("Ghi nợ NCC")}
               </button>
             </div>
             {payNow ? (
               <div className="flex flex-wrap gap-2">
                 {(
                   [
-                    ["cash", "Tiền mặt"],
-                    ["transfer", "Chuyển khoản"],
+                    ["cash", tr("Tiền mặt")],
+                    ["transfer", tr("Chuyển khoản")],
                   ] as const
                 ).map(([id, label]) => (
                   <button
@@ -463,10 +465,10 @@ export default function StockInPage() {
               className="flex-1"
               onClick={() => router.push("/kho")}
             >
-              Hủy
+              {tr("Hủy")}
             </Button>
             <Button className="flex-1" onClick={submit} disabled={busy}>
-              {busy ? "Đang lưu…" : "Xác nhận nhập kho"}
+              {busy ? tr("Đang lưu…") : tr("Xác nhận nhập kho")}
             </Button>
           </div>
         </Card>

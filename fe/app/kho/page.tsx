@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import Link from "next/link";
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -16,12 +18,19 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { db, getStockStatus } from "@/lib/db";
+import { inBranch } from "@/lib/branch";
+import { useBranchId } from "@/lib/use-branch";
 import { useWarehouseStore } from "@/stores/warehouse-store";
 import { formatVnd } from "@/lib/utils";
 
 export default function WarehouseOverviewPage() {
   const products = useLiveQuery(() => db.products.toArray()) ?? [];
-  const movements = useLiveQuery(() => db.movements.toArray()) ?? [];
+  const branchId = useBranchId();
+  const movements =
+    useLiveQuery(
+      () => db.movements.filter((m) => inBranch(m.branchId, branchId)).toArray(),
+      [branchId],
+    ) ?? [];
   const purchases = useWarehouseStore((s) => s.purchases);
   const outbounds = useWarehouseStore((s) => s.outbounds);
   const active = products.filter((p) => p.active);
@@ -63,12 +72,12 @@ export default function WarehouseOverviewPage() {
     href: string;
     tone?: "warn" | "danger";
   }[] = [
-    { label: "Tổng sản phẩm tồn", value: String(qty), href: "/kho/ton" },
-    { label: "Giá trị tồn kho", value: formatVnd(value), href: "/kho/ton" },
-    { label: "Đang chờ nhập", value: String(waitIn.length), href: "/kho/don-nhap?status=awaiting_receive" },
-    { label: "Đang chờ xuất", value: String(waitOut.length), href: "/kho/don-xuat?status=pending" },
-    { label: "Sắp hết", value: String(low.length), href: "/kho/ton?level=low", tone: "warn" },
-    { label: "Hết hàng", value: String(out.length), href: "/kho/ton?level=out", tone: "danger" },
+    { label: tr("Tổng sản phẩm tồn"), value: String(qty), href: "/kho/ton" },
+    { label: tr("Giá trị tồn kho"), value: formatVnd(value), href: "/kho/ton" },
+    { label: tr("Đang chờ nhập"), value: String(waitIn.length), href: "/kho/don-nhap?status=awaiting_receive" },
+    { label: tr("Đang chờ xuất"), value: String(waitOut.length), href: "/kho/don-xuat?status=pending" },
+    { label: tr("Sắp hết"), value: String(low.length), href: "/kho/ton?level=low", tone: "warn" },
+    { label: tr("Hết hàng"), value: String(out.length), href: "/kho/ton?level=out", tone: "danger" },
   ];
 
   const watch = [...out, ...low].slice(0, 5);
@@ -77,7 +86,7 @@ export default function WarehouseOverviewPage() {
     <AppShell>
       <PageHeader
         title="Kho"
-        description="Quản lý hàng nhập, tồn kho, xuất kho và biến động hàng hóa."
+        description={tr("Quản lý hàng nhập, tồn kho, xuất kho và biến động hàng hóa.")}
       />
       <WarehouseNav />
 
@@ -116,26 +125,26 @@ export default function WarehouseOverviewPage() {
         <QuickLink href="/kho/don-nhap?create=1" primary>
           + Nhập kho
         </QuickLink>
-        <QuickLink href="/kho/don-xuat?create=1">+ Xuất kho</QuickLink>
-        <QuickLink href="/kho/kiem-ke?mode=batch">Tạo phiếu kiểm kê</QuickLink>
-        <QuickLink href="/kho/dieu-chinh">Điều chỉnh tồn</QuickLink>
+        <QuickLink href="/kho/don-xuat?create=1">{tr("+ Xuất kho")}</QuickLink>
+        <QuickLink href="/kho/kiem-ke?mode=batch">{tr("Tạo phiếu kiểm kê")}</QuickLink>
+        <QuickLink href="/kho/dieu-chinh">{tr("Điều chỉnh tồn")}</QuickLink>
       </div>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
         <Card className="p-4 shadow-sm">
-          <h2 className="mb-3 text-base font-medium">Quy trình đang xử lý · Nhập kho</h2>
+          <h2 className="mb-3 text-base font-medium">{tr("Quy trình đang xử lý · Nhập kho")}</h2>
           <ul className="space-y-1 text-sm">
-            <CountLink href="/kho/don-nhap?status=awaiting_receive" label="Chờ kiểm nhận" count={inbound.wait} />
-            <CountLink href="/kho/don-nhap?status=working" label="Đang nhập / sai lệch" count={inbound.doing} />
-            <CountLink href="/kho/don-nhap?status=done" label="Hoàn tất" count={inbound.done} />
+            <CountLink href="/kho/don-nhap?status=awaiting_receive" label={tr("Chờ kiểm nhận")} count={inbound.wait} />
+            <CountLink href="/kho/don-nhap?status=working" label={tr("Đang nhập / sai lệch")} count={inbound.doing} />
+            <CountLink href="/kho/don-nhap?status=done" label={tr("Hoàn tất")} count={inbound.done} />
           </ul>
         </Card>
         <Card className="p-4 shadow-sm">
-          <h2 className="mb-3 text-base font-medium">Quy trình đang xử lý · Xuất kho</h2>
+          <h2 className="mb-3 text-base font-medium">{tr("Quy trình đang xử lý · Xuất kho")}</h2>
           <ul className="space-y-1 text-sm">
-            <CountLink href="/kho/don-xuat?status=pending" label="Chờ duyệt" count={outbound.wait} />
-            <CountLink href="/kho/don-xuat?status=picking" label="Đang soạn" count={outbound.pick} />
-            <CountLink href="/kho/don-xuat?status=ready" label="Chờ bàn giao" count={outbound.hand} />
+            <CountLink href="/kho/don-xuat?status=pending" label={tr("Chờ duyệt")} count={outbound.wait} />
+            <CountLink href="/kho/don-xuat?status=picking" label={tr("Đang soạn")} count={outbound.pick} />
+            <CountLink href="/kho/don-xuat?status=ready" label={tr("Chờ bàn giao")} count={outbound.hand} />
           </ul>
         </Card>
       </section>
@@ -145,7 +154,7 @@ export default function WarehouseOverviewPage() {
           Sản phẩm cần chú ý
         </h2>
         {watch.length === 0 ? (
-          <p className="text-sm text-slate-500">Không có sản phẩm sắp hết hoặc hết hàng.</p>
+          <p className="text-sm text-slate-500">{tr("Không có sản phẩm sắp hết hoặc hết hàng.")}</p>
         ) : (
           <ul className="space-y-2">
             {watch.map((p) => {
@@ -171,10 +180,10 @@ export default function WarehouseOverviewPage() {
                     </span>
                   </span>
                   <span className={level === "out" ? "font-semibold text-rose-600" : "font-semibold text-amber-600"}>
-                    {level === "out" ? "Hết hàng" : "Sắp hết"}
+                    {level === "out" ? tr("Hết hàng") : tr("Sắp hết")}
                   </span>
                   <QuickLink href={`/kho/don-nhap?create=1&product=${p.id}`} primary>
-                    Tạo yêu cầu nhập
+                    {tr("Tạo yêu cầu nhập")}
                   </QuickLink>
                 </li>
               );
@@ -182,7 +191,7 @@ export default function WarehouseOverviewPage() {
           </ul>
         )}
       </section>
-      <p className="mt-4 text-xs text-slate-400">Phím / trên trang tồn kho để tìm nhanh.</p>
+      <p className="mt-4 text-xs text-slate-400">{tr("Phím / trên trang tồn kho để tìm nhanh.")}</p>
     </AppShell>
   );
 }

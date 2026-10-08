@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/translate";
 import { format } from "date-fns";
 import type { FinanceTxn } from "@/lib/finance/model";
 import { OPEX_CATEGORIES } from "@/lib/finance/model";
@@ -194,7 +195,7 @@ export function revenueByCategory(
   for (const o of orders) {
     if (o.status === "void" || !inWindow(o.createdAt, start, end)) continue;
     for (const line of o.items) {
-      const name = catName.get(prodCat.get(line.productId) ?? "") ?? "Khác";
+      const name = catName.get(prodCat.get(line.productId) ?? "") ?? tr("Khác");
       map.set(name, (map.get(name) ?? 0) + line.lineTotal);
     }
   }
@@ -217,11 +218,11 @@ export function revenueByStaff(orders: Order[], start: Date, end: Date) {
 
 export function revenueByMethod(orders: Order[], start: Date, end: Date) {
   const labels: Record<string, string> = {
-    cash: "Tiền mặt",
-    transfer: "Chuyển khoản",
-    qr: "QR / ví",
-    debt: "Ghi nợ",
-    split: "Tách",
+    cash: tr("Tiền mặt"),
+    transfer: tr("Chuyển khoản"),
+    qr: tr("QR / ví"),
+    debt: tr("Ghi nợ"),
+    split: tr("Tách"),
   };
   const map = new Map<string, number>();
   for (const o of orders) {
@@ -260,17 +261,31 @@ export function agingSums(debts: Debt[]) {
   return buckets;
 }
 
-export function debtUiStatus(d: Debt, now = new Date()) {
-  if (d.status === "paid" || debtRemain(d) <= 0) return "Đã thanh toán";
-  if (d.status === "partial") return "Đã thanh toán một phần";
+export type DebtUiCode = "paid" | "partial" | "overdue" | "due_soon" | "not_due";
+
+const DEBT_UI_LABEL: Record<DebtUiCode, string> = {
+  paid: "Đã thanh toán",
+  partial: "Đã thanh toán một phần",
+  overdue: "Quá hạn",
+  due_soon: "Sắp đến hạn",
+  not_due: "Chưa đến hạn",
+};
+
+export function debtUiStatus(d: Debt, now = new Date()): DebtUiCode {
+  if (d.status === "paid" || debtRemain(d) <= 0) return "paid";
+  if (d.status === "partial") return "partial";
   const due = new Date(d.dueDate);
   const startToday = new Date(now);
   startToday.setHours(0, 0, 0, 0);
-  if (due < startToday || d.status === "overdue") return "Quá hạn";
+  if (due < startToday || d.status === "overdue") return "overdue";
   const soon = new Date(startToday);
   soon.setDate(soon.getDate() + 7);
-  if (due <= soon) return "Sắp đến hạn";
-  return "Chưa đến hạn";
+  if (due <= soon) return "due_soon";
+  return "not_due";
+}
+
+export function debtUiStatusLabel(code: DebtUiCode): string {
+  return tr(DEBT_UI_LABEL[code]);
 }
 
 export function balancesOf(accounts: FinanceAccount[], txns: FinanceTxn[]) {

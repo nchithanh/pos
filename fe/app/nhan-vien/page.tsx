@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Plus, Shield } from "lucide-react";
@@ -12,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { db } from "@/lib/db";
+import { inBranch } from "@/lib/branch";
+import { useBranchId } from "@/lib/use-branch";
 import { formatDateTime, uid } from "@/lib/utils";
 import type { PermissionKey, Role, User } from "@/types";
 
@@ -32,7 +36,18 @@ const PERM_LABEL: Record<PermissionKey, string> = {
 
 export default function EmployeesPage() {
   const users = useLiveQuery(() => db.users.toArray()) ?? [];
-  const shifts = useLiveQuery(() => db.shifts.orderBy("openedAt").reverse().limit(20).toArray()) ?? [];
+  const branchId = useBranchId();
+  const shifts =
+    useLiveQuery(
+      () =>
+        db.shifts
+          .orderBy("openedAt")
+          .reverse()
+          .filter((s) => inBranch(s.branchId, branchId))
+          .limit(20)
+          .toArray(),
+      [branchId],
+    ) ?? [];
   const [open, setOpen] = useState(false);
   const [permUser, setPermUser] = useState<User | null>(null);
   const [name, setName] = useState("");
@@ -43,9 +58,9 @@ export default function EmployeesPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Nhân viên"
-        description="Phân quyền · lịch sử ca"
-        actions={<Button onClick={() => setOpen(true)}><Plus size={16} /> Thêm</Button>}
+        title={tr("Nhân viên")}
+        description={tr("Phân quyền · lịch sử ca")}
+        actions={<Button onClick={() => setOpen(true)}><Plus size={16} /> {tr("Thêm")}</Button>}
       />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {users.map((u) => (
@@ -74,10 +89,10 @@ export default function EmployeesPage() {
                   await db.users.update(u.id, {
                     status: u.status === "active" ? "inactive" : "active",
                   });
-                  toast.success("Đã đổi trạng thái");
+                  toast.success(tr("Đã đổi trạng thái"));
                 }}
               >
-                {u.status === "active" ? "Tắt" : "Bật"}
+                {u.status === "active" ? tr("Tắt") : tr("Bật")}
               </Button>
             </div>
           </Card>
@@ -85,7 +100,7 @@ export default function EmployeesPage() {
       </div>
 
       <Card className="mt-4 p-4">
-        <h2 className="mb-3 font-bold">Lịch sử ca làm</h2>
+        <h2 className="mb-3 font-bold">{tr("Lịch sử ca làm")}</h2>
         <ul className="space-y-2 text-sm">
           {shifts.map((s) => (
             <li key={s.id} className="flex justify-between rounded-[10px] bg-slate-50 px-3 py-2 dark:bg-slate-800">
@@ -96,20 +111,20 @@ export default function EmployeesPage() {
         </ul>
       </Card>
 
-      <Dialog open={open} onClose={() => setOpen(false)} title="Thêm nhân viên">
+      <Dialog open={open} onClose={() => setOpen(false)} title={tr("Thêm nhân viên")}>
         <div className="space-y-3">
-          <Input placeholder="Họ tên" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input placeholder={tr("Họ tên")} value={name} onChange={(e) => setName(e.target.value)} />
           <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
           <Input placeholder="PIN" value={pin} onChange={(e) => setPin(e.target.value)} />
           <select className="h-11 w-full rounded-[10px] border px-3 dark:bg-slate-900" value={role} onChange={(e) => setRole(e.target.value as Role)}>
-            <option value="owner">Chủ cửa hàng</option>
-            <option value="manager">Quản lý</option>
-            <option value="cashier">Thu ngân</option>
+            <option value="owner">{tr("Chủ cửa hàng")}</option>
+            <option value="manager">{tr("Quản lý")}</option>
+            <option value="cashier">{tr("Thu ngân")}</option>
           </select>
           <Button
             className="w-full"
             onClick={async () => {
-              if (!name.trim() || !email.trim()) return toast.error("Thiếu thông tin");
+              if (!name.trim() || !email.trim()) return toast.error(tr("Thiếu thông tin"));
               const permissions = Object.fromEntries(PERMS.map((p) => [p, role !== "cashier" || p === "ban-hang" || p === "san-pham" || p === "khach-hang"])) as Record<PermissionKey, boolean>;
               await db.users.add({
                 id: uid("u"),
@@ -124,11 +139,11 @@ export default function EmployeesPage() {
                 permissions,
                 createdAt: new Date().toISOString(),
               });
-              toast.success("Đã thêm nhân viên");
+              toast.success(tr("Đã thêm nhân viên"));
               setOpen(false);
             }}
           >
-            Lưu
+            {tr("Lưu")}
           </Button>
         </div>
       </Dialog>

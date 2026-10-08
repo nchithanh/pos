@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useState } from "react";
 import { Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,21 +44,21 @@ export function TransferQr({ amount }: { amount: number }) {
           typeof navigator.canShare !== "function" ||
           navigator.canShare({ files: [file] });
         if (withFile) {
-          await navigator.share({ title: "Chuyển khoản", text: label, files: [file] });
+          await navigator.share({ title: tr("Chuyển khoản"), text: label, files: [file] });
           return;
         }
-        await navigator.share({ title: "Chuyển khoản", text });
+        await navigator.share({ title: tr("Chuyển khoản"), text });
         return;
       }
       await navigator.clipboard.writeText(text);
-      notify.success("Đã copy nội dung chuyển khoản");
+      notify.success(tr("Đã copy nội dung chuyển khoản"));
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") return;
       try {
         await navigator.clipboard.writeText(text);
-        notify.success("Đã copy nội dung chuyển khoản");
+        notify.success(tr("Đã copy nội dung chuyển khoản"));
       } catch {
-        notify.error("Không chia sẻ được");
+        notify.error(tr("Không chia sẻ được"));
       }
     }
   };
@@ -75,7 +77,7 @@ export function TransferQr({ amount }: { amount: number }) {
       ) : (
         <div className="h-[220px] w-[220px] animate-pulse rounded-[10px] bg-slate-100 dark:bg-slate-800" />
       )}
-      <p className="mt-3 text-sm text-slate-500">Số tiền chuyển khoản</p>
+      <p className="mt-3 text-sm text-slate-500">{tr("Số tiền chuyển khoản")}</p>
       <p className="text-xl font-bold">{formatVnd(amount)}</p>
       <p className="mt-1 text-center text-xs text-slate-400">
         Mã QR demo, chưa nối ngân hàng.

@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 
 const MAP: Record<string, string> = {
@@ -62,7 +63,7 @@ export function Badge({
         className,
       )}
     >
-      {label ?? LABEL[status] ?? status}
+      {tr(label ?? LABEL[status] ?? status)}
     </span>
   );
 }

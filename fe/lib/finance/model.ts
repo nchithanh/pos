@@ -31,6 +31,7 @@ export interface FinanceTxn {
   status: "posted";
   method?: string;
   storeName: string;
+  branchId?: string;
   party?: string;
   orderId?: string;
   debtId?: string;

@@ -1,4 +1,6 @@
+import { tr } from "@/lib/i18n/translate";
 import { db } from "@/lib/db";
+import { readWriteBranchId } from "@/lib/branch";
 import { createDebt } from "@/lib/services/debts";
 import { nextMovementSeq } from "@/lib/services/orders";
 import type { PurchaseOrder } from "@/lib/warehouse/types";
@@ -14,11 +16,11 @@ export async function postStockDelta(input: {
   supplierId?: string;
 }) {
   const lines = input.lines.filter((l) => l.delta !== 0);
-  if (!lines.length) throw new Error("Không có số lượng để ghi sổ");
+  if (!lines.length) throw new Error(tr("Không có số lượng để ghi sổ"));
 
   for (const line of lines) {
     const p = await db.products.get(line.productId);
-    if (!p) throw new Error("Không tìm thấy sản phẩm");
+    if (!p) throw new Error(tr("Không tìm thấy sản phẩm"));
     if (p.stock + line.delta < 0) {
       throw new Error(`${p.name} không đủ tồn để xuất`);
     }
@@ -68,6 +70,7 @@ export async function postStockDelta(input: {
         (s, i) => s + i.quantity * (i.unitCost ?? 0),
         0,
       ),
+      branchId: readWriteBranchId(),
     });
   });
 
@@ -84,7 +87,7 @@ export async function confirmReceive(po: PurchaseOrder, user: User) {
   const result = await postStockDelta({
     lines: good,
     type: "in",
-    reason: "Nhập kho",
+    reason: tr("Nhập kho"),
     note: po.code,
     user,
     supplierId: po.supplierId,
@@ -116,7 +119,7 @@ export async function confirmShip(
   return postStockDelta({
     lines: lines.map((l) => ({ productId: l.productId, delta: -l.qty })),
     type: "out",
-    reason: "Xuất kho",
+    reason: tr("Xuất kho"),
     note: ref,
     user,
   });

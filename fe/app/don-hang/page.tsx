@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -15,6 +17,8 @@ import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CardListSkeleton, TableSkeleton } from "@/components/ui/skeleton";
 import { db } from "@/lib/db";
+import { inBranch } from "@/lib/branch";
+import { useBranchId } from "@/lib/use-branch";
 import { paymentLabel } from "@/lib/payment-labels";
 import { printReceipt } from "@/lib/print-receipt";
 import { formatDateTime, formatVnd, todayKey } from "@/lib/utils";
@@ -23,8 +27,13 @@ import type { Order } from "@/types";
 const PAGE_SIZE = 12;
 
 export default function OrdersPage() {
-  const orders = useLiveQuery(() =>
+  const allOrders = useLiveQuery(() =>
     db.orders.orderBy("createdAt").reverse().toArray(),
+  );
+  const branchId = useBranchId();
+  const orders = useMemo(
+    () => allOrders?.filter((o) => inBranch(o.branchId, branchId)),
+    [allOrders, branchId],
   );
   const settings = useLiveQuery(() => db.settings.get("store"));
   const [q, setQ] = useState("");
@@ -70,13 +79,13 @@ export default function OrdersPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Đơn hàng"
+        title={tr("Đơn hàng")}
         description={`Hôm nay ${todayCount} đơn · ${formatVnd(todayRevenue)}`}
         actions={
           <Link href="/ban-hang">
             <Button>
               <ShoppingBag size={16} />
-              Mở bán hàng
+              {tr("Mở bán hàng")}
             </Button>
           </Link>
         }
@@ -84,15 +93,15 @@ export default function OrdersPage() {
 
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Card className="p-4">
-          <p className="text-sm text-slate-500">Đơn hôm nay</p>
+          <p className="text-sm text-slate-500">{tr("Đơn hôm nay")}</p>
           <p className="text-2xl font-bold text-emerald-600">{todayCount}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-slate-500">Doanh thu hôm nay</p>
+          <p className="text-sm text-slate-500">{tr("Doanh thu hôm nay")}</p>
           <p className="text-xl font-bold">{formatVnd(todayRevenue)}</p>
         </Card>
         <Card className="col-span-2 p-4 sm:col-span-1">
-          <p className="text-sm text-slate-500">Tổng đơn trong hệ thống</p>
+          <p className="text-sm text-slate-500">{tr("Tổng đơn trong hệ thống")}</p>
           <p className="text-2xl font-bold">{orders?.length ?? 0}</p>
         </Card>
       </div>
@@ -100,7 +109,7 @@ export default function OrdersPage() {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <Input
           className="flex-1"
-          placeholder="Tìm mã đơn / nhân viên / khách…"
+          placeholder={tr("Tìm mã đơn / nhân viên / khách…")}
           value={q}
           onChange={(e) => {
             setQ(e.target.value);
@@ -110,10 +119,10 @@ export default function OrdersPage() {
         <div className="flex flex-wrap gap-2">
           {(
             [
-              ["all", "Tất cả"],
-              ["today", "Hôm nay"],
-              ["paid", "Đã thanh toán"],
-              ["debt", "Ghi nợ"],
+              ["all", tr("Tất cả")],
+              ["today", tr("Hôm nay")],
+              ["paid", tr("Đã thanh toán")],
+              ["debt", tr("Ghi nợ")],
             ] as const
           ).map(([id, label]) => (
             <Button
@@ -143,11 +152,11 @@ export default function OrdersPage() {
       ) : !filtered.length ? (
         <Card>
           <EmptyState
-            title="Chưa có đơn hàng"
-            description="Bán đơn đầu tiên từ màn Bán hàng."
+            title={tr("Chưa có đơn hàng")}
+            description={tr("Bán đơn đầu tiên từ màn Bán hàng.")}
             action={
               <Link href="/ban-hang">
-                <Button>Đi bán hàng</Button>
+                <Button>{tr("Đi bán hàng")}</Button>
               </Link>
             }
           />
@@ -162,7 +171,7 @@ export default function OrdersPage() {
                     <p className="font-bold">{o.code}</p>
                     <p className="text-xs text-slate-500">{formatDateTime(o.createdAt)}</p>
                     <p className="text-xs text-slate-500">
-                      {o.customerName ?? "Khách lẻ"}
+                      {o.customerName ?? tr("Khách lẻ")}
                     </p>
                   </div>
                   <div className="text-right">
@@ -181,14 +190,14 @@ export default function OrdersPage() {
                     variant="outline"
                     onClick={() => openDetail(o)}
                   >
-                    <Eye size={14} /> Xem đơn
+                    <Eye size={14} /> {tr("Xem đơn")}
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => printReceipt(o, settings)}
                   >
-                    <Printer size={14} /> In bill
+                    <Printer size={14} /> {tr("In bill")}
                   </Button>
                 </div>
               </Card>
@@ -200,12 +209,12 @@ export default function OrdersPage() {
               <thead className="border-b bg-slate-50 text-slate-500 dark:bg-slate-800">
                 <tr>
                   {[
-                    "Mã đơn",
-                    "Thời gian",
-                    "Khách hàng",
-                    "Tổng tiền",
-                    "Thanh toán",
-                    "Hóa đơn",
+                    tr("Mã đơn"),
+                    tr("Thời gian"),
+                    tr("Khách hàng"),
+                    tr("Tổng tiền"),
+                    tr("Thanh toán"),
+                    tr("Hóa đơn"),
                     "",
                   ].map((h) => (
                     <th key={h || "actions"} className="px-4 py-3 font-semibold">
@@ -221,7 +230,7 @@ export default function OrdersPage() {
                     <td className="px-4 py-3 text-slate-500">
                       {formatDateTime(o.createdAt)}
                     </td>
-                    <td className="px-4 py-3">{o.customerName ?? "Khách lẻ"}</td>
+                    <td className="px-4 py-3">{o.customerName ?? tr("Khách lẻ")}</td>
                     <td className="px-4 py-3 font-bold">{formatVnd(o.total)}</td>
                     <td className="px-4 py-3">
                       <Badge status={o.paymentMethod} />
@@ -237,7 +246,7 @@ export default function OrdersPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => openDetail(o)}
-                          aria-label="Xem đơn"
+                          aria-label={tr("Xem đơn")}
                         >
                           <Eye size={16} />
                         </Button>
@@ -245,7 +254,7 @@ export default function OrdersPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => printReceipt(o, settings)}
-                          aria-label="In bill"
+                          aria-label={tr("In bill")}
                         >
                           <Printer size={16} />
                         </Button>
@@ -286,7 +295,7 @@ export default function OrdersPage() {
       <Dialog
         open={!!detail}
         onClose={() => setDetail(null)}
-        title={detail ? `Đơn hàng ${detail.code}` : "Chi tiết đơn"}
+        title={detail ? `Đơn hàng ${detail.code}` : tr("Chi tiết đơn")}
         className="max-w-lg"
       >
         {detail ? (
@@ -295,7 +304,7 @@ export default function OrdersPage() {
               <Badge
                 status={detail.status === "debt" ? "debt" : "paid"}
                 label={
-                  detail.status === "debt" ? "Ghi nợ" : "✓ Đã thanh toán"
+                  detail.status === "debt" ? tr("Ghi nợ") : tr("✓ Đã thanh toán")
                 }
               />
               <Badge
@@ -305,27 +314,27 @@ export default function OrdersPage() {
 
             <div className="rounded-[10px] bg-slate-50 p-3 text-sm dark:bg-slate-800">
               <p>
-                <span className="text-slate-500">Mã đơn:</span> {detail.code}
+                <span className="text-slate-500">{tr("Mã đơn:")}</span> {detail.code}
               </p>
               <p>
-                <span className="text-slate-500">Thời gian:</span>{" "}
+                <span className="text-slate-500">{tr("Thời gian:")}</span>{" "}
                 {formatDateTime(detail.createdAt)}
               </p>
               <p>
-                <span className="text-slate-500">Thu ngân:</span>{" "}
+                <span className="text-slate-500">{tr("Thu ngân:")}</span>{" "}
                 {detail.cashierName}
               </p>
               <p>
-                <span className="text-slate-500">Khách:</span>{" "}
-                {detail.customerName ?? "Khách lẻ"}
+                <span className="text-slate-500">{tr("Khách:")}</span>{" "}
+                {detail.customerName ?? tr("Khách lẻ")}
               </p>
               <p>
-                <span className="text-slate-500">Thanh toán:</span>{" "}
+                <span className="text-slate-500">{tr("Thanh toán:")}</span>{" "}
                 {paymentLabel(detail.paymentMethod)}
               </p>
               {detail.discount > 0 ? (
                 <p>
-                  <span className="text-slate-500">Giảm giá:</span>{" "}
+                  <span className="text-slate-500">{tr("Giảm giá:")}</span>{" "}
                   {formatVnd(detail.discount)}
                 </p>
               ) : null}
@@ -356,7 +365,7 @@ export default function OrdersPage() {
             />
 
             <Button className="w-full" variant="outline" onClick={() => setDetail(null)}>
-              Đóng
+              {tr("Đóng")}
             </Button>
           </div>
         ) : null}

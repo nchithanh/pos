@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -80,7 +82,7 @@ export default function StockOutPage() {
   const submit = async () => {
     if (!user) return;
     if (!lines.length) {
-      toast.error("Thêm ít nhất một sản phẩm");
+      toast.error(tr("Thêm ít nhất một sản phẩm"));
       return;
     }
     setBusy(true);
@@ -97,7 +99,7 @@ export default function StockOutPage() {
       toast.success(`Đã xuất kho ${mov.code}`);
       router.push("/kho");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Lỗi xuất kho");
+      toast.error(e instanceof Error ? e.message : tr("Lỗi xuất kho"));
     } finally {
       setBusy(false);
     }
@@ -106,11 +108,11 @@ export default function StockOutPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Phiếu xuất kho"
-        description="Xuất nhiều mặt hàng trong một phiếu"
+        title={tr("Phiếu xuất kho")}
+        description={tr("Xuất nhiều mặt hàng trong một phiếu")}
         actions={
           <Link href="/kho">
-            <Button variant="outline">Quay lại</Button>
+            <Button variant="outline">{tr("Quay lại")}</Button>
           </Link>
         }
       />
@@ -132,13 +134,13 @@ export default function StockOutPage() {
             </select>
           </label>
           <div className="text-sm">
-            <p className="mb-1 font-medium text-slate-500">Ngày tạo</p>
+            <p className="mb-1 font-medium text-slate-500">{tr("Ngày tạo")}</p>
             <p className="flex h-11 items-center font-semibold">
               {formatDateTime(new Date().toISOString())}
             </p>
           </div>
           <div className="text-sm">
-            <p className="mb-1 font-medium text-slate-500">Nhân viên</p>
+            <p className="mb-1 font-medium text-slate-500">{tr("Nhân viên")}</p>
             <p className="flex h-11 items-center font-semibold">
               {user?.name ?? "—"}
             </p>
@@ -160,12 +162,12 @@ export default function StockOutPage() {
                     <tr>
                       {[
                         "SKU",
-                        "Tên hàng",
-                        "ĐVT",
-                        "Tồn hiện tại",
-                        "Số lượng xuất",
-                        "Giá vốn",
-                        "Thành tiền",
+                        tr("Tên hàng"),
+                        tr("ĐVT"),
+                        tr("Tồn hiện tại"),
+                        tr("Số lượng xuất"),
+                        tr("Giá vốn"),
+                        tr("Thành tiền"),
                         "",
                       ].map((h) => (
                         <th key={h || "x"} className="px-2 py-2 font-semibold">
@@ -217,7 +219,7 @@ export default function StockOutPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label="Xóa dòng"
+                              aria-label={tr("Xóa dòng")}
                               onClick={() =>
                                 setLines((prev) =>
                                   prev.filter((l) => l.key !== line.key),
@@ -246,12 +248,12 @@ export default function StockOutPage() {
                         <div>
                           <p className="font-semibold">{p?.name}</p>
                           <p className="text-xs text-slate-400">
-                            Tồn {p?.stock} · {formatVnd(p?.costPrice ?? 0)}
+                            {tr("Tồn")} {p?.stock} · {formatVnd(p?.costPrice ?? 0)}
                           </p>
                         </div>
                         <button
                           type="button"
-                          aria-label="Xóa"
+                          aria-label={tr("Xóa")}
                           onClick={() =>
                             setLines((prev) =>
                               prev.filter((l) => l.key !== line.key),
@@ -262,7 +264,7 @@ export default function StockOutPage() {
                         </button>
                       </div>
                       <label className="mt-2 block text-xs">
-                        <span className="text-slate-500">Số lượng xuất</span>
+                        <span className="text-slate-500">{tr("Số lượng xuất")}</span>
                         <Input
                           type="number"
                           value={line.quantity}
@@ -285,7 +287,7 @@ export default function StockOutPage() {
           )}
 
           <Input
-            placeholder="Ghi chú phiếu"
+            placeholder={tr("Ghi chú phiếu")}
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
@@ -306,10 +308,10 @@ export default function StockOutPage() {
               className="flex-1"
               onClick={() => router.push("/kho")}
             >
-              Hủy
+              {tr("Hủy")}
             </Button>
             <Button className="flex-1" onClick={submit} disabled={busy}>
-              {busy ? "Đang lưu…" : "Xác nhận xuất kho"}
+              {busy ? tr("Đang lưu…") : tr("Xác nhận xuất kho")}
             </Button>
           </div>
         </Card>

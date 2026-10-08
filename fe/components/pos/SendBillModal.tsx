@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -34,15 +36,15 @@ export function SendBillModal({
     const p = phone.trim();
     const e = email.trim();
     if (!p && !e) {
-      toast.error("Nhập số điện thoại hoặc email");
+      toast.error(tr("Nhập số điện thoại hoặc email"));
       return;
     }
     if (p && !/^0\d{9,10}$/.test(p.replace(/\s/g, ""))) {
-      toast.error("Số điện thoại không hợp lệ");
+      toast.error(tr("Số điện thoại không hợp lệ"));
       return;
     }
     if (e && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
-      toast.error("Email không hợp lệ");
+      toast.error(tr("Email không hợp lệ"));
       return;
     }
     setSending(true);
@@ -55,18 +57,18 @@ export function SendBillModal({
     <Dialog
       open={open}
       onClose={onClose}
-      title={sent ? "Đã gửi bill" : "Gửi bill"}
+      title={sent ? tr("Đã gửi bill") : tr("Gửi bill")}
       className="max-w-md"
     >
       {sent ? (
         <div className="py-4 text-center">
           <CheckCircle2 className="mx-auto text-emerald-500" size={40} />
-          <p className="mt-3 text-lg font-bold">✓ Đã gửi bill thành công</p>
+          <p className="mt-3 text-lg font-bold">{tr("✓ Đã gửi bill thành công")}</p>
           <p className="mt-1 text-sm text-slate-500">
             Demo — chưa gửi tin nhắn / email thật.
           </p>
           <Button className="mt-5 w-full" onClick={onClose}>
-            Đóng
+            {tr("Đóng")}
           </Button>
         </div>
       ) : (
@@ -78,7 +80,7 @@ export function SendBillModal({
           ) : null}
           <label className="block text-sm">
             <span className="mb-1 block font-medium text-slate-500">
-              Số điện thoại
+              {tr("Số điện thoại")}
             </span>
             <Input
               type="tel"
@@ -89,7 +91,7 @@ export function SendBillModal({
               autoComplete="tel"
             />
           </label>
-          <p className="text-center text-xs font-medium text-slate-400">hoặc</p>
+          <p className="text-center text-xs font-medium text-slate-400">{tr("hoặc")}</p>
           <label className="block text-sm">
             <span className="mb-1 block font-medium text-slate-500">Email</span>
             <Input
@@ -102,10 +104,10 @@ export function SendBillModal({
           </label>
           <div className="flex flex-col gap-2 pt-2 sm:flex-row">
             <Button className="flex-1" onClick={submit} disabled={sending}>
-              {sending ? "Đang gửi…" : "Gửi bill"}
+              {sending ? tr("Đang gửi…") : tr("Gửi bill")}
             </Button>
             <Button variant="outline" className="flex-1" onClick={onClose}>
-              Hủy
+              {tr("Hủy")}
             </Button>
           </div>
         </div>

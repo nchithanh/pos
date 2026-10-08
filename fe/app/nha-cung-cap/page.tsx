@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -38,14 +40,14 @@ export default function SuppliersPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Nhà cung cấp"
-        actions={<Button onClick={() => setOpen(true)}><Plus size={16} /> Thêm</Button>}
+        title={tr("Nhà cung cấp")}
+        actions={<Button onClick={() => setOpen(true)}><Plus size={16} /> {tr("Thêm")}</Button>}
       />
-      <Input className="mb-4" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm NCC…" />
+      <Input className="mb-4" value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("Tìm NCC…")} />
       {suppliers === undefined ? (
         <CardListSkeleton count={6} />
       ) : !filtered.length ? (
-        <Card><EmptyState title="Chưa có NCC" icon={Truck} /></Card>
+        <Card><EmptyState title={tr("Chưa có NCC")} icon={Truck} /></Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((s) => (
@@ -70,7 +72,7 @@ export default function SuppliersPage() {
                     <p className="truncate font-bold">{formatVnd(s.totalPurchased)}</p>
                   </div>
                   <div className="rounded-[10px] bg-amber-50 p-2">
-                    <p className="text-amber-700">Nợ</p>
+                    <p className="text-amber-700">{tr("Nợ")}</p>
                     <p className="truncate font-bold text-amber-800">{formatVnd(s.debt)}</p>
                   </div>
                 </div>
@@ -80,15 +82,15 @@ export default function SuppliersPage() {
         </div>
       )}
 
-      <Dialog open={open} onClose={() => setOpen(false)} title="Thêm nhà cung cấp">
+      <Dialog open={open} onClose={() => setOpen(false)} title={tr("Thêm nhà cung cấp")}>
         <div className="space-y-3">
-          <Input placeholder="Tên NCC" value={name} onChange={(e) => setName(e.target.value)} />
-          <Input placeholder="SĐT" value={phone} onChange={(e) => setPhone(e.target.value)} />
-          <Input placeholder="Người liên hệ" value={contact} onChange={(e) => setContact(e.target.value)} />
+          <Input placeholder={tr("Tên NCC")} value={name} onChange={(e) => setName(e.target.value)} />
+          <Input placeholder={tr("SĐT")} value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <Input placeholder={tr("Người liên hệ")} value={contact} onChange={(e) => setContact(e.target.value)} />
           <Button
             className="w-full"
             onClick={async () => {
-              if (!name.trim()) return notify.error("Nhập tên");
+              if (!name.trim()) return notify.error(tr("Nhập tên"));
               await db.suppliers.add({
                 id: uid("sup"),
                 name: name.trim(),
@@ -101,11 +103,11 @@ export default function SuppliersPage() {
                 debt: 0,
                 createdAt: new Date().toISOString(),
               });
-              notify.success("Đã thêm NCC");
+              notify.success(tr("Đã thêm NCC"));
               setOpen(false);
             }}
           >
-            Lưu
+            {tr("Lưu")}
           </Button>
         </div>
       </Dialog>

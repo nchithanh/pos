@@ -1,19 +1,23 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format as dfFormat, parseISO } from "date-fns";
-import { vi } from "date-fns/locale";
+import { enUS, vi } from "date-fns/locale";
+import { readLang } from "@/lib/i18n/translate";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export function formatVnd(amount: number): string {
-  return `${Math.round(amount).toLocaleString("vi-VN")}đ`;
+  const locale = readLang() === "en" ? "en-US" : "vi-VN";
+  return `${Math.round(amount).toLocaleString(locale)}đ`;
 }
 
 export function formatDate(iso: string, pattern = "dd/MM/yyyy"): string {
   try {
-    return dfFormat(parseISO(iso), pattern, { locale: vi });
+    return dfFormat(parseISO(iso), pattern, {
+      locale: readLang() === "en" ? enUS : vi,
+    });
   } catch {
     return iso;
   }

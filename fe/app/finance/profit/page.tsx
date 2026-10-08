@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
@@ -50,17 +52,17 @@ export default function ProfitPage() {
 
   const lines = [
     ["Doanh thu", snap.revenue],
-    ["Giá vốn", snap.cogs],
-    ["Lợi nhuận gộp", snap.gross],
-    ["Chi phí vận hành", snap.opex],
-    ["Lợi nhuận ròng", snap.profit],
+    [tr("Giá vốn"), snap.cogs],
+    [tr("Lợi nhuận gộp"), snap.gross],
+    [tr("Chi phí vận hành"), snap.opex],
+    [tr("Lợi nhuận ròng"), snap.profit],
   ] as const;
 
   return (
     <AppShell>
       <PageHeader
-        title="Lợi nhuận"
-        description="Lợi nhuận = doanh thu − giá vốn − chi phí vận hành. Tiền chuyển quỹ và trả nợ không tính vào đây."
+        title={tr("Lợi nhuận")}
+        description={tr("Lợi nhuận = doanh thu − giá vốn − chi phí vận hành. Tiền chuyển quỹ và trả nợ không tính vào đây.")}
         actions={
           <DateRangeFilter
             value={range.range}
@@ -83,24 +85,24 @@ export default function ProfitPage() {
               </div>
             ))}
             <div className="flex items-center justify-between px-4 py-3 text-sm">
-              <span>Biên lợi nhuận gộp</span>
+              <span>{tr("Biên lợi nhuận gộp")}</span>
               <span className="font-bold">
                 {grossMargin.toLocaleString("vi-VN", { maximumFractionDigits: 1 })}%
               </span>
             </div>
             <div className="flex items-center justify-between px-4 py-3 text-sm">
-              <span>Biên lợi nhuận ròng</span>
+              <span>{tr("Biên lợi nhuận ròng")}</span>
               <span className="font-bold">
                 {netMargin.toLocaleString("vi-VN", { maximumFractionDigits: 1 })}%
               </span>
             </div>
           </Card>
           <Card className="p-4">
-            <h2 className="mb-2 text-sm font-bold">Dòng tiền ròng 14 ngày</h2>
+            <h2 className="mb-2 text-sm font-bold">{tr("Dòng tiền ròng 14 ngày")}</h2>
             <SimpleBar data={profitBars} xKey="name" yKey="gross" />
           </Card>
           <Card className="p-4">
-            <h2 className="mb-2 text-sm font-bold">Doanh thu theo danh mục</h2>
+            <h2 className="mb-2 text-sm font-bold">{tr("Doanh thu theo danh mục")}</h2>
             <SimpleBar data={byCat} xKey="name" yKey="revenue" />
           </Card>
         </div>

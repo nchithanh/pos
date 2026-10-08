@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import Link from "next/link";
 import { useMemo } from "react";
 import { AppShell } from "@/components/layout/app-shell";
@@ -38,8 +40,8 @@ export default function ForecastPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Dự báo & Cảnh báo"
-        description="Ước lượng 30 ngày tới từ nhịp thu chi gần đây. Đây là mô phỏng, không gọi AI bên ngoài."
+        title={tr("Dự báo & Cảnh báo")}
+        description={tr("Ước lượng 30 ngày tới từ nhịp thu chi gần đây. Đây là mô phỏng, không gọi AI bên ngoài.")}
         actions={
           <Link href="/finance/alerts" className="text-sm font-semibold text-emerald-700">
             Cấu hình cảnh báo
@@ -50,24 +52,24 @@ export default function ForecastPage() {
       {!books.loading ? (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold">Dự báo dòng tiền 30 ngày</h2>
+            <h2 className="text-base font-bold">{tr("Dự báo dòng tiền 30 ngày")}</h2>
             <PackageBadge tier="pro" />
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Card className="p-4">
-              <p className="text-sm text-slate-500">Số dư hiện tại</p>
+              <p className="text-sm text-slate-500">{tr("Số dư hiện tại")}</p>
               <p className="text-lg font-bold">{formatVnd(balance)}</p>
             </Card>
             <Card className="p-4">
-              <p className="text-sm text-slate-500">Tiền vào dự kiến</p>
+              <p className="text-sm text-slate-500">{tr("Tiền vào dự kiến")}</p>
               <p className="text-lg font-bold text-emerald-600">+{formatVnd(incoming)}</p>
             </Card>
             <Card className="p-4">
-              <p className="text-sm text-slate-500">Tiền ra dự kiến</p>
+              <p className="text-sm text-slate-500">{tr("Tiền ra dự kiến")}</p>
               <p className="text-lg font-bold text-rose-600">−{formatVnd(outgoing)}</p>
             </Card>
             <Card className="p-4">
-              <p className="text-sm text-slate-500">Số dư dự kiến</p>
+              <p className="text-sm text-slate-500">{tr("Số dư dự kiến")}</p>
               <p className="text-lg font-bold">{formatVnd(projected)}</p>
             </Card>
           </div>
@@ -76,7 +78,7 @@ export default function ForecastPage() {
           </Card>
           <Card className="space-y-2 border-slate-300 p-4 text-sm">
             <div className="flex items-center gap-2">
-              <p className="font-bold">Gợi ý vận hành</p>
+              <p className="font-bold">{tr("Gợi ý vận hành")}</p>
               <PackageBadge tier="ai" />
             </div>
             <p>

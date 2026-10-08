@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/layout/app-shell";
@@ -19,8 +21,8 @@ export default function InsightPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Gợi ý tồn kho"
-        description="Nhận định mô phỏng từ tồn hiện tại. Không gọi mô hình dự báo bên ngoài."
+        title={tr("Gợi ý tồn kho")}
+        description={tr("Nhận định mô phỏng từ tồn hiện tại. Không gọi mô hình dự báo bên ngoài.")}
       />
       <WarehouseNav />
       <div className="mb-3 flex gap-2">
@@ -29,7 +31,7 @@ export default function InsightPage() {
       </div>
       <div className="space-y-3">
         <Card className="p-4 text-sm">
-          <p className="font-semibold">3 lô hàng sẽ hết hạn trong 30 ngày.</p>
+          <p className="font-semibold">{tr("3 lô hàng sẽ hết hạn trong 30 ngày.")}</p>
           <p className="mt-1 text-slate-500">
             Pate Me-O · LOT-20260801 · hạn 28/10/2026 · còn hạn
           </p>

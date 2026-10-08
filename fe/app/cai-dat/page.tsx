@@ -1,5 +1,8 @@
 "use client";
 
+import { setLang, useLang } from "@/lib/i18n";
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -10,8 +13,8 @@ import {
   Shield,
   Users,
 } from "lucide-react";
-import { useTheme } from "@/components/theme-provider";
 import { AppShell } from "@/components/layout/app-shell";
+import { Dialog } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,6 +38,7 @@ import {
   getStoredVertical,
 } from "@/lib/vertical";
 import { cn, formatDateTime } from "@/lib/utils";
+import { addBranch, syncPrimaryBranch } from "@/lib/branch";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCartStore } from "@/stores/cart-store";
 import type { EInvoiceConfig, StoreVertical } from "@/types";
@@ -54,9 +58,17 @@ export default function SettingsPage() {
   const logout = useAuthStore((s) => s.logout);
   const clearCart = useCartStore((s) => s.clear);
   const settings = useLiveQuery(() => db.settings.get("store"));
+  const branches =
+    useLiveQuery(() => db.branches.toArray())?.slice().sort((a, b) =>
+      a.createdAt.localeCompare(b.createdAt),
+    ) ?? [];
   const users = useLiveQuery(() => db.users.toArray()) ?? [];
-  const { setTheme } = useTheme();
+  const lang = useLang();
   const [tab, setTab] = useState<SettingsTab>("store");
+  const [branchOpen, setBranchOpen] = useState(false);
+  const [branchName, setBranchName] = useState("");
+  const [branchAddress, setBranchAddress] = useState("");
+  const [branchPhone, setBranchPhone] = useState("");
   const activeVertical = getStoredVertical();
   const verticalLabel =
     VERTICAL_OPTIONS.find((v) => v.id === activeVertical)?.label ??
@@ -121,14 +133,19 @@ export default function SettingsPage() {
 
   const saveStore = async () => {
     await persistStore();
-    notify.success("Đã lưu thông tin cửa hàng");
+    await syncPrimaryBranch({
+      name: name.trim() || "Pet Dolphin Store",
+      address,
+      phone,
+    });
+    notify.success(tr("Đã lưu thông tin cửa hàng"));
   };
 
   const saveEInvoice = async () => {
     const next = normalizeEInvoiceConfig(ei);
     setEi(next);
     await persistStore({ eInvoice: next });
-    notify.success("Đã lưu cấu hình hóa đơn điện tử (demo)");
+    notify.success(tr("Đã lưu cấu hình hóa đơn điện tử (demo)"));
   };
 
   const checkConnection = async () => {
@@ -152,7 +169,7 @@ export default function SettingsPage() {
         notify.warning(res.message);
       }
     } catch (e) {
-      notify.fromError(e, "Không kiểm tra được kết nối");
+      notify.fromError(e, tr("Không kiểm tra được kết nối"));
     } finally {
       setChecking(false);
     }
@@ -182,7 +199,7 @@ export default function SettingsPage() {
     a.download = `dolphin-pos-backup-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    notify.success("Đã tải backup");
+    notify.success(tr("Đã tải backup"));
   };
 
   const restore = async (file: File) => {
@@ -204,7 +221,7 @@ export default function SettingsPage() {
       if (data.shifts) await db.shifts.bulkPut(data.shifts as never[]);
       if (data.meta) await db.meta.bulkPut(data.meta as never[]);
     });
-    notify.success("Đã khôi phục dữ liệu");
+    notify.success(tr("Đã khôi phục dữ liệu"));
     window.location.reload();
   };
 
@@ -215,9 +232,21 @@ export default function SettingsPage() {
     <AppShell>
       {confirmDialog}
       <PageHeader
-        title="Cài đặt"
-        description="Cửa hàng · hóa đơn điện tử · nhân viên"
+        title={tr("Cài đặt")}
+        description={tr("Cửa hàng · hóa đơn điện tử · nhân viên")}
       />
+
+      <label className="mb-4 block max-w-xs text-sm">
+        <span className="mb-1 block text-slate-500">{tr("Ngôn ngữ")}</span>
+        <select
+          className={selectClass}
+          value={lang}
+          onChange={(e) => setLang(e.target.value as "vi" | "en")}
+        >
+          <option value="vi">Tiếng Việt</option>
+          <option value="en">English</option>
+        </select>
+      </label>
 
       <div className="mb-4 flex gap-1 overflow-x-auto rounded-[12px] bg-white p-1 dark:bg-slate-900">
         {TABS.map(({ id, label, icon: Icon }) => (
@@ -233,28 +262,29 @@ export default function SettingsPage() {
             onClick={() => setTab(id)}
           >
             <Icon size={16} />
-            <span className="hidden sm:inline">{label}</span>
+            <span className="hidden sm:inline">{tr(label)}</span>
             <span className="sm:hidden">
-              {id === "store" ? "Shop" : id === "einvoice" ? "HĐĐT" : "NV"}
+              {id === "store" ? tr("Shop") : id === "einvoice" ? tr("HĐĐT") : tr("NV")}
             </span>
           </button>
         ))}
       </div>
 
       {tab === "store" ? (
+        <>
         <div className="grid gap-4 lg:grid-cols-2">
           <Card className="space-y-3 p-4">
-            <h2 className="font-bold">Thông tin cửa hàng</h2>
+            <h2 className="font-bold">{tr("Thông tin cửa hàng")}</h2>
             <p className="text-xs text-slate-500">
               Thông tin hiển thị trên Dolphin POS / bill — khác với tài khoản
               phát hành HĐĐT của nhà cung cấp.
             </p>
             <label className="block text-sm">
-              <span className="mb-1 block text-slate-500">Tên cửa hàng</span>
+              <span className="mb-1 block text-slate-500">{tr("Tên cửa hàng")}</span>
               <Input value={name} onChange={(e) => setName(e.target.value)} />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block text-slate-500">Logo (emoji)</span>
+              <span className="mb-1 block text-slate-500">{tr("Logo (emoji)")}</span>
               <Input
                 value={logoEmoji}
                 onChange={(e) => setLogoEmoji(e.target.value)}
@@ -262,14 +292,14 @@ export default function SettingsPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block text-slate-500">Địa chỉ</span>
+              <span className="mb-1 block text-slate-500">{tr("Địa chỉ")}</span>
               <Input
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block text-slate-500">Số điện thoại</span>
+              <span className="mb-1 block text-slate-500">{tr("Số điện thoại")}</span>
               <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
             </label>
             <label className="block text-sm">
@@ -282,7 +312,7 @@ export default function SettingsPage() {
             </label>
             <label className="block text-sm">
               <span className="mb-1 block text-slate-500">
-                Slogan / dòng phụ trên bill
+                {tr("Slogan / dòng phụ trên bill")}
               </span>
               <Input
                 value={slogan}
@@ -291,7 +321,7 @@ export default function SettingsPage() {
             </label>
             <label className="block text-sm">
               <span className="mb-1 block text-slate-500">
-                Lời cảm ơn cuối bill
+                {tr("Lời cảm ơn cuối bill")}
               </span>
               <Input
                 value={billFooter}
@@ -299,25 +329,25 @@ export default function SettingsPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block text-slate-500">Ngành hàng</span>
+              <span className="mb-1 block text-slate-500">{tr("Ngành hàng")}</span>
               <select
                 className={selectClass}
                 value={vertical}
                 onChange={(e) => setVertical(e.target.value as StoreVertical)}
               >
-                <option value="pet">Pet shop</option>
-                <option value="cafe">Cafe</option>
-                <option value="tra-sua">Trà sữa</option>
-                <option value="thoi-trang">Thời trang</option>
-                <option value="nha-hang">Nhà hàng</option>
-                <option value="tap-hoa">Tạp hóa</option>
-                <option value="dien-thoai">Điện thoại & laptop</option>
-                <option value="clothing">Clothing (legacy)</option>
-                <option value="general">General (legacy)</option>
+                <option value="pet">{tr("Pet shop")}</option>
+                <option value="cafe">{tr("Cafe")}</option>
+                <option value="tra-sua">{tr("Trà sữa")}</option>
+                <option value="thoi-trang">{tr("Thời trang")}</option>
+                <option value="nha-hang">{tr("Nhà hàng")}</option>
+                <option value="tap-hoa">{tr("Tạp hóa")}</option>
+                <option value="dien-thoai">{tr("Điện thoại & laptop")}</option>
+                <option value="clothing">{tr("Clothing (legacy)")}</option>
+                <option value="general">{tr("General (legacy)")}</option>
               </select>
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block text-slate-500">Khổ in bill</span>
+              <span className="mb-1 block text-slate-500">{tr("Khổ in bill")}</span>
               <select
                 className={selectClass}
                 value={receiptWidth}
@@ -325,12 +355,12 @@ export default function SettingsPage() {
                   setReceiptWidth(e.target.value as "58" | "80")
                 }
               >
-                <option value="58">In nhiệt 58mm</option>
-                <option value="80">In nhiệt 80mm</option>
+                <option value="58">{tr("In nhiệt 58mm")}</option>
+                <option value="80">{tr("In nhiệt 80mm")}</option>
               </select>
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block text-slate-500">Thuế % (POS)</span>
+              <span className="mb-1 block text-slate-500">{tr("Thuế % (POS)")}</span>
               <Input
                 type="number"
                 value={taxRate}
@@ -338,27 +368,28 @@ export default function SettingsPage() {
               />
             </label>
             <Button onClick={saveStore} className="w-full">
-              Lưu cửa hàng
+              {tr("Lưu cửa hàng")}
             </Button>
           </Card>
 
           <div className="space-y-4">
             <Card className="space-y-3 p-4">
-              <h2 className="font-bold">Thông tin pháp lý</h2>
+              <h2 className="font-bold">{tr("Thông tin pháp lý")}</h2>
               <p className="text-xs text-slate-500">
-                Hồ sơ nội bộ cửa hàng. Phát hành HĐĐT dùng cấu hình tài khoản
-                SePay ở tab riêng.
+                {tr(
+                  "Hồ sơ nội bộ cửa hàng. Phát hành HĐĐT dùng cấu hình tài khoản SePay ở tab riêng.",
+                )}
               </p>
               <label className="block text-sm">
-                <span className="mb-1 block text-slate-500">Tên pháp nhân</span>
+                <span className="mb-1 block text-slate-500">{tr("Tên pháp nhân")}</span>
                 <Input
                   value={legalName}
                   onChange={(e) => setLegalName(e.target.value)}
-                  placeholder="CÔNG TY TNHH …"
+                  placeholder={tr("CÔNG TY TNHH …")}
                 />
               </label>
               <label className="block text-sm">
-                <span className="mb-1 block text-slate-500">Mã số thuế</span>
+                <span className="mb-1 block text-slate-500">{tr("Mã số thuế")}</span>
                 <Input
                   value={taxCode}
                   onChange={(e) => setTaxCode(e.target.value)}
@@ -369,41 +400,27 @@ export default function SettingsPage() {
             </Card>
 
             <Card className="space-y-3 p-4">
-              <h2 className="font-bold">Giao diện</h2>
-              <div className="flex flex-wrap gap-2">
-                <Button variant="outline" onClick={() => setTheme("light")}>
-                  Light
-                </Button>
-                <Button variant="outline" onClick={() => setTheme("dark")}>
-                  Dark
-                </Button>
-                <Button variant="outline" onClick={() => setTheme("system")}>
-                  System
-                </Button>
-              </div>
-            </Card>
-
-            <Card className="space-y-3 p-4">
-              <h2 className="font-bold">Lĩnh vực demo</h2>
+              <h2 className="font-bold">{tr("Lĩnh vực demo")}</h2>
               <p className="text-sm text-slate-500">
-                Hiện tại:{" "}
+                {tr("Hiện tại")}:{" "}
                 <span className="font-semibold text-slate-800 dark:text-slate-100">
-                  {verticalLabel ?? "—"}
+                  {verticalLabel ? tr(verticalLabel) : "—"}
                 </span>
               </p>
               <p className="text-xs text-slate-400">
-                Đổi lĩnh vực sẽ đăng xuất và mở màn chọn (data mỗi lĩnh vực lưu
-                IndexedDB riêng).
+                {tr(
+                  "Đổi lĩnh vực sẽ đăng xuất và mở màn chọn (data mỗi lĩnh vực lưu IndexedDB riêng).",
+                )}
               </p>
               <Button
                 className="w-full"
                 variant="outline"
                 onClick={async () => {
                   const ok = await confirm({
-                    title: "Đổi lĩnh vực?",
+                    title: tr("Đổi lĩnh vực?"),
                     description:
-                      "Bạn sẽ đăng xuất và chọn lại Pet shop hoặc Cafe. Data lĩnh vực hiện tại vẫn giữ trên máy.",
-                    confirmLabel: "Đổi lĩnh vực",
+                      tr("Bạn sẽ đăng xuất và chọn lại Pet shop hoặc Cafe. Data lĩnh vực hiện tại vẫn giữ trên máy."),
+                    confirmLabel: tr("Đổi lĩnh vực"),
                   });
                   if (!ok) return;
                   clearStoredVertical();
@@ -412,18 +429,18 @@ export default function SettingsPage() {
                   router.replace("/chon-linh-vuc");
                 }}
               >
-                Đổi lĩnh vực cửa hàng
+                {tr("Đổi lĩnh vực cửa hàng")}
               </Button>
             </Card>
 
             <Card className="space-y-3 p-4">
               <h2 className="font-bold">Backup / Restore</h2>
               <Button className="w-full" variant="outline" onClick={backup}>
-                Tải backup JSON
+                {tr("Tải backup JSON")}
               </Button>
               <label className="block">
                 <span className="mb-1 block text-sm text-slate-500">
-                  Khôi phục từ file
+                  {tr("Khôi phục từ file")}
                 </span>
                 <Input
                   type="file"
@@ -439,29 +456,108 @@ export default function SettingsPage() {
                 className="w-full"
                 onClick={async () => {
                   const ok = await confirm({
-                    title: "Reset dữ liệu demo?",
+                    title: tr("Reset dữ liệu demo?"),
                     description:
-                      "Toàn bộ dữ liệu local sẽ bị xóa và seed lại từ đầu. Không thể hoàn tác.",
+                      tr("Toàn bộ dữ liệu local sẽ bị xóa và seed lại từ đầu. Không thể hoàn tác."),
                     confirmLabel: "Reset",
                     variant: "danger",
                   });
                   if (!ok) return;
                   await resetDatabase();
-                  notify.success("Đã reset DB");
+                  notify.success(tr("Đã reset DB"));
                   window.location.href = "/login";
                 }}
               >
-                Reset dữ liệu demo
+                {tr("Reset dữ liệu demo")}
               </Button>
             </Card>
           </div>
         </div>
+        <Card className="mt-4 space-y-3 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-bold">{tr("Chi nhánh")}</h2>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setBranchName("");
+                setBranchAddress("");
+                setBranchPhone("");
+                setBranchOpen(true);
+              }}
+            >
+              {tr("Thêm chi nhánh")}
+            </Button>
+          </div>
+          <ul className="space-y-2">
+            {branches.map((b) => (
+              <li
+                key={b.id}
+                className="rounded-[10px] border border-slate-200 px-3 py-2 text-sm dark:border-slate-700"
+              >
+                <p className="font-semibold">{b.name}</p>
+                <p className="text-xs text-slate-500">
+                  {b.address} · {b.phone}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+        <Dialog
+          open={branchOpen}
+          onClose={() => setBranchOpen(false)}
+          title={tr("Thêm chi nhánh")}
+        >
+          <div className="space-y-3">
+            <label className="block text-sm">
+              <span className="mb-1 block text-slate-500">{tr("Tên chi nhánh")}</span>
+              <Input
+                value={branchName}
+                onChange={(e) => setBranchName(e.target.value)}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block text-slate-500">{tr("Địa chỉ")}</span>
+              <Input
+                value={branchAddress}
+                onChange={(e) => setBranchAddress(e.target.value)}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block text-slate-500">{tr("Số điện thoại")}</span>
+              <Input
+                value={branchPhone}
+                onChange={(e) => setBranchPhone(e.target.value)}
+              />
+            </label>
+            <Button
+              className="w-full"
+              onClick={() => {
+                if (!branchName.trim()) {
+                  notify.error(tr("Nhập tên chi nhánh"));
+                  return;
+                }
+                void addBranch({
+                  name: branchName,
+                  address: branchAddress,
+                  phone: branchPhone,
+                }).then(() => {
+                  notify.success(tr("Đã thêm chi nhánh"));
+                  setBranchOpen(false);
+                });
+              }}
+            >
+              {tr("Thêm chi nhánh")}
+            </Button>
+          </div>
+        </Dialog>
+        </>
       ) : null}
 
       {tab === "einvoice" ? (
         <Card className="mx-auto max-w-xl space-y-4 p-4 sm:p-5">
           <div>
-            <h2 className="text-lg font-bold">Hóa đơn điện tử</h2>
+            <h2 className="text-lg font-bold">{tr("Hóa đơn điện tử")}</h2>
             <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
               Mode Simulator theo contract docs SePay — không phát hành hóa đơn
               pháp lý. Sandbox thật cần credential + API server (TODO).
@@ -482,13 +578,13 @@ export default function SettingsPage() {
               }
             >
               <option value="simulator">Simulator (docs / demo)</option>
-              <option value="sandbox">Sandbox thật (cần credential)</option>
+              <option value="sandbox">{tr("Sandbox thật (cần credential)")}</option>
             </select>
           </label>
 
           <label className="block text-sm">
             <span className="mb-1 block font-medium text-slate-500">
-              Nhà cung cấp
+              {tr("Nhà cung cấp")}
             </span>
             <select
               className={selectClass}
@@ -503,12 +599,12 @@ export default function SettingsPage() {
               }
             >
               <option value="sepay">SePay</option>
-              <option value="none">Chưa chọn</option>
+              <option value="none">{tr("Chưa chọn")}</option>
             </select>
           </label>
 
           <div className="rounded-[10px] bg-slate-50 px-3 py-3 dark:bg-slate-800">
-            <p className="text-sm font-medium text-slate-500">Trạng thái</p>
+            <p className="text-sm font-medium text-slate-500">{tr("Trạng thái")}</p>
             <p className="mt-1 flex items-center gap-2 text-sm font-semibold">
               {ei.provider !== "none" && ei.connected ? (
                 <>
@@ -632,7 +728,7 @@ export default function SettingsPage() {
               onClick={checkConnection}
               disabled={checking || ei.provider === "none"}
             >
-              {checking ? "Đang kiểm tra…" : "Kiểm tra kết nối"}
+              {checking ? tr("Đang kiểm tra…") : tr("Kiểm tra kết nối")}
             </Button>
             <Button
               className="flex-1"
@@ -650,7 +746,7 @@ export default function SettingsPage() {
           <Card className="p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="font-bold">Nhân viên & phân quyền</h2>
+                <h2 className="font-bold">{tr("Nhân viên & phân quyền")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   Owner / Quản lý / Thu ngân — quản lý chi tiết tại màn Nhân
                   viên.
@@ -700,14 +796,14 @@ export default function SettingsPage() {
             </p>
             <ul className="list-inside list-disc space-y-1 text-slate-500">
               <li>
-                <strong>Chủ cửa hàng</strong> — toàn quyền, gồm Cài đặt & HĐĐT
+                <strong>{tr("Chủ cửa hàng")}</strong> — toàn quyền, gồm Cài đặt & HĐĐT
               </li>
               <li>
-                <strong>Quản lý</strong> — bán hàng, kho, công nợ; hạn chế nhân
+                <strong>{tr("Quản lý")}</strong> — bán hàng, kho, công nợ; hạn chế nhân
                 viên/cài đặt
               </li>
               <li>
-                <strong>Thu ngân</strong> — bán hàng & xem cần thiết
+                <strong>{tr("Thu ngân")}</strong> — bán hàng & xem cần thiết
               </li>
             </ul>
           </Card>

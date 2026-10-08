@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
@@ -37,14 +39,14 @@ export default function ShiftsPage() {
 
   const submit = async () => {
     if (!shift) {
-      notify.error("Chưa mở ca");
+      notify.error(tr("Chưa mở ca"));
       return;
     }
     const sales = salesOf(shift.id);
     const expected = shift.openingCash + cashOf(shift.openedAt);
     const counted = Number(actual);
     if (!Number.isFinite(counted)) {
-      notify.error("Nhập tiền mặt đếm được");
+      notify.error(tr("Nhập tiền mặt đếm được"));
       return;
     }
     books.finance.closeReconciliation({
@@ -57,7 +59,7 @@ export default function ShiftsPage() {
       reason: reason.trim() || undefined,
     });
     await closeShift(counted, reason.trim() || undefined);
-    notify.success("Đã chốt ca");
+    notify.success(tr("Đã chốt ca"));
     setActual("");
     setReason("");
   };
@@ -70,16 +72,16 @@ export default function ShiftsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Ca & Đối soát"
-        description="Đối chiếu tiền mặt cuối ca với doanh thu tiền mặt trong ca."
+        title={tr("Ca & Đối soát")}
+        description={tr("Đối chiếu tiền mặt cuối ca với doanh thu tiền mặt trong ca.")}
       />
       <Tabs
         value={tab}
         onChange={setTab}
         options={[
-          { id: "current", label: "Ca hiện tại" },
-          { id: "history", label: "Lịch sử ca" },
-          { id: "gap", label: "Chênh lệch", badge: "advanced" },
+          { id: "current", label: tr("Ca hiện tại") },
+          { id: "history", label: tr("Lịch sử ca") },
+          { id: "gap", label: tr("Chênh lệch"), badge: "advanced" },
         ]}
       />
       {books.loading ? <LoadingBlock /> : null}
@@ -95,22 +97,22 @@ export default function ShiftsPage() {
               {formatVnd(shift.openingCash + cashOf(shift.openedAt))}
             </p>
             <label className="block">
-              <span className="mb-1 block text-slate-500">Tiền mặt thực tế</span>
+              <span className="mb-1 block text-slate-500">{tr("Tiền mặt thực tế")}</span>
               <Input type="number" value={actual} onChange={(e) => setActual(e.target.value)} />
             </label>
             <label className="block">
-              <span className="mb-1 block text-slate-500">Lý do chênh lệch</span>
+              <span className="mb-1 block text-slate-500">{tr("Lý do chênh lệch")}</span>
               <Input value={reason} onChange={(e) => setReason(e.target.value)} />
             </label>
-            <Button onClick={() => void submit()}>Chốt ca</Button>
+            <Button onClick={() => void submit()}>{tr("Chốt ca")}</Button>
           </Card>
         ) : (
-          <EmptyBlock text="Chưa mở ca. Dùng nút Mở ca trên thanh đầu trang." />
+          <EmptyBlock text={tr("Chưa mở ca. Dùng nút Mở ca trên thanh đầu trang.")} />
         )
       ) : null}
       {!books.loading && tab === "history" ? (
         history.length === 0 ? (
-          <EmptyBlock text="Chưa có ca nào." />
+          <EmptyBlock text={tr("Chưa có ca nào.")} />
         ) : (
           <ul className="space-y-2 text-sm">
             {history.map((s) => {
@@ -118,7 +120,7 @@ export default function ShiftsPage() {
               return (
                 <li key={s.id} className="rounded-[10px] border border-slate-200 p-3">
                   <p className="font-semibold">
-                    {s.userName} · {s.status === "open" ? "Đang mở" : "Đã đóng"}
+                    {s.userName} · {s.status === "open" ? tr("Đang mở") : tr("Đã đóng")}
                   </p>
                   <p className="text-slate-500">
                     {formatDateTime(s.openedAt)}
@@ -131,7 +133,7 @@ export default function ShiftsPage() {
                       {formatVnd(rec.actualCash - rec.expectedCash)}
                     </p>
                   ) : (
-                    <p className="text-slate-400">Chưa đối soát trong sổ tài chính</p>
+                    <p className="text-slate-400">{tr("Chưa đối soát trong sổ tài chính")}</p>
                   )}
                 </li>
               );
@@ -143,7 +145,7 @@ export default function ShiftsPage() {
         <div className="space-y-3">
           <PackageBadge tier="advanced" />
           {gaps.length === 0 ? (
-            <EmptyBlock text="Chưa có ca lệch tiền." />
+            <EmptyBlock text={tr("Chưa có ca lệch tiền.")} />
           ) : (
             <ul className="space-y-2 text-sm">
               {gaps.map((r) => (

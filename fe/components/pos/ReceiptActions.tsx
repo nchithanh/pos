@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useState } from "react";
 import { Download, FileText, Printer, Send } from "lucide-react";
 import { toast } from "sonner";
@@ -50,14 +52,14 @@ export function ReceiptActions({
           className={btnClass}
           onClick={() => setPreviewOpen(true)}
         >
-          <Printer size={16} /> In bill
+          <Printer size={16} /> {tr("In bill")}
         </Button>
         <Button
           variant="outline"
           className={btnClass}
           onClick={() => setSendOpen(true)}
         >
-          <Send size={16} /> Gửi bill
+          <Send size={16} /> {tr("Gửi bill")}
         </Button>
         <Button
           variant="outline"
@@ -72,9 +74,9 @@ export function ReceiptActions({
           onClick={() => {
             try {
               downloadReceiptPdf(current, store);
-              toast.success("Đã tải PDF bill");
+              toast.success(tr("Đã tải PDF bill"));
             } catch (e) {
-              toast.error(e instanceof Error ? e.message : "Không xuất PDF được");
+              toast.error(e instanceof Error ? e.message : tr("Không xuất PDF được"));
             }
           }}
         >
@@ -85,7 +87,7 @@ export function ReceiptActions({
       <Dialog
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        title="Xem trước bill"
+        title={tr("Xem trước bill")}
         className="max-w-md"
       >
         <div className="space-y-4">
@@ -100,14 +102,14 @@ export function ReceiptActions({
               className="flex-1"
               onClick={() => printReceipt(current, store)}
             >
-              <Printer size={16} /> In bill
+              <Printer size={16} /> {tr("In bill")}
             </Button>
             <Button
               variant="outline"
               className="flex-1"
               onClick={() => {
                 downloadReceiptPdf(current, store);
-                toast.success("Đã tải PDF bill");
+                toast.success(tr("Đã tải PDF bill"));
               }}
             >
               <Download size={16} /> PDF
@@ -117,7 +119,7 @@ export function ReceiptActions({
               className="flex-1"
               onClick={() => setPreviewOpen(false)}
             >
-              Đóng
+              {tr("Đóng")}
             </Button>
           </div>
         </div>

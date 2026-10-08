@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -49,19 +51,19 @@ export function WarehouseNav() {
         <ol className="flex flex-wrap items-center gap-1">
           <li>
             <Link href="/kho" className="font-medium hover:text-slate-800 hover:underline">
-              Kho
+              {tr("Kho")}
             </Link>
           </li>
           {current.href !== "/kho" ? (
             <li className="text-slate-800 dark:text-slate-100">
               <span aria-hidden> / </span>
-              {current.label}
+              {tr(current.label)}
             </li>
           ) : null}
         </ol>
       </nav>
       <label className="block md:hidden">
-        <span className="sr-only">Chọn mục kho</span>
+        <span className="sr-only">{tr("Chọn mục kho")}</span>
         <select
           className={cn(fieldClass, "w-full")}
           value={current.href}
@@ -69,7 +71,7 @@ export function WarehouseNav() {
         >
           {LINKS.map((l) => (
             <option key={l.href} value={l.href}>
-              {l.label}
+              {tr(l.label)}
             </option>
           ))}
         </select>
@@ -88,7 +90,7 @@ export function WarehouseNav() {
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300",
               )}
             >
-              {l.label}
+              {tr(l.label)}
             </Link>
           );
         })}

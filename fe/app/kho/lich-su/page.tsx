@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/layout/app-shell";
@@ -9,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { db } from "@/lib/db";
+import { inBranch } from "@/lib/branch";
+import { useBranchId } from "@/lib/use-branch";
 import { formatDateTime } from "@/lib/utils";
 import type { InventoryMovement } from "@/types";
 
@@ -21,7 +25,11 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 export default function MovementPage() {
-  const movements = useLiveQuery(() => db.movements.toArray());
+  const branchId = useBranchId();
+  const movements = useLiveQuery(
+    () => db.movements.filter((m) => inBranch(m.branchId, branchId)).toArray(),
+    [branchId],
+  );
   const products = useLiveQuery(() => db.products.toArray()) ?? [];
   const [q, setQ] = useState("");
   const [type, setType] = useState("all");
@@ -42,27 +50,27 @@ export default function MovementPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Lịch sử kho"
-        description="Mỗi biến động ghi thời điểm, người làm, tồn trước và tồn sau."
+        title={tr("Lịch sử kho")}
+        description={tr("Mỗi biến động ghi thời điểm, người làm, tồn trước và tồn sau.")}
       />
       <WarehouseNav />
       <div className="mb-3 flex gap-2">
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Tìm sản phẩm, SKU, chứng từ"
-          aria-label="Tìm biến động"
+          placeholder={tr("Tìm sản phẩm, SKU, chứng từ")}
+          aria-label={tr("Tìm biến động")}
         />
         <Button variant="outline" className="md:hidden" onClick={() => setFilters(true)}>
-          Bộ lọc
+          {tr("Bộ lọc")}
         </Button>
         <select
           className="hidden min-h-11 rounded-[10px] border border-slate-200 px-3 text-sm md:block dark:border-slate-700 dark:bg-slate-900"
           value={type}
-          aria-label="Loại biến động"
+          aria-label={tr("Loại biến động")}
           onChange={(e) => setType(e.target.value)}
         >
-          <option value="all">Mọi loại</option>
+          <option value="all">{tr("Mọi loại")}</option>
           {Object.entries(TYPE_LABEL).map(([id, label]) => (
             <option key={id} value={id}>
               {label}
@@ -71,9 +79,9 @@ export default function MovementPage() {
         </select>
       </div>
       {movements === undefined ? (
-        <p className="text-sm text-slate-500">Đang tải lịch sử…</p>
+        <p className="text-sm text-slate-500">{tr("Đang tải lịch sử…")}</p>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-slate-500">Chưa có biến động khớp bộ lọc.</p>
+        <p className="text-sm text-slate-500">{tr("Chưa có biến động khớp bộ lọc.")}</p>
       ) : (
         <ul className="space-y-2">
           {rows.map((m) => (
@@ -95,13 +103,13 @@ export default function MovementPage() {
           ))}
         </ul>
       )}
-      <Dialog open={filters} onClose={() => setFilters(false)} title="Bộ lọc">
+      <Dialog open={filters} onClose={() => setFilters(false)} title={tr("Bộ lọc")}>
         <select
           className="min-h-11 w-full rounded-[10px] border border-slate-200 px-3 dark:border-slate-700 dark:bg-slate-900"
           value={type}
           onChange={(e) => setType(e.target.value)}
         >
-          <option value="all">Mọi loại</option>
+          <option value="all">{tr("Mọi loại")}</option>
           {Object.entries(TYPE_LABEL).map(([id, label]) => (
             <option key={id} value={id}>
               {label}
@@ -109,10 +117,10 @@ export default function MovementPage() {
           ))}
         </select>
         <Button className="mt-3 w-full" onClick={() => setFilters(false)}>
-          Áp dụng
+          {tr("Áp dụng")}
         </Button>
       </Dialog>
-      <Dialog open={!!picked} onClose={() => setPicked(null)} title="Chi tiết biến động">
+      <Dialog open={!!picked} onClose={() => setPicked(null)} title={tr("Chi tiết biến động")}>
         {picked ? (
           <div className="space-y-2 text-sm">
             <p className="font-bold">{picked.code}</p>

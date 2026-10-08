@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -25,7 +27,7 @@ export default function CustomersPage() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [group, setGroup] = useState("Khách lẻ");
+  const [group, setGroup] = useState(tr("Khách lẻ"));
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -58,17 +60,17 @@ export default function CustomersPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Khách hàng"
-        description="Dolphin Customer · điểm tích lũy · AI nhắc quay lại"
+        title={tr("Khách hàng")}
+        description={tr("Dolphin Customer · điểm tích lũy · AI nhắc quay lại")}
         actions={
           <Button onClick={() => setOpen(true)}>
-            <Plus size={16} /> Thêm
+            <Plus size={16} /> {tr("Thêm")}
           </Button>
         }
       />
       <Input
         className="mb-4"
-        placeholder="Tìm tên / SĐT…"
+        placeholder={tr("Tìm tên / SĐT…")}
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
@@ -80,9 +82,9 @@ export default function CustomersPage() {
           ) : filtered.length === 0 ? (
             <Card>
               <EmptyState
-                title="Chưa có khách"
+                title={tr("Chưa có khách")}
                 action={
-                  <Button onClick={() => setOpen(true)}>Thêm khách</Button>
+                  <Button onClick={() => setOpen(true)}>{tr("Thêm khách")}</Button>
                 }
               />
             </Card>
@@ -102,7 +104,7 @@ export default function CustomersPage() {
                     <p className="text-xs text-slate-500">
                       {c.lastPurchaseAt
                         ? `Mua gần nhất ${formatDate(c.lastPurchaseAt)}`
-                        : "Chưa mua"}{" "}
+                        : tr("Chưa mua")}{" "}
                       · {c.points} điểm · {c.visitCount} lần
                     </p>
                   </div>
@@ -110,7 +112,7 @@ export default function CustomersPage() {
                     <p className="font-bold">{formatVnd(c.totalSpent)}</p>
                     {c.debt > 0 ? (
                       <p className="text-xs text-amber-600">
-                        Nợ {formatVnd(c.debt)}
+                        {tr("Nợ")} {formatVnd(c.debt)}
                       </p>
                     ) : null}
                   </div>
@@ -157,20 +159,20 @@ export default function CustomersPage() {
         </Card>
       </div>
 
-      <Dialog open={open} onClose={() => setOpen(false)} title="Thêm khách hàng">
+      <Dialog open={open} onClose={() => setOpen(false)} title={tr("Thêm khách hàng")}>
         <div className="space-y-3">
           <Input
-            placeholder="Tên"
+            placeholder={tr("Tên")}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <Input
-            placeholder="SĐT"
+            placeholder={tr("SĐT")}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
           <Input
-            placeholder="Nhóm"
+            placeholder={tr("Nhóm")}
             value={group}
             onChange={(e) => setGroup(e.target.value)}
           />
@@ -178,7 +180,7 @@ export default function CustomersPage() {
             className="w-full"
             onClick={async () => {
               if (!name.trim() || !phone.trim())
-                return notify.error("Thiếu thông tin");
+                return notify.error(tr("Thiếu thông tin"));
               await db.customers.add({
                 id: uid("cus"),
                 name: name.trim(),
@@ -190,13 +192,13 @@ export default function CustomersPage() {
                 debt: 0,
                 createdAt: new Date().toISOString(),
               });
-              notify.success("Đã thêm khách");
+              notify.success(tr("Đã thêm khách"));
               setOpen(false);
               setName("");
               setPhone("");
             }}
           >
-            Lưu
+            {tr("Lưu")}
           </Button>
         </div>
       </Dialog>
@@ -204,7 +206,7 @@ export default function CustomersPage() {
       <Dialog
         open={!!detailId}
         onClose={() => setDetailId(null)}
-        title={detail?.name ?? "Khách hàng"}
+        title={detail?.name ?? tr("Khách hàng")}
       >
         {detail ? (
           <div className="space-y-3">
@@ -227,10 +229,10 @@ export default function CustomersPage() {
                 </Button>
               </a>
             </div>
-            <h3 className="text-sm font-bold">Lịch sử mua</h3>
+            <h3 className="text-sm font-bold">{tr("Lịch sử mua")}</h3>
             <ul className="max-h-64 space-y-2 overflow-auto text-sm">
               {history.length === 0 ? (
-                <li className="text-slate-500">Chưa có đơn gắn khách này.</li>
+                <li className="text-slate-500">{tr("Chưa có đơn gắn khách này.")}</li>
               ) : (
                 history.map((o) => (
                   <li

@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState, type ReactNode } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
@@ -92,7 +94,7 @@ export default function CashFlowPage() {
   const saveIn = () => {
     const value = Number(amount) || 0;
     if (value <= 0) {
-      notify.error("Nhập số tiền");
+      notify.error(tr("Nhập số tiền"));
       return;
     }
     books.finance.addTxn({
@@ -102,14 +104,14 @@ export default function CashFlowPage() {
       description: note || inType,
       accountId: acc,
       amount: value,
-      createdBy: user?.name ?? "Chủ cửa hàng",
+      createdBy: user?.name ?? tr("Chủ cửa hàng"),
       method: acc === "acc_cash" ? "cash" : "transfer",
       party,
       source: "manual",
       profitClass: "none",
       attachmentName: fileName || undefined,
     });
-    notify.success("Đã ghi phiếu thu");
+    notify.success(tr("Đã ghi phiếu thu"));
     setModal(null);
     resetForm();
   };
@@ -117,17 +119,17 @@ export default function CashFlowPage() {
   const saveOut = () => {
     const value = Number(amount) || 0;
     if (value <= 0) {
-      notify.error("Nhập số tiền");
+      notify.error(tr("Nhập số tiền"));
       return;
     }
     const bal = accountBalance(books.finance.accounts, books.finance.txns, acc);
     if (value > bal) {
-      notify.error("Số dư tài khoản không đủ");
+      notify.error(tr("Số dư tài khoản không đủ"));
       return;
     }
     const opex = ![
-      "Nhập hàng",
-      "Trả công nợ NCC",
+      tr("Nhập hàng"),
+      tr("Trả công nợ NCC"),
     ].includes(outCat);
     books.finance.addTxn({
       at: new Date().toISOString(),
@@ -136,13 +138,13 @@ export default function CashFlowPage() {
       description: note || outCat,
       accountId: acc,
       amount: value,
-      createdBy: user?.name ?? "Chủ cửa hàng",
+      createdBy: user?.name ?? tr("Chủ cửa hàng"),
       party,
       source: "manual",
       profitClass: opex ? "opex" : "none",
       attachmentName: fileName || undefined,
     });
-    notify.success("Đã ghi phiếu chi");
+    notify.success(tr("Đã ghi phiếu chi"));
     setModal(null);
     resetForm();
   };
@@ -150,31 +152,31 @@ export default function CashFlowPage() {
   const saveTransfer = () => {
     const value = Number(amount) || 0;
     if (value <= 0) {
-      notify.error("Nhập số tiền");
+      notify.error(tr("Nhập số tiền"));
       return;
     }
     if (acc === accTo) {
-      notify.error("Chọn hai tài khoản khác nhau");
+      notify.error(tr("Chọn hai tài khoản khác nhau"));
       return;
     }
     const bal = accountBalance(books.finance.accounts, books.finance.txns, acc);
     if (value > bal) {
-      notify.error("Số dư tài khoản nguồn không đủ");
+      notify.error(tr("Số dư tài khoản nguồn không đủ"));
       return;
     }
     books.finance.addTxn({
       at: new Date().toISOString(),
       kind: "transfer",
-      category: "Chuyển tiền",
-      description: note || "Chuyển tiền nội bộ",
+      category: tr("Chuyển tiền"),
+      description: note || tr("Chuyển tiền nội bộ"),
       accountId: acc,
       counterAccountId: accTo,
       amount: value,
-      createdBy: user?.name ?? "Chủ cửa hàng",
+      createdBy: user?.name ?? tr("Chủ cửa hàng"),
       source: "transfer",
       profitClass: "none",
     });
-    notify.success("Đã chuyển tiền — không tính vào doanh thu hay lợi nhuận");
+    notify.success(tr("Đã chuyển tiền — không tính vào doanh thu hay lợi nhuận"));
     setModal(null);
     resetForm();
   };
@@ -183,7 +185,7 @@ export default function CashFlowPage() {
 
   const closeShiftBook = () => {
     if (!shift) {
-      notify.error("Chưa có ca đang mở");
+      notify.error(tr("Chưa có ca đang mở"));
       return;
     }
     const sales = books.orders
@@ -208,7 +210,7 @@ export default function CashFlowPage() {
       actualCash: actual,
       reason: reason.trim() || undefined,
     });
-    notify.success("Đã chốt ca");
+    notify.success(tr("Đã chốt ca"));
     setAmount("");
     setReason("");
   };
@@ -216,8 +218,8 @@ export default function CashFlowPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Dòng tiền"
-        description="Phiếu thu, phiếu chi và chuyển tiền giữa các quỹ. Chuyển tiền không làm đổi lợi nhuận."
+        title={tr("Dòng tiền")}
+        description={tr("Phiếu thu, phiếu chi và chuyển tiền giữa các quỹ. Chuyển tiền không làm đổi lợi nhuận.")}
         actions={
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={() => setModal("in")}>
@@ -227,7 +229,7 @@ export default function CashFlowPage() {
               + Phiếu chi
             </Button>
             <Button size="sm" variant="outline" onClick={() => setModal("transfer")}>
-              Chuyển tiền
+              {tr("Chuyển tiền")}
             </Button>
           </div>
         }
@@ -237,11 +239,11 @@ export default function CashFlowPage() {
         value={tab}
         onChange={(v) => setTab(v as Tab)}
         options={[
-          { id: "all", label: "Giao dịch" },
-          { id: "in", label: "Phiếu thu" },
-          { id: "out", label: "Phiếu chi" },
-          { id: "transfer", label: "Chuyển tiền" },
-          { id: "recon", label: "Đối soát", badge: "advanced" },
+          { id: "all", label: tr("Giao dịch") },
+          { id: "in", label: tr("Phiếu thu") },
+          { id: "out", label: tr("Phiếu chi") },
+          { id: "transfer", label: tr("Chuyển tiền") },
+          { id: "recon", label: tr("Đối soát"), badge: "advanced" },
         ]}
       />
 
@@ -261,7 +263,7 @@ export default function CashFlowPage() {
             <div className="flex rounded-full bg-slate-100 p-1">
               {(
                 [
-                  ["all", "Tất cả"],
+                  ["all", tr("Tất cả")],
                   ["in", "Thu"],
                   ["out", "Chi"],
                 ] as const
@@ -279,8 +281,8 @@ export default function CashFlowPage() {
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Tìm nội dung"
-              aria-label="Tìm giao dịch"
+              placeholder={tr("Tìm nội dung")}
+              aria-label={tr("Tìm giao dịch")}
               className="max-w-xs"
             />
             <div className="hidden flex-wrap gap-2 lg:flex">
@@ -296,7 +298,7 @@ export default function CashFlowPage() {
               />
             </div>
             <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setFiltersOpen(true)}>
-              Bộ lọc
+              {tr("Bộ lọc")}
             </Button>
             {pickedIds.length > 0 ? (
               <Button
@@ -312,7 +314,7 @@ export default function CashFlowPage() {
             ) : null}
           </div>
           {rows.length === 0 ? (
-            <EmptyBlock text="Không có giao dịch khớp bộ lọc." />
+            <EmptyBlock text={tr("Không có giao dịch khớp bộ lọc.")} />
           ) : (
             <>
               <div className="hidden md:block">
@@ -323,14 +325,14 @@ export default function CashFlowPage() {
                         <th className="px-3 py-2">
                           <input
                             type="checkbox"
-                            aria-label="Chọn tất cả"
+                            aria-label={tr("Chọn tất cả")}
                             checked={rows.length > 0 && rows.every((t) => pickedIds.includes(t.id))}
                             onChange={(e) =>
                               setPickedIds(e.target.checked ? rows.map((t) => t.id) : [])
                             }
                           />
                         </th>
-                        {["Thời gian", "Loại", "Danh mục", "Nội dung", "Tài khoản", "Số tiền", "Người tạo", "Trạng thái"].map(
+                        {[tr("Thời gian"), tr("Loại"), tr("Danh mục"), tr("Nội dung"), tr("Tài khoản"), tr("Số tiền"), tr("Người tạo"), tr("Trạng thái")].map(
                           (h) => (
                             <th key={h} className="px-3 py-2 font-medium">
                               {h}
@@ -414,7 +416,7 @@ export default function CashFlowPage() {
       {!books.loading && tab === "recon" ? (
         <Card className="space-y-3 p-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold">Ca hiện tại</h2>
+            <h2 className="text-base font-bold">{tr("Ca hiện tại")}</h2>
             <PackageBadge tier="advanced" />
           </div>
           {shift ? (
@@ -425,7 +427,7 @@ export default function CashFlowPage() {
                 Tiền mặt đầu ca: {formatVnd(shift.openingCash)}
               </p>
               <label className="block text-sm">
-                <span className="mb-1 block text-slate-500">Tiền mặt đếm được</span>
+                <span className="mb-1 block text-slate-500">{tr("Tiền mặt đếm được")}</span>
                 <Input
                   type="number"
                   value={amount}
@@ -433,17 +435,17 @@ export default function CashFlowPage() {
                 />
               </label>
               <label className="block text-sm">
-                <span className="mb-1 block text-slate-500">Lý do chênh lệch</span>
+                <span className="mb-1 block text-slate-500">{tr("Lý do chênh lệch")}</span>
                 <Input value={reason} onChange={(e) => setReason(e.target.value)} />
               </label>
-              <Button onClick={closeShiftBook}>Chốt ca</Button>
+              <Button onClick={closeShiftBook}>{tr("Chốt ca")}</Button>
             </>
           ) : (
-            <EmptyBlock text="Chưa mở ca. Mở ca từ thanh trên cùng rồi quay lại đối soát." />
+            <EmptyBlock text={tr("Chưa mở ca. Mở ca từ thanh trên cùng rồi quay lại đối soát.")} />
           )}
-          <h3 className="pt-2 text-sm font-bold">Đã chốt</h3>
+          <h3 className="pt-2 text-sm font-bold">{tr("Đã chốt")}</h3>
           {books.finance.reconciliations.length === 0 ? (
-            <p className="text-sm text-slate-500">Chưa có ca nào được chốt trong sổ này.</p>
+            <p className="text-sm text-slate-500">{tr("Chưa có ca nào được chốt trong sổ này.")}</p>
           ) : (
             <ul className="space-y-2 text-sm">
               {books.finance.reconciliations.map((r) => (
@@ -464,7 +466,7 @@ export default function CashFlowPage() {
         </Card>
       ) : null}
 
-      <Dialog open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Bộ lọc">
+      <Dialog open={filtersOpen} onClose={() => setFiltersOpen(false)} title={tr("Bộ lọc")}>
         <div className="flex flex-col gap-2">
           <FilterFields
             accountId={accountId}
@@ -476,32 +478,32 @@ export default function CashFlowPage() {
             accounts={accounts.map((a) => ({ id: a.id, name: a.name }))}
             staffNames={staffNames}
           />
-          <Button onClick={() => setFiltersOpen(false)}>Áp dụng</Button>
+          <Button onClick={() => setFiltersOpen(false)}>{tr("Áp dụng")}</Button>
         </div>
       </Dialog>
 
-      <Dialog open={modal === "in"} onClose={() => setModal(null)} title="Phiếu thu">
+      <Dialog open={modal === "in"} onClose={() => setModal(null)} title={tr("Phiếu thu")}>
         <div className="space-y-3">
-          <Field label="Loại thu">
+          <Field label={tr("Loại thu")}>
             <Select value={inType} onChange={setInType} options={INCOME_TYPES.map((x) => [x, x])} />
           </Field>
-          <Field label="Số tiền">
+          <Field label={tr("Số tiền")}>
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </Field>
-          <Field label="Tài khoản nhận">
+          <Field label={tr("Tài khoản nhận")}>
             <Select
               value={acc}
               onChange={setAcc}
               options={accounts.map((a) => [a.id, a.name])}
             />
           </Field>
-          <Field label="Người nộp">
+          <Field label={tr("Người nộp")}>
             <Input value={party} onChange={(e) => setParty(e.target.value)} />
           </Field>
-          <Field label="Nội dung">
+          <Field label={tr("Nội dung")}>
             <Input value={note} onChange={(e) => setNote(e.target.value)} />
           </Field>
-          <Field label="Đính kèm chứng từ">
+          <Field label={tr("Đính kèm chứng từ")}>
             <Input
               type="file"
               onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
@@ -513,24 +515,24 @@ export default function CashFlowPage() {
         </div>
       </Dialog>
 
-      <Dialog open={modal === "out"} onClose={() => setModal(null)} title="Phiếu chi">
+      <Dialog open={modal === "out"} onClose={() => setModal(null)} title={tr("Phiếu chi")}>
         <div className="space-y-3">
-          <Field label="Danh mục">
+          <Field label={tr("Danh mục")}>
             <Select value={outCat} onChange={setOutCat} options={EXPENSE_CATEGORIES.map((x) => [x, x])} />
           </Field>
-          <Field label="Số tiền">
+          <Field label={tr("Số tiền")}>
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </Field>
-          <Field label="Tài khoản chi">
+          <Field label={tr("Tài khoản chi")}>
             <Select value={acc} onChange={setAcc} options={accounts.map((a) => [a.id, a.name])} />
           </Field>
-          <Field label="Người nhận">
+          <Field label={tr("Người nhận")}>
             <Input value={party} onChange={(e) => setParty(e.target.value)} />
           </Field>
-          <Field label="Nội dung">
+          <Field label={tr("Nội dung")}>
             <Input value={note} onChange={(e) => setNote(e.target.value)} />
           </Field>
-          <Field label="Đính kèm chứng từ">
+          <Field label={tr("Đính kèm chứng từ")}>
             <Input type="file" onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")} />
           </Field>
           <Button className="w-full" onClick={saveOut}>
@@ -539,18 +541,18 @@ export default function CashFlowPage() {
         </div>
       </Dialog>
 
-      <Dialog open={modal === "transfer"} onClose={() => setModal(null)} title="Chuyển tiền">
+      <Dialog open={modal === "transfer"} onClose={() => setModal(null)} title={tr("Chuyển tiền")}>
         <div className="space-y-3">
-          <Field label="Từ tài khoản">
+          <Field label={tr("Từ tài khoản")}>
             <Select value={acc} onChange={setAcc} options={accounts.map((a) => [a.id, a.name])} />
           </Field>
-          <Field label="Đến tài khoản">
+          <Field label={tr("Đến tài khoản")}>
             <Select value={accTo} onChange={setAccTo} options={accounts.map((a) => [a.id, a.name])} />
           </Field>
-          <Field label="Số tiền">
+          <Field label={tr("Số tiền")}>
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </Field>
-          <Field label="Nội dung">
+          <Field label={tr("Nội dung")}>
             <Input value={note} onChange={(e) => setNote(e.target.value)} />
           </Field>
           <p className="text-xs text-slate-500">
@@ -562,7 +564,7 @@ export default function CashFlowPage() {
         </div>
       </Dialog>
 
-      <Dialog open={!!picked} onClose={() => setPicked(null)} title="Giao dịch">
+      <Dialog open={!!picked} onClose={() => setPicked(null)} title={tr("Giao dịch")}>
         {picked ? (
           <div className="space-y-1 text-sm">
             <p className="text-lg font-bold">{formatVnd(picked.amount)}</p>
@@ -580,7 +582,7 @@ export default function CashFlowPage() {
 function labelKind(kind: FinanceTxn["kind"]) {
   if (kind === "in") return "Thu";
   if (kind === "out") return "Chi";
-  return "Chuyển";
+  return tr("Chuyển");
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -617,7 +619,7 @@ function Select({
 }
 
 function downloadTxnCsv(rows: FinanceTxn[]) {
-  const header = ["Thời gian", "Loại", "Danh mục", "Nội dung", "Số tiền"];
+  const header = [tr("Thời gian"), tr("Loại"), tr("Danh mục"), tr("Nội dung"), tr("Số tiền")];
   const lines = rows.map((t) =>
     [t.at, t.kind, t.category, t.description, t.amount]
       .map((cell) => `"${String(cell).replaceAll('"', '""')}"`)
@@ -655,7 +657,7 @@ function FilterFields(props: {
         value={props.category}
         onChange={props.setCategory}
         options={[
-          ["all", "Mọi danh mục"],
+          ["all", tr("Mọi danh mục")],
           ...[...INCOME_TYPES, ...EXPENSE_CATEGORIES].map((c) => [c, c] as [string, string]),
         ]}
       />

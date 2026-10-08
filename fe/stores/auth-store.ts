@@ -1,8 +1,16 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { db } from "@/lib/db";
+import {
+  inBranch,
+  PRIMARY_BRANCH_ID,
+  readBranchId,
+  readWriteBranchId,
+} from "@/lib/branch";
 import { uid } from "@/lib/utils";
 import type { Shift, User } from "@/types";
 
@@ -31,9 +39,15 @@ export const useAuthStore = create<AuthState>()(
         const user = await db.users
           .filter((u) => u.pin === pin && u.status === "active")
           .first();
-        if (!user) throw new Error("Mã PIN không đúng");
+        if (!user) throw new Error(tr("Mã PIN không đúng"));
+        const active = readBranchId();
         const open = await db.shifts
-          .filter((s) => s.userId === user.id && s.status === "open")
+          .filter(
+            (s) =>
+              s.userId === user.id &&
+              s.status === "open" &&
+              inBranch(s.branchId, active),
+          )
           .first();
         set({ user, shift: open ?? null });
         return user;
@@ -48,9 +62,15 @@ export const useAuthStore = create<AuthState>()(
               u.status === "active",
           )
           .first();
-        if (!user) throw new Error("Email hoặc mật khẩu không đúng");
+        if (!user) throw new Error(tr("Email hoặc mật khẩu không đúng"));
+        const active = readBranchId();
         const open = await db.shifts
-          .filter((s) => s.userId === user.id && s.status === "open")
+          .filter(
+            (s) =>
+              s.userId === user.id &&
+              s.status === "open" &&
+              inBranch(s.branchId, active),
+          )
           .first();
         set({ user, shift: open ?? null });
         return user;
@@ -60,9 +80,15 @@ export const useAuthStore = create<AuthState>()(
 
       openShift: async (openingCash, note) => {
         const user = get().user;
-        if (!user) throw new Error("Chưa đăng nhập");
+        if (!user) throw new Error(tr("Chưa đăng nhập"));
+        const active = readBranchId();
         const existing = await db.shifts
-          .filter((s) => s.userId === user.id && s.status === "open")
+          .filter(
+            (s) =>
+              s.userId === user.id &&
+              s.status === "open" &&
+              inBranch(s.branchId, active),
+          )
           .first();
         if (existing) {
           set({ shift: existing });
@@ -76,6 +102,7 @@ export const useAuthStore = create<AuthState>()(
           openingCash,
           note,
           status: "open",
+          branchId: readWriteBranchId() || PRIMARY_BRANCH_ID,
         };
         await db.shifts.add(shift);
         set({ shift });
@@ -84,7 +111,7 @@ export const useAuthStore = create<AuthState>()(
 
       closeShift: async (closingCash, note) => {
         const shift = get().shift;
-        if (!shift) throw new Error("Chưa mở ca");
+        if (!shift) throw new Error(tr("Chưa mở ca"));
         await db.shifts.update(shift.id, {
           status: "closed",
           closedAt: new Date().toISOString(),
@@ -97,8 +124,14 @@ export const useAuthStore = create<AuthState>()(
       refreshShift: async () => {
         const user = get().user;
         if (!user) return;
+        const active = readBranchId();
         const open = await db.shifts
-          .filter((s) => s.userId === user.id && s.status === "open")
+          .filter(
+            (s) =>
+              s.userId === user.id &&
+              s.status === "open" &&
+              inBranch(s.branchId, active),
+          )
           .first();
         set({ shift: open ?? null });
       },

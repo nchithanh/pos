@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
@@ -9,7 +11,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { EmptyBlock, LoadingBlock, Tabs } from "@/components/finance/widgets";
 import { useBooks } from "@/lib/finance/use-books";
-import { agingSums, debtAgeBucket, debtRemain, debtUiStatus } from "@/lib/finance/metrics";
+import { agingSums, debtAgeBucket, debtRemain, debtUiStatus, debtUiStatusLabel } from "@/lib/finance/metrics";
 import { payDebt } from "@/lib/services/debts";
 import { useAuthStore } from "@/stores/auth-store";
 import { formatDate, formatVnd } from "@/lib/utils";
@@ -44,25 +46,25 @@ export default function FinanceDebtsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Công nợ"
-        description="Phải thu khách và phải trả nhà cung cấp. Thanh toán ghi vào sổ quỹ ngay."
+        title={tr("Công nợ")}
+        description={tr("Phải thu khách và phải trả nhà cung cấp. Thanh toán ghi vào sổ quỹ ngay.")}
       />
       <Tabs
         value={tab}
         onChange={setTab}
         options={[
-          { id: "overview", label: "Tổng quan" },
-          { id: "recv", label: "Phải thu" },
-          { id: "pay", label: "Phải trả" },
-          { id: "payments", label: "Thanh toán" },
-          { id: "remind", label: "Nhắc nợ" },
+          { id: "overview", label: tr("Tổng quan") },
+          { id: "recv", label: tr("Phải thu") },
+          { id: "pay", label: tr("Phải trả") },
+          { id: "payments", label: tr("Thanh toán") },
+          { id: "remind", label: tr("Nhắc nợ") },
         ]}
       />
       {books.loading ? <LoadingBlock /> : null}
       {!books.loading && tab === "overview" ? (
         <div className="grid gap-3 sm:grid-cols-2">
-          <AgingCard title="Phải thu" total={recvOpen} rows={recv} />
-          <AgingCard title="Phải trả" total={payOpen} rows={pay} />
+          <AgingCard title={tr("Phải thu")} total={recvOpen} rows={recv} />
+          <AgingCard title={tr("Phải trả")} total={payOpen} rows={pay} />
         </div>
       ) : null}
       {!books.loading && (tab === "recv" || tab === "pay") ? (
@@ -87,7 +89,7 @@ export default function FinanceDebtsPage() {
           onBulkRemind={() => {
             const targets = list.filter((d) => selected.includes(d.id) && d.type === "receivable");
             if (!targets.length) {
-              notify.error("Chọn khoản phải thu để nhắc");
+              notify.error(tr("Chọn khoản phải thu để nhắc"));
               return;
             }
             for (const d of targets) {
@@ -104,7 +106,7 @@ export default function FinanceDebtsPage() {
       ) : null}
       {!books.loading && tab === "payments" ? (
         payments.length === 0 ? (
-          <EmptyBlock text="Chưa có lần thanh toán công nợ trong sổ quỹ." />
+          <EmptyBlock text={tr("Chưa có lần thanh toán công nợ trong sổ quỹ.")} />
         ) : (
           <ul className="space-y-2 text-sm">
             {payments.map((t) => (
@@ -121,7 +123,7 @@ export default function FinanceDebtsPage() {
       ) : null}
       {!books.loading && tab === "remind" ? (
         books.finance.reminders.length === 0 ? (
-          <EmptyBlock text="Chưa tạo nhắc nợ. Dùng nút Nhắc khách ở tab Phải thu." />
+          <EmptyBlock text={tr("Chưa tạo nhắc nợ. Dùng nút Nhắc khách ở tab Phải thu.")} />
         ) : (
           <ul className="space-y-2 text-sm">
             {books.finance.reminders.map((r) => (
@@ -133,17 +135,17 @@ export default function FinanceDebtsPage() {
         )
       ) : null}
 
-      <Dialog open={!!payRow} onClose={() => setPayRow(null)} title="Thanh toán công nợ">
+      <Dialog open={!!payRow} onClose={() => setPayRow(null)} title={tr("Thanh toán công nợ")}>
         {payRow ? (
           <div className="space-y-3 text-sm">
             <p className="font-semibold">{payRow.partyName}</p>
-            <p>Còn lại {formatVnd(debtRemain(payRow))}</p>
+            <p>{tr("Còn lại")} {formatVnd(debtRemain(payRow))}</p>
             <label className="block">
-              <span className="mb-1 block text-slate-500">Số tiền</span>
+              <span className="mb-1 block text-slate-500">{tr("Số tiền")}</span>
               <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
             </label>
             <label className="block">
-              <span className="mb-1 block text-slate-500">Tài khoản</span>
+              <span className="mb-1 block text-slate-500">{tr("Tài khoản")}</span>
               <select
                 className="min-h-11 w-full rounded-[10px] border border-slate-200 px-3 dark:border-slate-700 dark:bg-slate-900"
                 value={accountId}
@@ -167,26 +169,26 @@ export default function FinanceDebtsPage() {
                   user,
                 })
                   .then(() => {
-                    notify.success("Đã ghi nhận thanh toán");
+                    notify.success(tr("Đã ghi nhận thanh toán"));
                     setPayRow(null);
                   })
                   .catch((e: unknown) =>
-                    notify.error(e instanceof Error ? e.message : "Không thanh toán được"),
+                    notify.error(e instanceof Error ? e.message : tr("Không thanh toán được")),
                   );
               }}
             >
-              Xác nhận
+              {tr("Xác nhận")}
             </Button>
           </div>
         ) : null}
       </Dialog>
 
-      <Dialog open={!!remindRow} onClose={() => setRemindRow(null)} title="Nhắc khách">
+      <Dialog open={!!remindRow} onClose={() => setRemindRow(null)} title={tr("Nhắc khách")}>
         {remindRow ? (
           <div className="space-y-3">
             <p className="text-sm">{remindRow.partyName}</p>
             <fieldset>
-              <legend className="mb-2 text-sm text-slate-500">Kênh</legend>
+              <legend className="mb-2 text-sm text-slate-500">{tr("Kênh")}</legend>
               <div className="flex gap-2">
                 {(["zalo", "sms", "email"] as const).map((c) => (
                   <button
@@ -208,7 +210,7 @@ export default function FinanceDebtsPage() {
                   partyName: remindRow.partyName,
                   channel,
                 });
-                notify.success("Đã tạo nhắc nợ");
+                notify.success(tr("Đã tạo nhắc nợ"));
                 setRemindRow(null);
               }}
             >
@@ -224,20 +226,20 @@ export default function FinanceDebtsPage() {
 function AgingCard({ title, total, rows }: { title: string; total: number; rows: Debt[] }) {
   const aging = agingSums(rows);
   const items = [
-    ["Chưa đến hạn", aging.current],
-    ["1–30 ngày", aging.d30],
-    ["31–60 ngày", aging.d60],
-    ["Trên 60 ngày", aging.d60p],
-  ] as const;
+    { id: "current", label: tr("Chưa đến hạn"), amount: aging.current },
+    { id: "d30", label: tr("1–30 ngày"), amount: aging.d30 },
+    { id: "d60", label: tr("31–60 ngày"), amount: aging.d60 },
+    { id: "d60p", label: tr("Trên 60 ngày"), amount: aging.d60p },
+  ];
   return (
     <Card className="p-4 shadow-sm">
       <p className="text-sm text-slate-500">{title}</p>
       <p className="text-2xl font-bold tabular-nums">{formatVnd(total)}</p>
       <ul className="mt-3 space-y-1 text-sm">
-        {items.map(([label, amount]) => (
-          <li key={label} className="flex justify-between">
-            <span className={label === "Trên 60 ngày" ? "text-rose-600" : "text-slate-500"}>{label}</span>
-            <span className="tabular-nums">{formatVnd(amount)}</span>
+        {items.map((item) => (
+          <li key={item.id} className="flex justify-between">
+            <span className={item.id === "d60p" ? "text-rose-600" : "text-slate-500"}>{item.label}</span>
+            <span className="tabular-nums">{formatVnd(item.amount)}</span>
           </li>
         ))}
       </ul>
@@ -270,23 +272,23 @@ function DebtTable({
   onRemind: (d: Debt) => void;
   onBulkRemind: () => void;
 }) {
-  if (!rows.length && !q && status === "all") return <EmptyBlock text="Chưa có khoản công nợ." />;
+  if (!rows.length && !q && status === "all") return <EmptyBlock text={tr("Chưa có khoản công nợ.")} />;
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm khách hoặc nhà cung cấp" aria-label="Tìm công nợ" className="max-w-xs" />
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("Tìm khách hoặc nhà cung cấp")} aria-label={tr("Tìm công nợ")} className="max-w-xs" />
         <select
           className="min-h-11 rounded-[10px] border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
           value={status}
-          aria-label="Trạng thái"
+          aria-label={tr("Trạng thái")}
           onChange={(e) => setStatus(e.target.value)}
         >
-          <option value="all">Mọi trạng thái</option>
-          <option>Quá hạn</option>
-          <option>Sắp đến hạn</option>
-          <option>Chưa đến hạn</option>
-          <option>Đã thanh toán một phần</option>
-          <option>Đã thanh toán</option>
+          <option value="all">{tr("Mọi trạng thái")}</option>
+          <option value="overdue">{tr("Quá hạn")}</option>
+          <option value="due_soon">{tr("Sắp đến hạn")}</option>
+          <option value="not_due">{tr("Chưa đến hạn")}</option>
+          <option value="partial">{tr("Đã thanh toán một phần")}</option>
+          <option value="paid">{tr("Đã thanh toán")}</option>
         </select>
         {kind === "recv" && selected.length > 0 ? (
           <Button size="sm" variant="outline" onClick={onBulkRemind}>
@@ -301,18 +303,18 @@ function DebtTable({
               <th className="px-3 py-3">
                 <input
                   type="checkbox"
-                  aria-label="Chọn tất cả"
+                  aria-label={tr("Chọn tất cả")}
                   checked={rows.length > 0 && rows.every((d) => selected.includes(d.id))}
                   onChange={(e) => setSelected(e.target.checked ? rows.map((d) => d.id) : [])}
                 />
               </th>
-              <th className="px-3 py-3">{kind === "pay" ? "Nhà cung cấp" : "Khách hàng"}</th>
-              <th className="px-3 py-3 text-right">Tổng nợ</th>
-              <th className="px-3 py-3 text-right">Đã thu</th>
-              <th className="px-3 py-3 text-right">Còn lại</th>
-              <th className="px-3 py-3">Ngày đến hạn</th>
-              <th className="px-3 py-3">Trạng thái</th>
-              <th className="px-3 py-3">Thao tác</th>
+              <th className="px-3 py-3">{kind === "pay" ? tr("Nhà cung cấp") : tr("Khách hàng")}</th>
+              <th className="px-3 py-3 text-right">{tr("Tổng nợ")}</th>
+              <th className="px-3 py-3 text-right">{tr("Đã thu")}</th>
+              <th className="px-3 py-3 text-right">{tr("Còn lại")}</th>
+              <th className="px-3 py-3">{tr("Ngày đến hạn")}</th>
+              <th className="px-3 py-3">{tr("Trạng thái")}</th>
+              <th className="px-3 py-3">{tr("Thao tác")}</th>
             </tr>
           </thead>
           <tbody>
@@ -339,20 +341,20 @@ function DebtTable({
                   <td className="px-3 py-2 text-right font-semibold tabular-nums">{formatVnd(debtRemain(d))}</td>
                   <td className="px-3 py-2">{formatDate(d.dueDate)}</td>
                   <td className="px-3 py-2">
-                    <span className={st === "Quá hạn" || bucket === "d60p" ? "font-semibold text-rose-600" : st === "Sắp đến hạn" ? "font-semibold text-amber-700" : ""}>
-                      {st}
+                    <span className={st === "overdue" || bucket === "d60p" ? "font-semibold text-rose-600" : st === "due_soon" ? "font-semibold text-amber-700" : ""}>
+                      {debtUiStatusLabel(st)}
                     </span>
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex gap-2">
                       {debtRemain(d) > 0 ? (
                         <Button size="sm" onClick={() => onPay(d)}>
-                          Thanh toán
+                          {tr("Thanh toán")}
                         </Button>
                       ) : null}
                       {d.type === "receivable" && debtRemain(d) > 0 ? (
                         <Button size="sm" variant="outline" onClick={() => onRemind(d)}>
-                          Nhắc nợ
+                          {tr("Nhắc nợ")}
                         </Button>
                       ) : null}
                     </div>

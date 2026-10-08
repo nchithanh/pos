@@ -1,5 +1,6 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
 import { useEffect, useState } from "react";
 import { WifiOff } from "lucide-react";
 
@@ -25,7 +26,7 @@ export function OfflineBanner() {
       className="flex items-center justify-center gap-2 bg-amber-500 px-3 py-1.5 text-xs font-semibold text-amber-950"
     >
       <WifiOff size={14} aria-hidden />
-      Đang offline — dữ liệu vẫn lưu trên máy (IndexedDB)
+      {tr("Đang offline — dữ liệu vẫn lưu trên máy (IndexedDB)")}
     </div>
   );
 }

@@ -49,6 +49,21 @@ export interface EInvoiceConfig {
   sandboxClientId?: string;
 }
 
+export interface Branch {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  createdAt: string;
+}
+
+export interface BranchStock {
+  id: string;
+  branchId: string;
+  productId: string;
+  stock: number;
+}
+
 export interface StoreSettings {
   id: string;
   name: string;
@@ -95,6 +110,7 @@ export interface Shift {
   closingCash?: number;
   note?: string;
   status: "open" | "closed";
+  branchId?: string;
 }
 
 export interface Category {
@@ -224,6 +240,7 @@ export interface Order {
   note?: string;
   status: "paid" | "debt" | "void";
   eInvoice?: EInvoiceMock;
+  branchId?: string;
 }
 
 export interface HeldCart {
@@ -256,6 +273,7 @@ export interface InventoryMovement {
     afterQty?: number;
   }[];
   totalCost: number;
+  branchId?: string;
 }
 
 export interface Debt {
@@ -272,6 +290,7 @@ export interface Debt {
   note: string;
   createdAt: string;
   orderId?: string;
+  branchId?: string;
 }
 
 export interface DebtPayment {

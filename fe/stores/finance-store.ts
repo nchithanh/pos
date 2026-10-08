@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
@@ -18,6 +20,7 @@ import {
   seedTransactions,
 } from "@/lib/finance/seed";
 import { uid } from "@/lib/utils";
+import { readWriteBranchId } from "@/lib/branch";
 import type { Order } from "@/types";
 
 interface FinanceState {
@@ -109,7 +112,8 @@ export const useFinanceStore = create<FinanceState>()(
           ...txn,
           id: uid("ft"),
           status: "posted",
-          storeName: txn.storeName ?? "Cửa hàng chính",
+          storeName: txn.storeName ?? tr("Cửa hàng chính"),
+          branchId: txn.branchId ?? readWriteBranchId(),
         };
         set({ txns: [row, ...get().txns] });
         return row;
@@ -167,18 +171,19 @@ export const useFinanceStore = create<FinanceState>()(
           id: uid("ft"),
           at: order.createdAt,
           kind: "in",
-          category: "Thu bán hàng",
+          category: tr("Thu bán hàng"),
           description: `Bán hàng #${order.code}`,
           accountId: accountForMethod(p.method),
           amount: p.amount,
           createdBy: order.cashierName,
           status: "posted",
           method: p.method,
-          storeName: "Cửa hàng chính",
+          storeName: tr("Cửa hàng chính"),
           party: order.customerName,
           orderId: order.id,
           source: "sale",
           profitClass: "none",
+          branchId: readWriteBranchId(),
         }));
         set({
           txns: [...rows, ...get().txns],
@@ -191,10 +196,10 @@ export const useFinanceStore = create<FinanceState>()(
         get().addTxn({
           at: new Date().toISOString(),
           kind: inbound ? "in" : "out",
-          category: inbound ? "Khách thanh toán công nợ" : "Trả công nợ NCC",
+          category: inbound ? tr("Khách thanh toán công nợ") : tr("Trả công nợ NCC"),
           description: inbound
-            ? "Khách hàng thanh toán công nợ"
-            : "Thanh toán công nợ nhà cung cấp",
+            ? tr("Khách hàng thanh toán công nợ")
+            : tr("Thanh toán công nợ nhà cung cấp"),
           accountId: accountForMethod(input.method),
           amount: input.amount,
           createdBy: input.userName,
@@ -210,7 +215,7 @@ export const useFinanceStore = create<FinanceState>()(
         get().addTxn({
           at: new Date().toISOString(),
           kind: "out",
-          category: "Nhập hàng",
+          category: tr("Nhập hàng"),
           description: `Nhập hàng ${input.code}`,
           accountId: accountForMethod(input.method),
           amount: input.amount,

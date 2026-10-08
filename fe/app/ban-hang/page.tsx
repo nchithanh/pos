@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -213,15 +215,15 @@ function PosPageInner() {
   const clearCart = async () => {
     if (!lines.length) return;
     const ok = await confirm({
-      title: "Xóa toàn bộ giỏ hàng?",
+      title: tr("Xóa toàn bộ giỏ hàng?"),
       description: `${lines.length} dòng sẽ bị xóa. Thao tác không thể hoàn tác.`,
-      confirmLabel: "Xóa giỏ",
+      confirmLabel: tr("Xóa giỏ"),
       variant: "danger",
     });
     if (!ok) return;
     clear();
     setActiveLineId(null);
-    notify.info("Đã xóa giỏ hàng");
+    notify.info(tr("Đã xóa giỏ hàng"));
   };
 
   useEffect(() => {
@@ -257,15 +259,15 @@ function PosPageInner() {
           e.preventDefault();
           void (async () => {
             const ok = await confirmRef.current({
-              title: "Xóa toàn bộ giỏ hàng?",
+              title: tr("Xóa toàn bộ giỏ hàng?"),
               description: `${lines.length} dòng sẽ bị xóa. Thao tác không thể hoàn tác.`,
-              confirmLabel: "Xóa giỏ",
+              confirmLabel: tr("Xóa giỏ"),
               variant: "danger",
             });
             if (!ok) return;
             clear();
             setActiveLineId(null);
-            notify.info("Đã xóa giỏ hàng");
+            notify.info(tr("Đã xóa giỏ hàng"));
           })();
         }
         return;
@@ -313,7 +315,7 @@ function PosPageInner() {
       discount,
     });
     clear();
-    notify.success("Đã giữ đơn");
+    notify.success(tr("Đã giữ đơn"));
   };
 
   const resumeHeld = async (id: string) => {
@@ -326,12 +328,12 @@ function PosPageInner() {
       customerId: h.customerId,
     });
     await db.heldCarts.delete(id);
-    notify.success("Đã mở lại đơn giữ");
+    notify.success(tr("Đã mở lại đơn giữ"));
   };
 
   const createCustomer = async () => {
     if (!newCusName.trim() || !newCusPhone.trim()) {
-      notify.error("Nhập tên và SĐT");
+      notify.error(tr("Nhập tên và SĐT"));
       return;
     }
     const id = uid("cus");
@@ -339,7 +341,7 @@ function PosPageInner() {
       id,
       name: newCusName.trim(),
       phone: newCusPhone.trim(),
-      group: "Khách lẻ",
+      group: tr("Khách lẻ"),
       points: 0,
       totalSpent: 0,
       visitCount: 0,
@@ -350,7 +352,7 @@ function PosPageInner() {
     setCustomerOpen(false);
     setNewCusName("");
     setNewCusPhone("");
-    notify.success("Đã thêm khách");
+    notify.success(tr("Đã thêm khách"));
   };
 
   const openCheckout = () => {
@@ -364,7 +366,7 @@ function PosPageInner() {
   const pay = async () => {
     if (!user) return;
     if (!shift) {
-      notify.error("Hãy mở ca trước khi bán");
+      notify.error(tr("Hãy mở ca trước khi bán"));
       return;
     }
     let payments: PaymentSplit[] | undefined;
@@ -372,11 +374,11 @@ function PosPageInner() {
       const a = Number(splitCash) || 0;
       const b = Number(splitOther) || 0;
       if (Math.abs(a + b - totals.total) > 1) {
-        notify.error("Tổng tách bill phải bằng tổng đơn");
+        notify.error(tr("Tổng tách bill phải bằng tổng đơn"));
         return;
       }
       if (a <= 0 || b <= 0) {
-        notify.error("Mỗi phần tách bill phải > 0");
+        notify.error(tr("Mỗi phần tách bill phải > 0"));
         return;
       }
       payments = [
@@ -405,9 +407,9 @@ function PosPageInner() {
       setCheckoutOpen(false);
       setMobileCart(false);
       setSuccess(order);
-      notify.success("Thanh toán thành công");
+      notify.success(tr("Thanh toán thành công"));
     } catch (e) {
-      notify.fromError(e, "Không thanh toán được");
+      notify.fromError(e, tr("Không thanh toán được"));
     }
   };
 
@@ -430,7 +432,7 @@ function PosPageInner() {
             onClick={clearCart}
             disabled={!lines.length}
           >
-            Xóa
+            {tr("Xóa")}
           </Button>
         </div>
       </div>
@@ -442,16 +444,16 @@ function PosPageInner() {
       >
         <UserPlus size={16} />
         {customerId
-          ? (customers?.find((c) => c.id === customerId)?.name ?? "Khách")
-          : "Chọn / thêm khách"}
+          ? (customers?.find((c) => c.id === customerId)?.name ?? tr("Khách"))
+          : tr("Chọn / thêm khách")}
       </Button>
 
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
         {lines.length === 0 ? (
           <EmptyState
             icon={ShoppingCart}
-            title="Giỏ hàng trống"
-            description="Quét barcode hoặc chạm Thêm trên sản phẩm. F2 để tìm nhanh."
+            title={tr("Giỏ hàng trống")}
+            description={tr("Quét barcode hoặc chạm Thêm trên sản phẩm. F2 để tìm nhanh.")}
           />
         ) : (
           <AnimatePresence initial={false}>
@@ -486,19 +488,19 @@ function PosPageInner() {
                     </div>
                     <button
                       type="button"
-                      aria-label="Xóa dòng"
+                      aria-label={tr("Xóa dòng")}
                       onClick={(e) => {
                         e.stopPropagation();
                         void (async () => {
                           const ok = await confirm({
-                            title: "Xóa khỏi giỏ?",
+                            title: tr("Xóa khỏi giỏ?"),
                             description: `“${p.name}” sẽ bị xóa khỏi đơn hiện tại.`,
-                            confirmLabel: "Xóa",
+                            confirmLabel: tr("Xóa"),
                             variant: "danger",
                           });
                           if (!ok) return;
                           removeLine(l.productId);
-                          notify.info("Đã xóa khỏi giỏ");
+                          notify.info(tr("Đã xóa khỏi giỏ"));
                         })();
                       }}
                     >
@@ -510,7 +512,7 @@ function PosPageInner() {
                       <button
                         type="button"
                         className="h-9 w-9"
-                        aria-label="Giảm"
+                        aria-label={tr("Giảm")}
                         onClick={() => setQty(l.productId, l.quantity - 1)}
                       >
                         <Minus size={14} className="mx-auto" />
@@ -521,7 +523,7 @@ function PosPageInner() {
                       <button
                         type="button"
                         className="h-9 w-9"
-                        aria-label="Tăng"
+                        aria-label={tr("Tăng")}
                         onClick={() => tryAdd(p)}
                       >
                         <Plus size={14} className="mx-auto" />
@@ -544,12 +546,12 @@ function PosPageInner() {
                       setExpandedLine(open ? null : l.productId)
                     }
                   >
-                    {open ? "Ẩn ghi chú / giảm giá" : "Ghi chú / giảm giá dòng"}
+                    {open ? tr("Ẩn ghi chú / giảm giá") : tr("Ghi chú / giảm giá dòng")}
                   </button>
                   {open ? (
                     <div className="mt-2 grid gap-2">
                       <Input
-                        placeholder="Ghi chú dòng (ít đá, tách bill…)"
+                        placeholder={tr("Ghi chú dòng (ít đá, tách bill…)")}
                         value={l.note ?? ""}
                         onChange={(e) =>
                           setLineNote(l.productId, e.target.value)
@@ -557,7 +559,7 @@ function PosPageInner() {
                         onClick={(e) => e.stopPropagation()}
                       />
                       <label className="block text-xs">
-                        <span className="text-slate-500">Giảm giá dòng (%)</span>
+                        <span className="text-slate-500">{tr("Giảm giá dòng (%)")}</span>
                         <Input
                           type="number"
                           min={0}
@@ -584,7 +586,7 @@ function PosPageInner() {
 
       {(held?.length ?? 0) > 0 ? (
         <div className="mt-2 space-y-1 border-t pt-2">
-          <p className="text-xs font-semibold text-slate-500">Đơn đang giữ</p>
+          <p className="text-xs font-semibold text-slate-500">{tr("Đơn đang giữ")}</p>
           {held?.slice(0, 3).map((h) => (
             <button
               key={h.id}
@@ -593,7 +595,7 @@ function PosPageInner() {
               onClick={() => resumeHeld(h.id)}
             >
               <span>{h.name}</span>
-              <span className="text-emerald-600">Mở</span>
+              <span className="text-emerald-600">{tr("Mở")}</span>
             </button>
           ))}
         </div>
@@ -603,8 +605,8 @@ function PosPageInner() {
         <div className="flex gap-2">
           {(
             [
-              ["amount", "Giảm đ"],
-              ["percent", "Giảm %"],
+              ["amount", tr("Giảm đ")],
+              ["percent", tr("Giảm %")],
             ] as const
           ).map(([mode, label]) => (
             <button
@@ -627,8 +629,8 @@ function PosPageInner() {
         <label className="block text-xs">
           <span className="text-slate-500">
             {discountMode === "percent"
-              ? "Giảm giá đơn (%)"
-              : "Giảm giá đơn (đ)"}
+              ? tr("Giảm giá đơn (%)")
+              : tr("Giảm giá đơn (đ)")}
           </span>
           <Input
             type="number"
@@ -649,7 +651,7 @@ function PosPageInner() {
               <span className="font-semibold text-emerald-700 dark:text-emerald-300">
                 Điểm: {selectedCustomer.points}
               </span>
-              <span className="text-slate-500">1 điểm = 1.000đ</span>
+              <span className="text-slate-500">{tr("1 điểm = 1.000đ")}</span>
             </div>
             <div className="flex gap-2">
               <Input
@@ -657,7 +659,7 @@ function PosPageInner() {
                 min={0}
                 max={totals.maxPoints}
                 value={pointsToRedeem || ""}
-                placeholder="Đổi điểm"
+                placeholder={tr("Đổi điểm")}
                 onChange={(e) =>
                   setPointsToRedeem(
                     Math.min(
@@ -680,13 +682,13 @@ function PosPageInner() {
           </div>
         ) : null}
         <div className="flex justify-between text-sm">
-          <span className="text-slate-500">Tạm tính</span>
+          <span className="text-slate-500">{tr("Tạm tính")}</span>
           <span>{formatVnd(totals.subtotal)}</span>
         </div>
         {totals.discount > 0 ? (
           <div className="flex justify-between text-sm text-rose-600">
             <span>
-              Giảm giá
+              {tr("Giảm giá")}
               {totals.pointsUsed
                 ? ` (điểm ${totals.pointsUsed})`
                 : ""}
@@ -695,7 +697,7 @@ function PosPageInner() {
           </div>
         ) : null}
         <div className="flex justify-between text-base font-bold">
-          <span>Tổng</span>
+          <span>{tr("Tổng")}</span>
           <span>{formatVnd(totals.total)}</span>
         </div>
         <div className="grid grid-cols-3 gap-1 sm:grid-cols-5">
@@ -713,14 +715,14 @@ function PosPageInner() {
                 )}
               >
                 {m === "cash"
-                  ? "Tiền mặt"
+                  ? tr("Tiền mặt")
                   : m === "transfer"
                     ? "CK"
                     : m === "qr"
                       ? "QR"
                       : m === "debt"
-                        ? "Nợ"
-                        : "Tách"}
+                        ? tr("Nợ")
+                        : tr("Tách")}
               </button>
             ),
           )}
@@ -745,7 +747,7 @@ function PosPageInner() {
       <div className="flex h-[calc(100dvh-7.5rem)] flex-col gap-3 lg:h-[calc(100dvh-5.5rem)] lg:flex-row">
         <aside className="hidden w-[210px] shrink-0 xl:block">
           <Card className="h-full space-y-2 overflow-y-auto p-3">
-            <h2 className="mb-2 font-bold">Danh mục</h2>
+            <h2 className="mb-2 font-bold">{tr("Danh mục")}</h2>
             <button
               type="button"
               onClick={() => setCategoryId("all")}
@@ -756,7 +758,7 @@ function PosPageInner() {
                   : "hover:bg-slate-50 dark:hover:bg-slate-800",
               )}
             >
-              <span>🐾 Tất cả</span>
+              <span>{tr("🐾 Tất cả")}</span>
               <span className="text-xs">{counts.all ?? 0}</span>
             </button>
             {(categories ?? []).map((c) => (
@@ -782,7 +784,7 @@ function PosPageInner() {
 
         <section className="flex min-w-0 flex-1 flex-col">
           <div className="mb-3 rounded-[12px] bg-[var(--banner)] px-4 py-3">
-            <h1 className="text-lg font-bold">Bán hàng</h1>
+            <h1 className="text-lg font-bold">{tr("Bán hàng")}</h1>
             <p className="text-sm text-slate-600 dark:text-slate-300">
               Quét barcode · chọn hàng · thanh toán nhanh
             </p>
@@ -798,7 +800,7 @@ function PosPageInner() {
                   : "border bg-white dark:bg-slate-900",
               )}
             >
-              Tất cả
+              {tr("Tất cả")}
             </button>
             {(categories ?? []).map((c) => (
               <button
@@ -821,7 +823,7 @@ function PosPageInner() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onSearchKey}
-            placeholder="Tìm tên / SKU / quét barcode rồi Enter…"
+            placeholder={tr("Tìm tên / SKU / quét barcode rồi Enter…")}
             className="mb-3 !rounded-full"
             autoFocus
           />
@@ -830,8 +832,8 @@ function PosPageInner() {
               <ProductGridSkeleton count={8} />
             ) : !filtered.length ? (
               <EmptyState
-                title="Không tìm thấy sản phẩm"
-                description="Thử đổi danh mục hoặc từ khóa."
+                title={tr("Không tìm thấy sản phẩm")}
+                description={tr("Thử đổi danh mục hoặc từ khóa.")}
               />
             ) : (
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3 2xl:grid-cols-4">
@@ -888,7 +890,7 @@ function PosPageInner() {
                           {formatVnd(p.sellPrice)}
                         </p>
                         <p className="text-xs text-slate-500">
-                          Tồn {p.stock} {p.unit}
+                          {tr("Tồn")} {p.stock} {p.unit}
                         </p>
                       </div>
                       <Button
@@ -900,7 +902,7 @@ function PosPageInner() {
                           tryAdd(p);
                         }}
                       >
-                        <Plus size={14} /> Thêm
+                        <Plus size={14} /> {tr("Thêm")}
                       </Button>
                     </motion.article>
                   );
@@ -945,7 +947,7 @@ function PosPageInner() {
       <Dialog
         open={checkoutOpen}
         onClose={() => setCheckoutOpen(false)}
-        title="Xác nhận thanh toán"
+        title={tr("Xác nhận thanh toán")}
         className="max-w-md"
       >
         <p className="text-2xl font-bold">{formatVnd(totals.total)}</p>
@@ -955,7 +957,7 @@ function PosPageInner() {
 
         {method === "cash" ? (
           <label className="mt-4 block">
-            <span className="text-sm text-slate-500">Tiền khách đưa</span>
+            <span className="text-sm text-slate-500">{tr("Tiền khách đưa")}</span>
             <Input
               type="number"
               className="mt-1"
@@ -993,7 +995,7 @@ function PosPageInner() {
         {method === "split" ? (
           <div className="mt-4 space-y-3">
             <label className="block text-sm">
-              <span className="text-slate-500">Tiền mặt</span>
+              <span className="text-slate-500">{tr("Tiền mặt")}</span>
               <Input
                 type="number"
                 className="mt-1"
@@ -1004,7 +1006,7 @@ function PosPageInner() {
             <div className="flex gap-2">
               {(
                 [
-                  ["transfer", "Chuyển khoản"],
+                  ["transfer", tr("Chuyển khoản")],
                   ["qr", "QR"],
                 ] as const
               ).map(([id, label]) => (
@@ -1025,7 +1027,7 @@ function PosPageInner() {
             </div>
             <label className="block text-sm">
               <span className="text-slate-500">
-                {splitOtherMethod === "qr" ? "QR" : "Chuyển khoản"}
+                {splitOtherMethod === "qr" ? "QR" : tr("Chuyển khoản")}
               </span>
               <Input
                 type="number"
@@ -1064,10 +1066,10 @@ function PosPageInner() {
             className="flex-1"
             onClick={() => setCheckoutOpen(false)}
           >
-            Hủy
+            {tr("Hủy")}
           </Button>
           <Button className="flex-1" onClick={pay}>
-            Xác nhận
+            {tr("Xác nhận")}
           </Button>
         </div>
       </Dialog>
@@ -1075,7 +1077,7 @@ function PosPageInner() {
       <Dialog
         open={customerOpen}
         onClose={() => setCustomerOpen(false)}
-        title="Khách hàng"
+        title={tr("Khách hàng")}
       >
         <div className="mb-3 max-h-48 space-y-1 overflow-auto">
           <button
@@ -1086,7 +1088,7 @@ function PosPageInner() {
               setCustomerOpen(false);
             }}
           >
-            Khách lẻ
+            {tr("Khách lẻ")}
           </button>
           {(customers ?? []).map((c) => (
             <button
@@ -1102,16 +1104,16 @@ function PosPageInner() {
             </button>
           ))}
         </div>
-        <p className="mb-2 text-xs font-semibold text-slate-500">Thêm nhanh</p>
+        <p className="mb-2 text-xs font-semibold text-slate-500">{tr("Thêm nhanh")}</p>
         <Input
           className="mb-2"
-          placeholder="Tên"
+          placeholder={tr("Tên")}
           value={newCusName}
           onChange={(e) => setNewCusName(e.target.value)}
         />
         <Input
           className="mb-3"
-          placeholder="SĐT"
+          placeholder={tr("SĐT")}
           value={newCusPhone}
           onChange={(e) => setNewCusPhone(e.target.value)}
         />
@@ -1123,7 +1125,7 @@ function PosPageInner() {
       <Dialog
         open={!!success}
         onClose={() => setSuccess(null)}
-        title="Thanh toán thành công"
+        title={tr("Thanh toán thành công")}
         className="max-w-md"
       >
         {success ? (
@@ -1147,12 +1149,12 @@ function PosPageInner() {
                 ✓ THANH TOÁN THÀNH CÔNG
               </p>
               <p className="mt-2 text-sm font-semibold">
-                Đơn hàng {success.code}
+                {tr("Đơn hàng")} {success.code}
               </p>
               <p className="text-xs text-slate-500">
                 {formatDateTime(success.createdAt)}
               </p>
-              <p className="mt-4 text-sm text-slate-500">Tổng tiền</p>
+              <p className="mt-4 text-sm text-slate-500">{tr("Tổng tiền")}</p>
               <p className="text-3xl font-bold text-emerald-600">
                 {formatVnd(success.total)}
               </p>

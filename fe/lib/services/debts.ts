@@ -1,4 +1,6 @@
+import { tr } from "@/lib/i18n/translate";
 import { db } from "@/lib/db";
+import { readWriteBranchId } from "@/lib/branch";
 import { useFinanceStore } from "@/stores/finance-store";
 import { formatDate, formatVnd, todayKey, uid } from "@/lib/utils";
 import type {
@@ -68,10 +70,10 @@ export async function createDebt(input: {
   orderId?: string;
 }): Promise<Debt> {
   const amount = Math.round(input.amount);
-  if (!input.partyName.trim()) throw new Error("Nhập tên đối tác");
-  if (amount <= 0) throw new Error("Số tiền không hợp lệ");
+  if (!input.partyName.trim()) throw new Error(tr("Nhập tên đối tác"));
+  if (amount <= 0) throw new Error(tr("Số tiền không hợp lệ"));
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dueDate)) {
-    throw new Error("Hạn thanh toán không hợp lệ");
+    throw new Error(tr("Hạn thanh toán không hợp lệ"));
   }
 
   const debt: Debt = {
@@ -84,9 +86,10 @@ export async function createDebt(input: {
     paidAmount: 0,
     dueDate: input.dueDate,
     status: input.dueDate < todayKey() ? "overdue" : "unpaid",
-    note: input.note.trim() || "Phiếu ghi nợ thủ công",
+    note: input.note.trim() || tr("Phiếu ghi nợ thủ công"),
     createdAt: new Date().toISOString(),
     orderId: input.orderId,
+    branchId: readWriteBranchId(),
   };
 
   await db.transaction("rw", [db.debts, db.customers, db.suppliers], async () => {
@@ -115,10 +118,10 @@ export async function payDebt(input: {
   note?: string;
 }): Promise<void> {
   const debt = await db.debts.get(input.debtId);
-  if (!debt) throw new Error("Không tìm thấy công nợ");
+  if (!debt) throw new Error(tr("Không tìm thấy công nợ"));
   const remain = debtRemain(debt);
   const pay = Math.min(Math.max(0, input.amount), remain);
-  if (pay <= 0) throw new Error("Số tiền không hợp lệ");
+  if (pay <= 0) throw new Error(tr("Số tiền không hợp lệ"));
 
   const paidAmount = debt.paidAmount + pay;
   let status: DebtStatus =
@@ -175,21 +178,21 @@ export async function payDebt(input: {
 
 export function buildDebtsCsv(debts: Debt[]): string {
   const header = [
-    "Loại",
-    "Đối tác",
-    "SĐT",
-    "Hạn",
-    "Nội dung",
-    "Tổng nợ",
-    "Đã trả",
-    "Còn lại",
-    "Trạng thái",
-    "Mã đơn",
+    tr("Loại"),
+    tr("Đối tác"),
+    tr("SĐT"),
+    tr("Hạn"),
+    tr("Nội dung"),
+    tr("Tổng nợ"),
+    tr("Đã trả"),
+    tr("Còn lại"),
+    tr("Trạng thái"),
+    tr("Mã đơn"),
   ];
   const rows = debts.map((d) => {
     const status = displayDebtStatus(d);
     return [
-      d.type === "receivable" ? "Phải thu" : "Phải trả",
+      d.type === "receivable" ? tr("Phải thu") : tr("Phải trả"),
       d.partyName,
       d.partyPhone ?? "",
       d.dueDate,
@@ -223,10 +226,10 @@ export function debtStatusLabel(status: DebtStatus, days?: number): string {
     return `Quá hạn (${days} ngày)`;
   }
   const map: Record<DebtStatus, string> = {
-    unpaid: "Chưa thanh toán",
+    unpaid: tr("Chưa thanh toán"),
     partial: "Thanh toán một phần",
-    paid: "Đã thanh toán",
-    overdue: "Quá hạn",
+    paid: tr("Đã thanh toán"),
+    overdue: tr("Quá hạn"),
   };
   return map[status];
 }
@@ -242,9 +245,9 @@ export function printDebtReceipt(input: {
   const remainAfter = Math.max(0, debtRemain(input.debt) - input.paidNow);
   const methodLabel =
     input.method === "cash"
-      ? "Tiền mặt"
+      ? tr("Tiền mặt")
       : input.method === "transfer"
-        ? "Chuyển khoản"
+        ? tr("Chuyển khoản")
         : input.method === "qr"
           ? "QR"
           : input.method;

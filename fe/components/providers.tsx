@@ -1,5 +1,6 @@
 "use client";
 
+import { useLang } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -12,6 +13,7 @@ import { useWarehouseStore } from "@/stores/warehouse-store";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const lang = useLang();
   const [client] = useState(() => new QueryClient());
   const [ready, setReady] = useState(false);
   const setHydrated = useAuthStore((s) => s.setHydrated);
@@ -40,18 +42,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <QueryClientProvider client={client}>
-        {ready ? (
-          children
-        ) : (
-          <div className="flex min-h-dvh items-center justify-center bg-slate-50 dark:bg-slate-950">
-            <div className="text-center">
-              <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
-              <p className="text-sm font-medium text-slate-500">
-                Đang khởi tạo Dolphin POS…
-              </p>
+        <div key={lang} className="contents">
+          {ready ? (
+            children
+          ) : (
+            <div className="flex min-h-dvh items-center justify-center bg-slate-50 dark:bg-slate-950">
+              <div className="text-center">
+                <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+                <p className="text-sm font-medium text-slate-500">
+                  {lang === "en" ? "Starting Dolphin POS…" : "Đang khởi tạo Dolphin POS…"}
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
         <Toaster richColors position="top-right" closeButton />
       </QueryClientProvider>
     </ThemeProvider>

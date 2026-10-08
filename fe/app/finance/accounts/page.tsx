@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/ui/page-header";
@@ -43,7 +45,7 @@ function AccountMark({
             : type === "cash"
               ? { letters: "₫", bg: "#ECFDF5", fg: "#047857" }
               : type === "ewallet"
-                ? { letters: "Ví", bg: "#FDF2F8", fg: "#9D174D" }
+                ? { letters: tr("Ví"), bg: "#FDF2F8", fg: "#9D174D" }
                 : type === "bank"
                   ? { letters: name.slice(0, 2).toUpperCase(), bg: "#EFF6FF", fg: "#1D4ED8" }
                   : { letters: name.slice(0, 1).toUpperCase(), bg: "#F1F5F9", fg: "#334155" };
@@ -77,8 +79,8 @@ export default function AccountsPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Quỹ & Tài khoản"
-        description="Tiền mặt, ngân hàng và ví. Số dư gồm số đầu kỳ cộng các phiếu thu, chi và chuyển tiền."
+        title={tr("Quỹ & Tài khoản")}
+        description={tr("Tiền mặt, ngân hàng và ví. Số dư gồm số đầu kỳ cộng các phiếu thu, chi và chuyển tiền.")}
         actions={
           <Button size="sm" onClick={() => setOpen(true)}>
             + Thêm tài khoản
@@ -95,7 +97,7 @@ export default function AccountsPage() {
       />
       {books.loading ? <LoadingBlock /> : null}
       {!books.loading && rows.length === 0 ? (
-        <EmptyBlock text="Chưa có tài khoản trong nhóm này." />
+        <EmptyBlock text={tr("Chưa có tài khoản trong nhóm này.")} />
       ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
         {rows.map((a) => (
@@ -106,7 +108,7 @@ export default function AccountsPage() {
                 <p className="text-sm text-slate-500">{a.name}</p>
                 <p className="text-xl font-bold tabular-nums">{formatVnd(a.balance)}</p>
                 <p className="mt-1 text-xs text-slate-400">
-                  Số dư đầu {formatVnd(a.openingBalance)} · {a.active ? "Đang dùng" : "Ngưng"}
+                  {tr("Số dư đầu")} {formatVnd(a.openingBalance)} · {a.active ? tr("Đang dùng") : tr("Ngưng")}
                 </p>
               </span>
             </Card>
@@ -117,7 +119,7 @@ export default function AccountsPage() {
         <section className="mt-4">
           <h2 className="mb-2 text-sm font-bold">Giao dịch · {current.name}</h2>
           {txns.length === 0 ? (
-            <EmptyBlock text="Chưa có phiếu trên tài khoản này." />
+            <EmptyBlock text={tr("Chưa có phiếu trên tài khoản này.")} />
           ) : (
             <ul className="space-y-2 text-sm">
               {txns.map((t) => (
@@ -136,34 +138,34 @@ export default function AccountsPage() {
         </section>
       ) : null}
 
-      <Dialog open={open} onClose={() => setOpen(false)} title="Thêm tài khoản">
+      <Dialog open={open} onClose={() => setOpen(false)} title={tr("Thêm tài khoản")}>
         <div className="space-y-3">
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Tên</span>
+            <span className="mb-1 block text-slate-500">{tr("Tên")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="VD: ACB" />
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Loại</span>
+            <span className="mb-1 block text-slate-500">{tr("Loại")}</span>
             <select
               className="min-h-11 w-full rounded-[10px] border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
               value={type}
               onChange={(e) => setType(e.target.value as AccountType)}
             >
-              <option value="cash">Tiền mặt</option>
-              <option value="bank">Ngân hàng</option>
-              <option value="ewallet">Ví điện tử</option>
-              <option value="other">Khác</option>
+              <option value="cash">{tr("Tiền mặt")}</option>
+              <option value="bank">{tr("Ngân hàng")}</option>
+              <option value="ewallet">{tr("Ví điện tử")}</option>
+              <option value="other">{tr("Khác")}</option>
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Số dư đầu</span>
+            <span className="mb-1 block text-slate-500">{tr("Số dư đầu")}</span>
             <Input type="number" value={opening} onChange={(e) => setOpening(e.target.value)} />
           </label>
           <Button
             className="w-full"
             onClick={() => {
               if (!name.trim()) {
-                notify.error("Nhập tên tài khoản");
+                notify.error(tr("Nhập tên tài khoản"));
                 return;
               }
               books.finance.addAccount({
@@ -171,13 +173,13 @@ export default function AccountsPage() {
                 type,
                 openingBalance: Number(opening) || 0,
               });
-              notify.success("Đã thêm tài khoản");
+              notify.success(tr("Đã thêm tài khoản"));
               setOpen(false);
               setName("");
               setOpening("");
             }}
           >
-            Lưu
+            {tr("Lưu")}
           </Button>
         </div>
       </Dialog>

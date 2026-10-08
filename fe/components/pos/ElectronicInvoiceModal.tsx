@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -64,22 +66,22 @@ export function ElectronicInvoiceModal({
   const submit = async () => {
     if (!order) return;
     if (!connected) {
-      toast.error("Chưa kết nối HĐĐT — vào Cài đặt để cấu hình");
+      toast.error(tr("Chưa kết nối HĐĐT — vào Cài đặt để cấu hình"));
       return;
     }
     const name = companyName.trim();
     const tax = taxCode.trim();
     const mail = email.trim();
     if (!name) {
-      toast.error("Nhập tên công ty / cá nhân");
+      toast.error(tr("Nhập tên công ty / cá nhân"));
       return;
     }
     if (!/^\d{10}(\d{3})?$/.test(tax.replace(/\s/g, ""))) {
-      toast.error("Mã số thuế phải gồm 10 hoặc 13 số");
+      toast.error(tr("Mã số thuế phải gồm 10 hoặc 13 số"));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
-      toast.error("Email nhận hóa đơn không hợp lệ");
+      toast.error(tr("Email nhận hóa đơn không hợp lệ"));
       return;
     }
     setBusy(true);
@@ -95,11 +97,11 @@ export function ElectronicInvoiceModal({
       onIssued?.(updated);
       toast.success(
         cfg.mode === "simulator"
-          ? "Simulator SePay: đã phát hành (tracking)"
-          : "Đã phát hành hóa đơn",
+          ? tr("Simulator SePay: đã phát hành (tracking)")
+          : tr("Đã phát hành hóa đơn"),
       );
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Không phát hành được");
+      toast.error(e instanceof Error ? e.message : tr("Không phát hành được"));
     } finally {
       setBusy(false);
     }
@@ -112,9 +114,9 @@ export function ElectronicInvoiceModal({
       title={
         issued
           ? viewing
-            ? "Xem hóa đơn demo"
-            : "Hóa đơn đã phát hành"
-          : "Thông tin xuất hóa đơn"
+            ? tr("Xem hóa đơn demo")
+            : tr("Hóa đơn đã phát hành")
+          : tr("Thông tin xuất hóa đơn")
       }
       className="max-w-md"
     >
@@ -135,13 +137,13 @@ export function ElectronicInvoiceModal({
               </p>
             ) : null}
             <p className="mt-1 text-slate-500">
-              Ngày: {formatDate(issued.issuedAt)}
+              {tr("Ngày:")} {formatDate(issued.issuedAt)}
             </p>
             <p className="mt-2 text-xs text-slate-500">
               Người bán: {issued.accountLabel ?? cfg.accountLabel}
             </p>
             <p className="text-xs text-slate-500">
-              Mẫu: {issued.invoiceTemplateLabel ?? cfg.invoiceTemplateLabel} ·{" "}
+              {tr("Mẫu:")} {issued.invoiceTemplateLabel ?? cfg.invoiceTemplateLabel} ·{" "}
               {issued.storeLabel ?? cfg.storeLabel}
             </p>
             <p className="mt-2">{issued.companyName}</p>
@@ -159,13 +161,13 @@ export function ElectronicInvoiceModal({
             variant="outline"
             onClick={() => setViewing(false)}
           >
-            Quay lại
+            {tr("Quay lại")}
           </Button>
         </div>
       ) : issued ? (
         <div className="py-2 text-center">
           <CheckCircle2 className="mx-auto text-emerald-500" size={40} />
-          <p className="mt-3 text-lg font-bold">✓ Hóa đơn đã được phát hành</p>
+          <p className="mt-3 text-lg font-bold">{tr("✓ Hóa đơn đã được phát hành")}</p>
           <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
             Demo phát hành hóa đơn điện tử
           </p>
@@ -195,14 +197,14 @@ export function ElectronicInvoiceModal({
               variant="outline"
               className="flex-1"
               onClick={() => {
-                toast.success("Demo: đã gửi email hóa đơn");
+                toast.success(tr("Demo: đã gửi email hóa đơn"));
               }}
             >
               Gửi email
             </Button>
           </div>
           <Button className="mt-2 w-full" onClick={onClose}>
-            Đóng
+            {tr("Đóng")}
           </Button>
         </div>
       ) : !connected ? (
@@ -215,10 +217,10 @@ export function ElectronicInvoiceModal({
             điểm kinh doanh (demo).
           </p>
           <Link href="/cai-dat" onClick={onClose}>
-            <Button className="w-full">Mở cài đặt HĐĐT</Button>
+            <Button className="w-full">{tr("Mở cài đặt HĐĐT")}</Button>
           </Link>
           <Button variant="outline" className="w-full" onClick={onClose}>
-            Đóng
+            {tr("Đóng")}
           </Button>
         </div>
       ) : (
@@ -228,19 +230,19 @@ export function ElectronicInvoiceModal({
           </p>
           <div className="rounded-[10px] bg-slate-50 p-3 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
             <p>
-              <span className="text-slate-400">Tài khoản:</span>{" "}
+              <span className="text-slate-400">{tr("Tài khoản:")}</span>{" "}
               {cfg.accountLabel}
             </p>
             <p>
-              <span className="text-slate-400">Mẫu:</span>{" "}
+              <span className="text-slate-400">{tr("Mẫu:")}</span>{" "}
               {cfg.invoiceTemplateLabel}
             </p>
             <p>
-              <span className="text-slate-400">Ký hiệu:</span>{" "}
+              <span className="text-slate-400">{tr("Ký hiệu:")}</span>{" "}
               {cfg.invoiceSeries}
             </p>
             <p>
-              <span className="text-slate-400">Địa điểm:</span> {cfg.storeLabel}
+              <span className="text-slate-400">{tr("Địa điểm:")}</span> {cfg.storeLabel}
             </p>
           </div>
           <fieldset>
@@ -270,15 +272,15 @@ export function ElectronicInvoiceModal({
           </fieldset>
           <label className="block text-sm">
             <span className="mb-1 block font-medium text-slate-500">
-              {customerType === "business" ? "Tên công ty *" : "Họ tên *"}
+              {customerType === "business" ? tr("Tên công ty *") : tr("Họ tên *")}
             </span>
             <Input
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder={
                 customerType === "business"
-                  ? "Công ty TNHH ABC"
-                  : "Nguyễn Văn A"
+                  ? tr("Công ty TNHH ABC")
+                  : tr("Nguyễn Văn A")
               }
             />
           </label>
@@ -294,11 +296,11 @@ export function ElectronicInvoiceModal({
             />
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block font-medium text-slate-500">Địa chỉ</span>
+            <span className="mb-1 block font-medium text-slate-500">{tr("Địa chỉ")}</span>
             <Input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="123 Nguyễn Văn A, TP.HCM"
+              placeholder={tr("123 Nguyễn Văn A, TP.HCM")}
             />
           </label>
           <label className="block text-sm">
@@ -314,10 +316,10 @@ export function ElectronicInvoiceModal({
           </label>
           <div className="flex flex-col gap-2 pt-1 sm:flex-row">
             <Button className="flex-1" onClick={submit} disabled={busy}>
-              {busy ? "Đang phát hành…" : "Phát hành hóa đơn"}
+              {busy ? tr("Đang phát hành…") : tr("Phát hành hóa đơn")}
             </Button>
             <Button variant="outline" className="flex-1" onClick={onClose}>
-              Hủy
+              {tr("Hủy")}
             </Button>
           </div>
         </div>

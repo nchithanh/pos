@@ -1,5 +1,7 @@
 "use client";
 
+import { tr } from "@/lib/i18n/translate";
+
 import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppShell } from "@/components/layout/app-shell";
@@ -104,7 +106,7 @@ export default function PurchasePage() {
           : `Đã nhập kho ${posted.code}`,
       );
     } catch (e) {
-      notify.error(e instanceof Error ? e.message : "Không nhập được");
+      notify.error(e instanceof Error ? e.message : tr("Không nhập được"));
     }
   };
 
@@ -112,12 +114,12 @@ export default function PurchasePage() {
     const supplier = suppliers.find((s) => s.id === supplierId);
     const product = products.find((p) => p.id === productId);
     if (!supplier || !product || !user) {
-      notify.error("Chọn nhà cung cấp và sản phẩm");
+      notify.error(tr("Chọn nhà cung cấp và sản phẩm"));
       return;
     }
     const n = Number(qty) || 0;
     if (n <= 0) {
-      notify.error("Số lượng không hợp lệ");
+      notify.error(tr("Số lượng không hợp lệ"));
       return;
     }
     const po: PurchaseOrder = {
@@ -146,14 +148,14 @@ export default function PurchasePage() {
     savePurchase(po);
     setCreating(false);
     setOpen(po.id);
-    notify.success("Đã tạo đơn nhập — kiểm nhận số thực nhận trước khi nhập kho");
+    notify.success(tr("Đã tạo đơn nhập — kiểm nhận số thực nhận trước khi nhập kho"));
   };
 
   return (
     <AppShell>
       <PageHeader
-        title="Đơn nhập hàng"
-        description="Kiểm nhận theo số thực nhận. Tồn chỉ tăng đúng số hàng tốt đã nhận."
+        title={tr("Đơn nhập hàng")}
+        description={tr("Kiểm nhận theo số thực nhận. Tồn chỉ tăng đúng số hàng tốt đã nhận.")}
         actions={
           <Button size="sm" onClick={() => setCreating((v) => !v)}>
             + Đơn nhập hàng
@@ -164,13 +166,13 @@ export default function PurchasePage() {
       {creating ? (
         <Card className="mb-4 space-y-3 p-4">
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Nhà cung cấp</span>
+            <span className="mb-1 block text-slate-500">{tr("Nhà cung cấp")}</span>
             <select
               className="min-h-11 w-full rounded-[10px] border border-slate-200 px-3 dark:border-slate-700 dark:bg-slate-900"
               value={supplierId}
               onChange={(e) => setSupplierId(e.target.value)}
             >
-              <option value="">Chọn</option>
+              <option value="">{tr("Chọn")}</option>
               {suppliers.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
@@ -179,13 +181,13 @@ export default function PurchasePage() {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Sản phẩm</span>
+            <span className="mb-1 block text-slate-500">{tr("Sản phẩm")}</span>
             <select
               className="min-h-11 w-full rounded-[10px] border border-slate-200 px-3 dark:border-slate-700 dark:bg-slate-900"
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
             >
-              <option value="">Chọn</option>
+              <option value="">{tr("Chọn")}</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
@@ -194,39 +196,39 @@ export default function PurchasePage() {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-slate-500">Số lượng đặt</span>
+            <span className="mb-1 block text-slate-500">{tr("Số lượng đặt")}</span>
             <Input value={qty} onChange={(e) => setQty(e.target.value)} type="number" />
           </label>
-          <Button onClick={create}>Lưu đơn</Button>
+          <Button onClick={create}>{tr("Lưu đơn")}</Button>
         </Card>
       ) : null}
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <FilterChip active={statusFilter === "all"} onClick={() => setStatusFilter("all")}>
-          Tất cả
+          {tr("Tất cả")}
         </FilterChip>
         <FilterChip active={statusFilter === "awaiting_receive"} onClick={() => setStatusFilter("awaiting_receive")}>
-          Chờ kiểm nhận
+          {tr("Chờ kiểm nhận")}
         </FilterChip>
         <FilterChip active={statusFilter === "working"} onClick={() => setStatusFilter("working")}>
           Đang nhập
         </FilterChip>
         <FilterChip active={statusFilter === "done"} onClick={() => setStatusFilter("done")}>
-          Hoàn tất
+          {tr("Hoàn tất")}
         </FilterChip>
         <FilterChip active={range === "7"} onClick={() => setRange(range === "7" ? "all" : "7")}>
-          7 ngày
+          {tr("7 ngày")}
         </FilterChip>
         <FilterChip active={range === "30"} onClick={() => setRange(range === "30" ? "all" : "30")}>
-          30 ngày
+          {tr("30 ngày")}
         </FilterChip>
         <select
           className={fieldClass}
-          aria-label="Nhà cung cấp"
+          aria-label={tr("Nhà cung cấp")}
           value={supplierFilter}
           onChange={(e) => setSupplierFilter(e.target.value)}
         >
-          <option value="all">Mọi nhà cung cấp</option>
+          <option value="all">{tr("Mọi nhà cung cấp")}</option>
           {suppliers.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name}
@@ -237,8 +239,8 @@ export default function PurchasePage() {
 
       {visible.length === 0 ? (
         <EmptyBlock
-          title="Chưa có phiếu nhập"
-          body="Tạo đơn nhập để kiểm nhận số thực nhận trước khi cộng tồn."
+          title={tr("Chưa có phiếu nhập")}
+          body={tr("Tạo đơn nhập để kiểm nhận số thực nhận trước khi cộng tồn.")}
         />
       ) : null}
 
@@ -270,7 +272,7 @@ export default function PurchasePage() {
             {current?.id === po.id ? (
               <Card className="mt-2 space-y-3 p-4">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-bold">Thực nhận</h2>
+                  <h2 className="text-sm font-bold">{tr("Thực nhận")}</h2>
                   <PackageBadge tier="basic" />
                 </div>
                 {po.lines.map((line, index) => {
@@ -280,7 +282,7 @@ export default function PurchasePage() {
                       <p className="font-semibold">{line.name}</p>
                       <p className="text-slate-500">Đặt {line.ordered} · Giá {formatVnd(line.cost)}</p>
                       <label className="mt-2 block">
-                        <span className="mb-1 block text-slate-500">Thực nhận</span>
+                        <span className="mb-1 block text-slate-500">{tr("Thực nhận")}</span>
                         <Input
                           type="number"
                           value={line.received}
@@ -291,7 +293,7 @@ export default function PurchasePage() {
                         />
                       </label>
                       <label className="mt-2 block">
-                        <span className="mb-1 block text-slate-500">Hàng hỏng (không nhập bán)</span>
+                        <span className="mb-1 block text-slate-500">{tr("Hàng hỏng (không nhập bán)")}</span>
                         <Input
                           type="number"
                           value={line.damaged}
@@ -306,7 +308,7 @@ export default function PurchasePage() {
                           {gap > 0 ? `Thiếu ${gap}` : `Thừa ${-gap}`}
                         </p>
                       ) : (
-                        <p className="mt-2 text-emerald-700">Đủ hàng</p>
+                        <p className="mt-2 text-emerald-700">{tr("Đủ hàng")}</p>
                       )}
                     </div>
                   );
@@ -319,11 +321,11 @@ export default function PurchasePage() {
                       0,
                     ),
                   )}
-                  {po.payLater ? " · ghi công nợ nhà cung cấp" : ""}
+                  {po.payLater ? tr(" · ghi công nợ nhà cung cấp") : ""}
                 </p>
                 {po.status !== "done" ? (
                   <Button className="w-full" onClick={() => void confirm(po)}>
-                    Xác nhận nhập kho
+                    {tr("Xác nhận nhập kho")}
                   </Button>
                 ) : (
                   <p className="text-sm text-emerald-700">

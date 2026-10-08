@@ -46,6 +46,7 @@ export const EN: Record<string, string> = {
   "Nội bộ": "Internal",
   "Đơn vị": "Unit",
   "Tất cả": "All",
+  "{count} dòng": "{count} lines",
   "Đã xóa": "Deleted",
   "Khách:": "Customer:",
   "Họ tên": "Full name",

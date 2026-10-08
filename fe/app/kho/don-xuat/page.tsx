@@ -218,25 +218,36 @@ export default function OutboundPage() {
             return s + l.requested * cost;
           }, 0);
           return (
-            <li key={order.id} className="group">
+            <li key={order.id}>
               <button
                 type="button"
-                className="flex w-full items-center justify-between gap-3 rounded-[10px] border border-slate-200 px-3 py-3 text-left shadow-sm hover:border-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-700"
+                className="w-full rounded-[10px] border border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition hover:border-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900"
                 onClick={() => setOpen(order.id === open ? null : order.id)}
+                aria-expanded={open === order.id}
               >
-                <span className="min-w-0">
-                  <span className="font-semibold">
-                    {order.code} · {order.requester}
+                <span className="flex items-start justify-between gap-3">
+                  <span className="min-w-0 truncate text-sm font-bold tracking-tight">
+                    {order.code}
                   </span>
-                  <span className="block text-xs text-slate-500">
-                    {formatDateTime(order.createdAt)} · {order.purpose} · {order.lines.length} dòng · {formatVnd(total)}
-                  </span>
+                  <StatusPill
+                    label={OUTBOUND_LABEL[order.status]}
+                    tone={outboundTone(order.status)}
+                  />
                 </span>
-                <span className="flex items-center gap-2">
-                  <span className="hidden text-xs font-semibold text-emerald-700 group-hover:inline">
-                    Mở phiếu
+                <span className="mt-1 block truncate text-sm font-medium text-slate-800 dark:text-slate-100">
+                  {order.requester}
+                </span>
+                <span className="mt-2 flex items-end justify-between gap-3">
+                  <span className="min-w-0 text-xs text-slate-500">
+                    {formatDateTime(order.createdAt)}
+                    <span className="mx-1 text-slate-300">·</span>
+                    {order.purpose}
+                    <span className="mx-1 text-slate-300">·</span>
+                    {tr("{count} dòng", { count: order.lines.length })}
                   </span>
-                  <StatusPill label={OUTBOUND_LABEL[order.status]} tone={outboundTone(order.status)} />
+                  <span className="shrink-0 text-sm font-bold tabular-nums text-slate-900 dark:text-slate-50">
+                    {formatVnd(total)}
+                  </span>
                 </span>
               </button>
               {open === order.id && line ? (

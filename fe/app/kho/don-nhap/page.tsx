@@ -248,25 +248,36 @@ export default function PurchasePage() {
         {visible.map((po) => {
           const total = po.lines.reduce((s, l) => s + l.ordered * l.cost, 0);
           return (
-          <li key={po.id} className="group">
+          <li key={po.id}>
             <button
               type="button"
-              className="flex w-full items-center justify-between gap-3 rounded-[10px] border border-slate-200 px-3 py-3 text-left shadow-sm hover:border-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-700"
+              className="w-full rounded-[10px] border border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition hover:border-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900"
               onClick={() => setOpen(po.id === open ? null : po.id)}
+              aria-expanded={current?.id === po.id}
             >
-              <span className="min-w-0">
-                <span className="block font-semibold">
-                  {po.code} · {po.supplierName}
+              <span className="flex items-start justify-between gap-3">
+                <span className="min-w-0 truncate text-sm font-bold tracking-tight">
+                  {po.code}
                 </span>
-                <span className="text-xs text-slate-500">
-                  {formatDateTime(po.createdAt)} · {po.createdBy} · {po.lines.length} dòng · {formatVnd(total)}
-                </span>
+                <StatusPill
+                  label={PURCHASE_LABEL[po.status]}
+                  tone={purchaseTone(po.status)}
+                />
               </span>
-              <span className="flex items-center gap-2">
-                <span className="hidden text-xs font-semibold text-emerald-700 group-hover:inline">
-                  Mở phiếu
+              <span className="mt-1 block truncate text-sm font-medium text-slate-800 dark:text-slate-100">
+                {po.supplierName}
+              </span>
+              <span className="mt-2 flex items-end justify-between gap-3">
+                <span className="min-w-0 text-xs text-slate-500">
+                  {formatDateTime(po.createdAt)}
+                  <span className="mx-1 text-slate-300">·</span>
+                  {po.createdBy}
+                  <span className="mx-1 text-slate-300">·</span>
+                  {tr("{count} dòng", { count: po.lines.length })}
                 </span>
-                <StatusPill label={PURCHASE_LABEL[po.status]} tone={purchaseTone(po.status)} />
+                <span className="shrink-0 text-sm font-bold tabular-nums text-slate-900 dark:text-slate-50">
+                  {formatVnd(total)}
+                </span>
               </span>
             </button>
             {current?.id === po.id ? (

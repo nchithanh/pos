@@ -602,6 +602,13 @@ export const EN: Record<string, string> = {
   "Chọn hai tài khoản khác nhau": "Choose two different accounts",
   "Nhập số điện thoại hoặc email": "Enter a phone number or email",
   "Đã copy nội dung chuyển khoản": "Transfer details copied",
+  "Đã mở Zalo — dán bill đã copy nếu cần": "Zalo opened — paste the copied bill if needed",
+  "Đã mở Zalo. Nội dung bill đã copy — dán vào chat nếu cần.":
+    "Zalo opened. Bill text was copied — paste it into the chat if needed.",
+  "Đã mở email với nội dung bill.": "Email opened with the bill details.",
+  "Đã mở Zalo và email. Bill đã copy vào clipboard.":
+    "Zalo and email opened. Bill text was copied to the clipboard.",
+  "Không gửi được bill": "Could not send the bill",
   "Bấm Thêm danh mục để bắt đầu.": "Click Add category to start.",
   "Sandbox thật (cần credential)": "Live sandbox (needs credentials)",
   "Khớp sổ, không cần điều chỉnh": "Matches the book, no adjustment",

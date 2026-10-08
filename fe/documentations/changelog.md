@@ -3,7 +3,7 @@
 ## 2026-10-08
 
 - **Sparkline Kho/Tài chính:** SVG `shrink-0`; series 7 ngày local. Kho fallback SL bán từ đơn khi chưa có phiếu `movements` (tránh đường ngang).
-- **Gửi bill:** có SĐT → mở Zalo (`zalo.me/{số}`) + copy nội dung bill; có email → `mailto`. Không còn fake demo.
+- **Gửi bill:** ưu tiên `navigator.share` (giống CK — chọn Zalo kèm mã đơn/mặt hàng/tổng tiền); fallback mở `zalo.me` + copy hoặc `mailto`.
 - **UI VI/EN:** nhãn chrome (menu, nút, trạng thái, toast) dịch theo `fe/lib/i18n`. JSON `fe/data/**` giữ nguyên. Mặc định theo ngôn ngữ máy; header **VI | EN** và Cài đặt lưu `dolphin-pos-lang`. Ẩn chọn Light/Dark. Ngày/số theo locale, hậu tố tiền vẫn `đ`.
 - **Dolphin AI:** thẻ khách lâu chưa mua thêm nút **Zalo** (`https://zalo.me/{sđt}`), cạnh Gọi.
 - **In bill:** cửa sổ in đơn mở nội dung bill, không còn trang `about:blank`.

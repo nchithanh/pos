@@ -609,6 +609,11 @@ export const EN: Record<string, string> = {
   "Đã mở Zalo và email. Bill đã copy vào clipboard.":
     "Zalo and email opened. Bill text was copied to the clipboard.",
   "Không gửi được bill": "Could not send the bill",
+  "Đã copy nội dung bill": "Bill text copied",
+  "Đã mở chia sẻ — chọn Zalo để gửi bill (mã đơn, mặt hàng, tổng tiền).":
+    "Share sheet opened — pick Zalo to send the bill (code, items, total).",
+  "Trên điện thoại sẽ mở chia sẻ hệ thống — chọn Zalo để gửi kèm tổng tiền và chi tiết bill.":
+    "On phone, the system share sheet opens — pick Zalo to send the total and bill details.",
   "Bấm Thêm danh mục để bắt đầu.": "Click Add category to start.",
   "Sandbox thật (cần credential)": "Live sandbox (needs credentials)",
   "Khớp sổ, không cần điều chỉnh": "Matches the book, no adjustment",

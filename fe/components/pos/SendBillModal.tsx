@@ -50,7 +50,9 @@ export function SendBillModal({
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
-  const [via, setVia] = useState<"zalo" | "email" | "both" | null>(null);
+  const [via, setVia] = useState<"share" | "zalo" | "email" | "both" | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!open || !order) return;
@@ -66,7 +68,9 @@ export function SendBillModal({
     const p = phone.trim();
     const e = email.trim();
     const digits = digitsOnly(p);
-    if (!p && !e) {
+    const canShare = typeof navigator.share === "function";
+
+    if (!canShare && !p && !e) {
       toast.error(tr("Nhập số điện thoại hoặc email"));
       return;
     }
@@ -81,25 +85,57 @@ export function SendBillModal({
 
     setSending(true);
     const text = billText(order);
-    let openedZalo = false;
-    let openedMail = false;
+    const title = `Bill ${order.code} · ${formatVnd(order.total)}`;
 
     try {
+      // Giống CK: share sheet → chọn Zalo (kèm mã đơn / dòng hàng / tổng tiền).
+      if (canShare) {
+        try {
+          await navigator.share({ title, text });
+          setVia("share");
+          setSent(true);
+          return;
+        } catch (err) {
+          if (err instanceof Error && err.name === "AbortError") return;
+          /* fallback bên dưới */
+        }
+      }
+
+      let openedZalo = false;
+      let openedMail = false;
+
       if (digits) {
         try {
           await navigator.clipboard.writeText(text);
         } catch {
           /* vẫn mở Zalo */
         }
-        window.open(`https://zalo.me/${digits}`, "_blank", "noopener,noreferrer");
+        window.open(
+          `https://zalo.me/${digits}`,
+          "_blank",
+          "noopener,noreferrer",
+        );
         openedZalo = true;
       }
       if (e) {
-        const subject = encodeURIComponent(`Bill ${order.code}`);
+        const subject = encodeURIComponent(title);
         const body = encodeURIComponent(text);
-        window.open(`mailto:${e}?subject=${subject}&body=${body}`, "_self");
+        window.location.href = `mailto:${e}?subject=${subject}&body=${body}`;
         openedMail = true;
       }
+
+      if (!openedZalo && !openedMail) {
+        try {
+          await navigator.clipboard.writeText(text);
+          toast.success(tr("Đã copy nội dung bill"));
+          setVia("share");
+          setSent(true);
+        } catch {
+          toast.error(tr("Không gửi được bill"));
+        }
+        return;
+      }
+
       setVia(openedZalo && openedMail ? "both" : openedZalo ? "zalo" : "email");
       setSent(true);
       if (openedZalo) {
@@ -113,11 +149,13 @@ export function SendBillModal({
   };
 
   const successHint =
-    via === "zalo"
-      ? tr("Đã mở Zalo. Nội dung bill đã copy — dán vào chat nếu cần.")
-      : via === "email"
-        ? tr("Đã mở email với nội dung bill.")
-        : tr("Đã mở Zalo và email. Bill đã copy vào clipboard.");
+    via === "share"
+      ? tr("Đã mở chia sẻ — chọn Zalo để gửi bill (mã đơn, mặt hàng, tổng tiền).")
+      : via === "zalo"
+        ? tr("Đã mở Zalo. Nội dung bill đã copy — dán vào chat nếu cần.")
+        : via === "email"
+          ? tr("Đã mở email với nội dung bill.")
+          : tr("Đã mở Zalo và email. Bill đã copy vào clipboard.");
 
   return (
     <Dialog
@@ -143,8 +181,17 @@ export function SendBillModal({
               <span className="font-semibold text-slate-800 dark:text-slate-100">
                 {order.code}
               </span>
+              {" · "}
+              <span className="font-semibold text-emerald-600">
+                {formatVnd(order.total)}
+              </span>
             </p>
           ) : null}
+          <p className="text-xs text-slate-500">
+            {tr(
+              "Trên điện thoại sẽ mở chia sẻ hệ thống — chọn Zalo để gửi kèm tổng tiền và chi tiết bill.",
+            )}
+          </p>
           <label className="block text-sm">
             <span className="mb-1 block font-medium text-slate-500">
               {tr("Số điện thoại")} (Zalo)
@@ -172,7 +219,11 @@ export function SendBillModal({
             />
           </label>
           <div className="flex flex-col gap-2 pt-2 sm:flex-row">
-            <Button className="flex-1" onClick={() => void submit()} disabled={sending}>
+            <Button
+              className="flex-1"
+              onClick={() => void submit()}
+              disabled={sending}
+            >
               {sending ? tr("Đang gửi…") : tr("Gửi bill")}
             </Button>
             <Button variant="outline" className="flex-1" onClick={onClose}>

@@ -114,19 +114,26 @@ export function outboundTone(status: string): "ok" | "warn" | "danger" | "neutra
 
 export function Sparkline({ points }: { points: number[] }) {
   const nums = points.length > 1 ? points : [0, 0];
-  const max = Math.max(...nums, 1);
-  const min = Math.min(...nums, 0);
+  const max = Math.max(...nums);
+  const min = Math.min(...nums);
+  const span = max - min || 1;
   const w = 72;
   const h = 28;
   const d = nums
     .map((n, i) => {
       const x = (i / (nums.length - 1)) * w;
-      const y = h - ((n - min) / (max - min || 1)) * (h - 4) - 2;
+      const y = h - ((n - min) / span) * (h - 4) - 2;
       return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
     })
     .join(" ");
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden className="text-emerald-500">
+    <svg
+      width={w}
+      height={h}
+      viewBox={`0 0 ${w} ${h}`}
+      aria-hidden
+      className="h-7 w-[72px] shrink-0 text-emerald-500"
+    >
       <path d={d} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );

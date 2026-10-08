@@ -31,6 +31,14 @@ export default function WarehouseOverviewPage() {
       () => db.movements.filter((m) => inBranch(m.branchId, branchId)).toArray(),
       [branchId],
     ) ?? [];
+  const orders =
+    useLiveQuery(
+      () =>
+        db.orders
+          .filter((o) => o.status !== "void" && inBranch(o.branchId, branchId))
+          .toArray(),
+      [branchId],
+    ) ?? [];
   const purchases = useWarehouseStore((s) => s.purchases);
   const outbounds = useWarehouseStore((s) => s.outbounds);
   const active = products.filter((p) => p.active);
@@ -44,15 +52,27 @@ export default function WarehouseOverviewPage() {
   );
 
   const series = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
+    const days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
+      d.setHours(12, 0, 0, 0);
       d.setDate(d.getDate() - (6 - i));
-      const day = d.toISOString().slice(0, 10);
-      return movements
-        .filter((m) => m.createdAt.slice(0, 10) === day)
-        .reduce((s, m) => s + m.items.reduce((a, line) => a + line.quantity, 0), 0);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      return `${y}-${m}-${String(d.getDate()).padStart(2, "0")}`;
     });
-  }, [movements]);
+    const fromMovements = days.map((day) =>
+      movements
+        .filter((mv) => mv.createdAt.slice(0, 10) === day)
+        .reduce((s, mv) => s + mv.items.reduce((a, line) => a + line.quantity, 0), 0),
+    );
+    if (fromMovements.some((n) => n > 0)) return fromMovements;
+    // Seed demo thường có đơn nhưng chưa có phiếu kho — dùng SL bán 7 ngày.
+    return days.map((day) =>
+      orders
+        .filter((o) => o.createdAt.slice(0, 10) === day)
+        .reduce((s, o) => s + o.items.reduce((a, line) => a + line.quantity, 0), 0),
+    );
+  }, [movements, orders]);
   const trendUp = series[series.length - 1] >= series[0];
 
   const inbound = {
